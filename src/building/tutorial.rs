@@ -206,7 +206,11 @@ mod tests {
         let lib = crate::building::block_defs::load_block_library();
         assert_eq!(tut.steps.len(), 3);
         for step in &tut.steps {
-            assert!(lib.by_id.contains_key(&step.block_id), "教程引用未知积木 {}", step.block_id);
+            assert!(
+                lib.by_id.contains_key(&step.block_id),
+                "教程引用未知积木 {}",
+                step.block_id
+            );
             assert!(!step.cells.is_empty());
         }
     }

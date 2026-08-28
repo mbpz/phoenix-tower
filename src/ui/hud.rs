@@ -104,7 +104,11 @@ fn update_hint(
             "★".repeat(challenge.stars as usize),
             t("再来一局", "again", lang)
         ),
-        ChallengeState::Failed => format!("⏱ {}（C {}）", t("挑战失败", "Failed", lang), t("重试", "retry", lang)),
+        ChallengeState::Failed => format!(
+            "⏱ {}（C {}）",
+            t("挑战失败", "Failed", lang),
+            t("重试", "retry", lang)
+        ),
         ChallengeState::Idle => String::new(),
     };
     let stability_line = match stability.state {
@@ -123,21 +127,30 @@ fn update_hint(
         TestState::Idle => String::new(),
     };
     let tool_line = if remove.active {
-        t("🔧 拆除模式：点击移除积木（X 退出）", "🔧 Remove mode: click to remove (X)", lang).to_string()
+        t(
+            "🔧 拆除模式：点击移除积木（X 退出）",
+            "🔧 Remove mode: click to remove (X)",
+            lang,
+        )
+        .to_string()
     } else {
         String::new()
     };
     let keys_line = match lang {
-        Lang::Zh => "左键:放置  左拖:旋转  右拖:平移  滚轮:缩放\n\
+        Lang::Zh => {
+            "左键:放置  左拖:旋转  右拖:平移  滚轮:缩放\n\
          撤销:Backspace/Ctrl+Z  重做:Ctrl+Y（20 步）\n\
          1-9:选积木  Q/E:切换  R:旋转90°  X:拆除  M:蓝图/自由\n\
          L:中/英  T:昼夜  G:重力测试  C:挑战\n\
-         F2:截图  F5:保存  F6:JSON  F7:分享  F8:导入  F9:槽位",
-        Lang::En => "LMB:place  LMB-drag:orbit  RMB-drag:pan  wheel:zoom\n\
+         F2:截图  F5:保存  F6:JSON  F7:分享  F8:导入  F9:槽位"
+        }
+        Lang::En => {
+            "LMB:place  LMB-drag:orbit  RMB-drag:pan  wheel:zoom\n\
          undo:Backspace/Ctrl+Z  redo:Ctrl+Y (20)\n\
          1-9:blocks  Q/E:cycle  R:rotate  X:remove  M:blueprint/free\n\
          L:zh/en  T:day/night  G:physics  C:challenge\n\
-         F2:shot  F5:save  F6:JSON  F7:share  F8:import  F9:slot",
+         F2:shot  F5:save  F6:JSON  F7:share  F8:import  F9:slot"
+        }
     };
     text.0 = format!(
         "{keys_line}\n\

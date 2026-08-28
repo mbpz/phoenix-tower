@@ -71,9 +71,9 @@ pub enum SoundKind {
 pub fn sound_kind_for(category: &BlockCategory) -> SoundKind {
     match category {
         BlockCategory::Base | BlockCategory::Roof => SoundKind::Stone,
-        BlockCategory::Structure
-        | BlockCategory::Decoration
-        | BlockCategory::Special => SoundKind::Wood,
+        BlockCategory::Structure | BlockCategory::Decoration | BlockCategory::Special => {
+            SoundKind::Wood
+        }
     }
 }
 

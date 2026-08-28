@@ -116,10 +116,10 @@ pub fn load_challenge() -> Challenge {
     let Some(path) = files.first() else {
         panic!("resources/challenges/ 下未找到任何挑战 (.ron)");
     };
-    let text = std::fs::read_to_string(&path)
+    let text = std::fs::read_to_string(path)
         .unwrap_or_else(|e| panic!("读取挑战失败 {}: {e}", path.display()));
-    let def: ChallengeDef = ron::from_str(&text)
-        .unwrap_or_else(|e| panic!("解析挑战失败 {}: {e}", path.display()));
+    let def: ChallengeDef =
+        ron::from_str(&text).unwrap_or_else(|e| panic!("解析挑战失败 {}: {e}", path.display()));
 
     let quota_left = def.quota.iter().cloned().collect();
     Challenge {
@@ -250,7 +250,11 @@ fn challenge_tick(
             "🏆 挑战完成「{}」！{}{}",
             challenge.def.name,
             "★".repeat(challenge.stars as usize),
-            if challenge.stars == 3 { " 完美！" } else { "" }
+            if challenge.stars == 3 {
+                " 完美！"
+            } else {
+                ""
+            }
         );
     }
 }

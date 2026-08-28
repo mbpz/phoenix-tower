@@ -187,14 +187,16 @@ fn rotated_footprint(def: &BlockDef, rot: u8) -> (u32, u32) {
 /// 以光标格为中心对齐的 footprint 锚点（左上角格，仅 x/z）。
 fn anchor_xz(center: (i32, i32), def: &BlockDef, rot: u8) -> (i32, i32) {
     let (w, d) = rotated_footprint(def, rot);
-    (
-        center.0 - (w as i32 - 1) / 2,
-        center.1 - (d as i32 - 1) / 2,
-    )
+    (center.0 - (w as i32 - 1) / 2, center.1 - (d as i32 - 1) / 2)
 }
 
 /// footprint 覆盖的列集合。
-pub(crate) fn footprint_columns(def: &BlockDef, anchor_x: i32, anchor_z: i32, rot: u8) -> Vec<(i32, i32)> {
+pub(crate) fn footprint_columns(
+    def: &BlockDef,
+    anchor_x: i32,
+    anchor_z: i32,
+    rot: u8,
+) -> Vec<(i32, i32)> {
     let (w, d) = rotated_footprint(def, rot);
     let (w, d) = (w as i32, d as i32);
     let mut cols = Vec::with_capacity((w * d) as usize);
@@ -412,7 +414,12 @@ fn update_ghost_preview(
     windows: Query<&Window, With<PrimaryWindow>>,
     cameras: Query<(&Camera, &GlobalTransform), With<Camera3d>>,
     mut ghost: Query<
-        (Entity, &mut Transform, &mut Mesh3d, &mut MeshMaterial3d<StandardMaterial>),
+        (
+            Entity,
+            &mut Transform,
+            &mut Mesh3d,
+            &mut MeshMaterial3d<StandardMaterial>,
+        ),
         With<GhostBlock>,
     >,
     library: Res<BlockLibrary>,
@@ -458,7 +465,9 @@ fn update_ghost_preview(
             commands.spawn((
                 Mesh3d(mesh_handle.clone()),
                 MeshMaterial3d(ghost_mat),
-                Transform::from_translation(pos).with_rotation(ghost_rot).with_scale(pulse),
+                Transform::from_translation(pos)
+                    .with_rotation(ghost_rot)
+                    .with_scale(pulse),
                 GhostBlock,
                 Name::new("GhostBlock"),
             ));
@@ -498,9 +507,10 @@ fn handle_place_and_undo(
     mut challenge: ResMut<Challenge>,
     remove: Res<RemoveMode>,
 ) {
-    let modifier =
-        keys.pressed(KeyCode::ControlLeft) || keys.pressed(KeyCode::ControlRight)
-            || keys.pressed(KeyCode::SuperLeft) || keys.pressed(KeyCode::SuperRight);
+    let modifier = keys.pressed(KeyCode::ControlLeft)
+        || keys.pressed(KeyCode::ControlRight)
+        || keys.pressed(KeyCode::SuperLeft)
+        || keys.pressed(KeyCode::SuperRight);
     let rot_override = challenge.def.rotation_locked && challenge.is_active();
 
     // 撤销
@@ -670,7 +680,11 @@ fn handle_place_and_undo(
 }
 
 /// 蓝图模式下实时刷新完成度；≥95% 触发完成事件。
-pub(crate) fn refresh_completion(stack: &PlacedBlocks, library: &BlockLibrary, blueprint: &mut Blueprint) {
+pub(crate) fn refresh_completion(
+    stack: &PlacedBlocks,
+    library: &BlockLibrary,
+    blueprint: &mut Blueprint,
+) {
     let placed: HashMap<IVec3, String> = stack
         .records
         .iter()

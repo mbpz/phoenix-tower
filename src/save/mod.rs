@@ -99,7 +99,10 @@ fn env_load_system(
                 &placed_query,
                 save,
             );
-            info!("🧪 PHOENIX_LOAD 导入完成：{}（{loaded} 个积木）", path.display());
+            info!(
+                "🧪 PHOENIX_LOAD 导入完成：{}（{loaded} 个积木）",
+                path.display()
+            );
         }
         Err(e) => error!("🧪 PHOENIX_LOAD 导入失败: {e}"),
     }
@@ -224,7 +227,11 @@ fn handle_save_load(
     placed_query: Query<Entity, With<PlacedBlock>>,
 ) {
     let dir = saves_dir();
-    let mode = if blueprint.active { "blueprint" } else { "free" };
+    let mode = if blueprint.active {
+        "blueprint"
+    } else {
+        "free"
+    };
 
     if keys.just_pressed(KeyCode::F5) {
         let save = build_save(&stack, &blueprint, mode);
@@ -374,7 +381,11 @@ mod tests {
     use crate::building::placement::PlacedBlocks;
 
     fn setup() -> (PlacedBlocks, Blueprint, BlockLibrary) {
-        (PlacedBlocks::default(), load_blueprint(), load_block_library())
+        (
+            PlacedBlocks::default(),
+            load_blueprint(),
+            load_block_library(),
+        )
     }
 
     #[test]

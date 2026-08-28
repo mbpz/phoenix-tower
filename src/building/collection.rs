@@ -51,7 +51,7 @@ pub fn achievement_name(id: &str) -> &'static str {
 // ---------- 运行时状态 ----------
 
 /// 收藏系统运行态（图鉴 + 稀有 + 成就 + 检测状态）。
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct Collection {
     /// 已解锁图鉴条目（积木 ID）
     pub codex: HashSet<String>,
@@ -79,22 +79,6 @@ pub struct Updates {
     pub codex: Vec<String>,
     pub rare: Vec<String>,
     pub achievements: Vec<String>,
-}
-
-impl Default for Collection {
-    fn default() -> Self {
-        Self {
-            codex: HashSet::new(),
-            rare: HashSet::new(),
-            achievements: HashSet::new(),
-            blueprint_completed_seen: false,
-            blueprint_active_prev: false,
-            undo_used_this_run: false,
-            challenge_won_seen: false,
-            last_revision: 0,
-            dirty: false,
-        }
-    }
 }
 
 impl Collection {
@@ -341,11 +325,22 @@ mod tests {
     fn flawless_requires_no_undo() {
         let mut col = Collection::default();
         // 用了一次撤销后再完成
-        col.update(&stack_with(1), false, true, ChallengeState::Idle, 0, true, 1);
+        col.update(
+            &stack_with(1),
+            false,
+            true,
+            ChallengeState::Idle,
+            0,
+            true,
+            1,
+        );
         let stack = stack_with(5);
         let u = col.update(&stack, true, true, ChallengeState::Idle, 0, false, 1);
         assert!(u.achievements.contains(&ACH_FIRST.to_string()));
-        assert!(!u.achievements.contains(&ACH_FLAWLESS.to_string()), "用过撤销不应解锁一气呵成");
+        assert!(
+            !u.achievements.contains(&ACH_FLAWLESS.to_string()),
+            "用过撤销不应解锁一气呵成"
+        );
     }
 
     #[test]
@@ -373,9 +368,25 @@ mod tests {
     #[test]
     fn builder_achievement_at_30() {
         let mut col = Collection::default();
-        let u = col.update(&stack_with(29), false, false, ChallengeState::Idle, 0, false, 1);
+        let u = col.update(
+            &stack_with(29),
+            false,
+            false,
+            ChallengeState::Idle,
+            0,
+            false,
+            1,
+        );
         assert!(!u.achievements.contains(&ACH_BUILDER.to_string()));
-        let u2 = col.update(&stack_with(30), false, false, ChallengeState::Idle, 0, false, 1);
+        let u2 = col.update(
+            &stack_with(30),
+            false,
+            false,
+            ChallengeState::Idle,
+            0,
+            false,
+            1,
+        );
         assert!(u2.achievements.contains(&ACH_BUILDER.to_string()));
     }
 

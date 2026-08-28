@@ -109,8 +109,7 @@ pub fn load_blueprint_library() -> (Blueprint, BlueprintLibrary) {
         .map(|path| {
             let text = std::fs::read_to_string(path)
                 .unwrap_or_else(|e| panic!("读取蓝图失败 {}: {e}", path.display()));
-            ron::from_str(&text)
-                .unwrap_or_else(|e| panic!("解析蓝图失败 {}: {e}", path.display()))
+            ron::from_str(&text).unwrap_or_else(|e| panic!("解析蓝图失败 {}: {e}", path.display()))
         })
         .collect();
     defs.sort_by_key(|d| d.order);
@@ -138,7 +137,9 @@ pub fn load_blueprint() -> Blueprint {
 
 /// 放置块 footprint 是否完全匹配蓝图期望（每格 id 一致且均在蓝图内）。
 pub fn footprint_matches(expected: &HashMap<IVec3, String>, cells: &[IVec3], def_id: &str) -> bool {
-    cells.iter().all(|c| expected.get(c).is_some_and(|id| id == def_id))
+    cells
+        .iter()
+        .all(|c| expected.get(c).is_some_and(|id| id == def_id))
 }
 
 /// ADR-005 层级权重。

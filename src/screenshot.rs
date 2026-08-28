@@ -12,9 +12,7 @@ use bevy::asset::RenderAssetUsages;
 use bevy::camera::{ImageRenderTarget, RenderTarget};
 use bevy::image::Image;
 use bevy::prelude::*;
-use bevy::render::render_resource::{
-    Extent3d, TextureDimension, TextureFormat, TextureUsages,
-};
+use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat, TextureUsages};
 use bevy::render::view::screenshot::{save_to_disk, Screenshot};
 
 /// 离屏截图相机标记
@@ -88,7 +86,9 @@ fn screenshot_trigger(
 ) {
     if !*env_checked {
         *env_checked = true;
-        *env_enabled = std::env::var("PHOENIX_SHOT").map(|v| v == "1").unwrap_or(false);
+        *env_enabled = std::env::var("PHOENIX_SHOT")
+            .map(|v| v == "1")
+            .unwrap_or(false);
     }
     *frames += 1;
     let auto_shot = *env_enabled && !*env_shot_fired && *frames >= 120;
@@ -110,7 +110,7 @@ fn arm_capture_camera(
 ) {
     // 每帧同步视角（截图与玩家所见一致）
     if let (Ok(mut cap), Ok(main)) = (capture_cam.single_mut(), main_cam.single()) {
-        *cap.1 = main.clone();
+        *cap.1 = *main;
     }
 
     let armed = capture.armed;

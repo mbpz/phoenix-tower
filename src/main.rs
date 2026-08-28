@@ -3,6 +3,9 @@
 //! 当前阶段：Phase 1 起步（B-06 数据驱动积木 + B-13 场景基础）。
 //! 任务追踪见 docs/BACKLOG.md，产品方案见 docs/PRD.md。
 
+// Bevy 系统以独立参数表达依赖，参数数量超 lint 阈值是正常形态
+#![allow(clippy::too_many_arguments)]
+
 mod audio;
 mod building;
 mod camera;
@@ -25,8 +28,8 @@ use building::collection::CollectionPlugin;
 use building::placement::PlacementPlugin;
 use building::tutorial::TutorialPlugin;
 use camera::orbit_camera::OrbitCameraPlugin;
-use i18n::I18nPlugin;
 use game_state::GameState;
+use i18n::I18nPlugin;
 use save::SavePlugin;
 use scene::ScenePlugin;
 use screenshot::ScreenshotPlugin;

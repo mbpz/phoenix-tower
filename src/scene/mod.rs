@@ -16,7 +16,10 @@ impl Plugin for ScenePlugin {
                 ..default()
             })
             .insert_resource(SkyState::default())
-            .add_systems(Startup, (setup_ground, setup_snake_hill, setup_river, setup_sun))
+            .add_systems(
+                Startup,
+                (setup_ground, setup_snake_hill, setup_river, setup_sun),
+            )
             .add_systems(Update, day_night_system);
     }
 }

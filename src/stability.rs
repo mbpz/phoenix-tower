@@ -12,7 +12,7 @@ use bevy::prelude::*;
 
 use crate::building::block_defs::BlockLibrary;
 use crate::building::placement::{
-    block_center, spawn_block_entity, PlacedBlock, PlacedBlocks, BlockRenderAssets,
+    block_center, spawn_block_entity, BlockRenderAssets, PlacedBlock, PlacedBlocks,
 };
 
 /// 测试沉降时间（秒）

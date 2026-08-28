@@ -16,8 +16,19 @@ impl Plugin for OrbitCameraPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(OrbitCamera::default())
             .add_systems(Startup, spawn_orbit_camera)
-            .add_systems(Update, orbit_camera_system);
+            .add_systems(
+                Update,
+                (completion_autopilot_system, orbit_camera_system).chain(),
+            );
     }
+}
+
+/// 观赏自动驾驶目标（PRD §3.2：完成时自动切换固定观赏视角）。
+#[derive(Clone, Copy, Debug)]
+pub struct AutoPilot {
+    pub goal_yaw: f32,
+    pub goal_pitch: f32,
+    pub goal_distance: f32,
 }
 
 /// 轨道相机参数（资源，而非实体组件：单相机、跨系统共享）。
@@ -31,6 +42,8 @@ pub struct OrbitCamera {
     pub pitch: f32,
     /// 相机到目标的距离
     pub distance: f32,
+    /// 观赏自动驾驶（完成时启用；玩家输入即接管）
+    pub autopilot: Option<AutoPilot>,
 }
 
 impl Default for OrbitCamera {
@@ -40,6 +53,7 @@ impl Default for OrbitCamera {
             yaw: 0.6,
             pitch: 0.55,
             distance: 28.0,
+            autopilot: None,
         }
     }
 }
@@ -79,6 +93,7 @@ fn spawn_orbit_camera(mut commands: Commands, orbit: Res<OrbitCamera>) {
 fn orbit_camera_system(
     mut orbit: ResMut<OrbitCamera>,
     mut camera_query: Query<&mut Transform, With<Camera3d>>,
+    time: Res<Time>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     mouse_motion: Res<AccumulatedMouseMotion>,
     mouse_scroll: Res<AccumulatedMouseScroll>,
@@ -86,6 +101,28 @@ fn orbit_camera_system(
     // Bevy 0.19：鼠标位移/滚轮为逐帧累加资源（每帧自动清零）
     let drag_delta = mouse_motion.delta;
     let scroll = mouse_scroll.delta.y;
+    let input_active = drag_delta.length() > 0.0
+        || scroll.abs() > 0.0
+        || mouse_buttons.any_pressed([MouseButton::Left, MouseButton::Middle, MouseButton::Right]);
+
+    // 观赏自动驾驶（PRD §3.2）：无输入时朝目标平滑过渡；玩家输入即接管
+    if let Some(pilot) = orbit.autopilot {
+        if input_active {
+            orbit.autopilot = None; // 玩家接管
+        } else {
+            let (next, done) = autopilot_step(
+                (orbit.yaw, orbit.pitch, orbit.distance),
+                (pilot.goal_yaw, pilot.goal_pitch, pilot.goal_distance),
+                time.delta_secs(),
+            );
+            orbit.yaw = next.0;
+            orbit.pitch = next.1;
+            orbit.distance = next.2;
+            if done {
+                orbit.autopilot = None;
+            }
+        }
+    }
 
     if mouse_buttons.pressed(MouseButton::Left) {
         orbit.yaw -= drag_delta.x * ORBIT_SPEED;
@@ -101,11 +138,68 @@ fn orbit_camera_system(
         orbit.target += (right * drag_delta.x + up * drag_delta.y) * PAN_SPEED * distance;
     }
 
-    orbit.distance =
-        (orbit.distance * (-scroll * ZOOM_SPEED).exp()).clamp(DIST_MIN, DIST_MAX);
+    orbit.distance = (orbit.distance * (-scroll * ZOOM_SPEED).exp()).clamp(DIST_MIN, DIST_MAX);
 
     if let Ok(mut transform) = camera_query.single_mut() {
         transform.translation = orbit.position();
         transform.look_at(orbit.target, Vec3::Y);
+    }
+}
+
+/// 蓝图完成（≥95%）上升沿：启用观赏视角自动驾驶。
+fn completion_autopilot_system(
+    blueprint: Res<crate::building::blueprint::Blueprint>,
+    mut orbit: ResMut<OrbitCamera>,
+    mut prev_completed: Local<bool>,
+) {
+    if blueprint.completed && !*prev_completed {
+        orbit.autopilot = Some(AutoPilot {
+            goal_yaw: 0.15,
+            goal_pitch: 0.5,
+            goal_distance: 26.0,
+        });
+        info!("🎥 观赏视角已就位（移动鼠标接管）");
+    }
+    *prev_completed = blueprint.completed;
+}
+
+/// 自动驾驶单步插值（纯函数，可测试）：返回（新参数，是否到达）。
+pub fn autopilot_step(
+    current: (f32, f32, f32),
+    goal: (f32, f32, f32),
+    dt: f32,
+) -> ((f32, f32, f32), bool) {
+    const YAW_SPEED: f32 = 1.2; // rad/s
+    const PITCH_SPEED: f32 = 1.2;
+    const DIST_SPEED: f32 = 12.0; // 单位/s
+    let yaw = current.0 + (goal.0 - current.0).clamp(-YAW_SPEED * dt, YAW_SPEED * dt);
+    let pitch = current.1 + (goal.1 - current.1).clamp(-PITCH_SPEED * dt, PITCH_SPEED * dt);
+    let dist = current.2 + (goal.2 - current.2).clamp(-DIST_SPEED * dt, DIST_SPEED * dt);
+    let done =
+        (yaw - goal.0).abs() < 0.02 && (pitch - goal.1).abs() < 0.02 && (dist - goal.2).abs() < 0.2;
+    ((yaw, pitch, dist), done)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn autopilot_converges_to_goal() {
+        let start = (0.6, 0.55, 28.0);
+        let goal = (0.15, 0.5, 26.0);
+        let mut cur = start;
+        let mut done = false;
+        for _ in 0..600 {
+            let (next, d) = autopilot_step(cur, goal, 1.0 / 60.0);
+            cur = next;
+            done = d;
+            if done {
+                break;
+            }
+        }
+        assert!(done, "自动驾驶应在有限步内到达目标");
+        assert!((cur.0 - goal.0).abs() < 0.03);
+        assert!((cur.2 - goal.2).abs() < 0.3);
     }
 }
