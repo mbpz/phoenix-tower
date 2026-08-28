@@ -568,8 +568,22 @@ pub struct LanternLight;
 /// （随积木移动；积木销毁时子实体随之销毁，无需手动清理）。
 fn reconcile_lantern_lights(
     mut commands: Commands,
-    blocks: Query<(Entity, &BlockId), (With<PlacedBlock>, Without<LanternLight>)>,
+    stack: Res<PlacedBlocks>,
+    mut last_revision: Local<u64>,
+    blocks: Query<
+        (Entity, &BlockId),
+        (
+            With<PlacedBlock>,
+            Without<LanternLight>,
+            Without<crate::stress::StressBlock>,
+        ),
+    >,
 ) {
+    // revision 门控（B-20）：世界未变更时跳过全量扫描（压力测试 5 万实体关键）
+    if *last_revision == stack.revision {
+        return;
+    }
+    *last_revision = stack.revision;
     for (entity, id) in &blocks {
         if id.0 == "denglong" {
             commands.entity(entity).with_children(|parent| {
@@ -596,8 +610,22 @@ fn reconcile_plaque_text(
     mut commands: Commands,
     mut font: Local<Option<Handle<bevy::text::Font>>>,
     asset_server: Res<AssetServer>,
-    blocks: Query<(Entity, &BlockId), (With<PlacedBlock>, Without<PlaqueText>)>,
+    stack: Res<PlacedBlocks>,
+    mut last_revision: Local<u64>,
+    blocks: Query<
+        (Entity, &BlockId),
+        (
+            With<PlacedBlock>,
+            Without<PlaqueText>,
+            Without<crate::stress::StressBlock>,
+        ),
+    >,
 ) {
+    // revision 门控（B-20）
+    if *last_revision == stack.revision {
+        return;
+    }
+    *last_revision = stack.revision;
     if font.is_none() {
         *font = Some(asset_server.load("fonts/NotoSansSC-subset.otf"));
     }

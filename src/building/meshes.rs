@@ -274,7 +274,6 @@ pub fn dougong_bracket() -> Mesh {
     finish(new_mesh(), positions, normals, uvs, indices)
 }
 
-
 /// 匾额：横置薄板（0.9 宽 × 0.3 高 × 0.08 厚），字由 Text3d 子实体呈现。
 pub fn plaque() -> Mesh {
     Mesh::from(Cuboid::new(0.9, 0.3, 0.08))
