@@ -14,6 +14,7 @@ use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 
 use building::challenge::ChallengePlugin;
+use building::collection::CollectionPlugin;
 use building::placement::PlacementPlugin;
 use building::tutorial::TutorialPlugin;
 use camera::orbit_camera::OrbitCameraPlugin;
@@ -39,6 +40,7 @@ fn main() {
             PlacementPlugin,
             TutorialPlugin,
             ChallengePlugin,
+            CollectionPlugin,
             ScenePlugin,
             HudPlugin,
             BlockPanelPlugin,

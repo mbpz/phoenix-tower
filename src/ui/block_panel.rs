@@ -16,6 +16,15 @@ use crate::building::blueprint::Blueprint;
 use crate::building::challenge::{start_challenge, Challenge, ChallengeState};
 use crate::building::placement::{PlacedBlock, PlacedBlocks};
 
+/// 面板 Tab。
+#[derive(Clone, Copy, PartialEq, Eq, Default)]
+enum PanelTab {
+    #[default]
+    Blocks,
+    Codex,
+    Achievements,
+}
+
 pub struct BlockPanelPlugin;
 
 impl Plugin for BlockPanelPlugin {
@@ -29,9 +38,11 @@ impl Plugin for BlockPanelPlugin {
 fn block_panel_ui(
     mut contexts: EguiContexts,
     mut fonts_loaded: Local<bool>,
+    mut tab: Local<PanelTab>,
     mut library: ResMut<BlockLibrary>,
     mut blueprint: ResMut<Blueprint>,
     mut challenge: ResMut<Challenge>,
+    collection: Res<crate::building::collection::Collection>,
     mut commands: Commands,
     mut stack: ResMut<PlacedBlocks>,
     placed_query: Query<Entity, With<PlacedBlock>>,
@@ -76,10 +87,18 @@ fn block_panel_ui(
 
     let mut start_requested = false;
     egui::Panel::left("block_panel")
-        .default_size(200.0)
+        .default_size(210.0)
         .resizable(true)
         .show(&mut viewport_ui, |ui| {
-            ui.heading("积木库");
+            ui.heading("黄鹤楼积木");
+            ui.separator();
+
+            // Tab 切换
+            ui.horizontal(|ui| {
+                ui.selectable_value(&mut *tab, PanelTab::Blocks, "积木");
+                ui.selectable_value(&mut *tab, PanelTab::Codex, "图鉴");
+                ui.selectable_value(&mut *tab, PanelTab::Achievements, "成就");
+            });
             ui.separator();
 
             // 挑战模式（B-16）
@@ -129,33 +148,100 @@ fn block_panel_ui(
                 ui.separator();
             }
 
-            // 积木列表
-            let mut clicked: Option<usize> = None;
-            egui::ScrollArea::vertical()
-                .auto_shrink([false, false])
-                .show(ui, |ui| {
-                    for (i, def) in library.defs.iter().enumerate() {
-                        let selected = i == library.current;
-                        let color = Color32::from_rgba_unmultiplied(
-                            (def.color[0] * 255.0) as u8,
-                            (def.color[1] * 255.0) as u8,
-                            (def.color[2] * 255.0) as u8,
-                            255,
-                        );
-                        let (w, h, d) = (def.size[0], def.size[1], def.size[2]);
-                        let mut text = RichText::new(format!("{}  {}×{}×{}", def.name, w, h, d))
-                            .color(color);
-                        if selected {
-                            text = text.strong();
-                        }
-                        if ui.selectable_label(selected, text).clicked() {
-                            clicked = Some(i);
-                        }
+            match *tab {
+                PanelTab::Blocks => {
+                    // 积木列表
+                    let mut clicked: Option<usize> = None;
+                    egui::ScrollArea::vertical()
+                        .auto_shrink([false, false])
+                        .show(ui, |ui| {
+                            for (i, def) in library.defs.iter().enumerate() {
+                                let selected = i == library.current;
+                                let color = Color32::from_rgba_unmultiplied(
+                                    (def.color[0] * 255.0) as u8,
+                                    (def.color[1] * 255.0) as u8,
+                                    (def.color[2] * 255.0) as u8,
+                                    255,
+                                );
+                                let (w, h, d) = (def.size[0], def.size[1], def.size[2]);
+                                let mut text =
+                                    RichText::new(format!("{}  {}×{}×{}", def.name, w, h, d))
+                                        .color(color);
+                                if selected {
+                                    text = text.strong();
+                                }
+                                if ui.selectable_label(selected, text).clicked() {
+                                    clicked = Some(i);
+                                }
+                            }
+                        });
+                    // 循环外应用选择（避免借用冲突）
+                    if let Some(i) = clicked {
+                        library.current = i;
                     }
-                });
-            // 循环外应用选择（避免借用冲突）
-            if let Some(i) = clicked {
-                library.current = i;
+                }
+                PanelTab::Codex => {
+                    // 图鉴（B-18）
+                    ui.label(format!(
+                        "📖 部件图鉴 {}/{}",
+                        collection.codex.len(),
+                        library.defs.len()
+                    ));
+                    ui.separator();
+                    egui::ScrollArea::vertical()
+                        .auto_shrink([false, false])
+                        .show(ui, |ui| {
+                            for def in &library.defs {
+                                if collection.codex.contains(&def.id) {
+                                    let (w, h, d) = (def.size[0], def.size[1], def.size[2]);
+                                    let color = Color32::from_rgba_unmultiplied(
+                                        (def.color[0] * 255.0) as u8,
+                                        (def.color[1] * 255.0) as u8,
+                                        (def.color[2] * 255.0) as u8,
+                                        255,
+                                    );
+                                    ui.label(
+                                        RichText::new(format!(
+                                            "{}（{}） {}×{}×{}",
+                                            def.name, def.layer, w, h, d
+                                        ))
+                                        .color(color)
+                                        .strong(),
+                                    );
+                                    ui.label(&def.description);
+                                    if collection.rare.contains(&def.id) {
+                                        ui.label(
+                                            RichText::new("✨ 稀有：鎏金版已解锁").color(Color32::GOLD),
+                                        );
+                                    }
+                                } else {
+                                    ui.label(format!("？？？ — 蓝图复原中放置「{}」解锁", def.name));
+                                }
+                                ui.separator();
+                            }
+                        });
+                }
+                PanelTab::Achievements => {
+                    // 成就（B-18）
+                    ui.label(format!(
+                        "🏅 成就 {}/5",
+                        collection.achievements.len()
+                    ));
+                    ui.separator();
+                    for (id, name, desc) in crate::building::collection::achievement_defs() {
+                        let unlocked = collection.achievements.contains(id);
+                        let mut name_text = RichText::new(name);
+                        if unlocked {
+                            name_text = name_text.strong();
+                        }
+                        ui.horizontal(|ui| {
+                            ui.label(if unlocked { "✅" } else { "🔒" });
+                            ui.label(name_text);
+                        });
+                        ui.label(desc);
+                        ui.separator();
+                    }
+                }
             }
         });
 
