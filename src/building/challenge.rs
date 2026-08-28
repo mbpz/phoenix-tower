@@ -160,6 +160,7 @@ pub fn start_challenge(
     stack.occupied.clear();
     stack.col_top.clear();
     stack.redo.clear();
+    stack.revision += 1;
 
     blueprint.active = true;
     blueprint.completed = false;

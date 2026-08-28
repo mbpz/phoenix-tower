@@ -177,6 +177,7 @@ pub fn apply_save(
         });
         loaded += 1;
     }
+    stack.revision += 1;
     loaded
 }
 

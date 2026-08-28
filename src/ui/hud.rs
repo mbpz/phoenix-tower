@@ -4,11 +4,13 @@
 //! 中文字体：assets/fonts/NotoSansSC-subset.otf（由 Noto Sans CJK SC 子集化，
 //! 仅含游戏实际使用字符，见 docs/BACKLOG B-10）。
 
+use bevy::diagnostic::{DiagnosticsStore, FrameTimeDiagnosticsPlugin};
 use bevy::prelude::*;
 
 use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::Blueprint;
 use crate::building::challenge::{Challenge, ChallengeState};
+use crate::building::placement::PlacedBlocks;
 use crate::building::tutorial::Tutorial;
 
 pub struct HudPlugin;
@@ -49,11 +51,17 @@ fn update_hint(
     blueprint: Res<Blueprint>,
     tutorial: Res<Tutorial>,
     challenge: Res<Challenge>,
+    stack: Res<PlacedBlocks>,
+    diagnostics: Res<DiagnosticsStore>,
 ) {
     let def = library.current_def();
     let Ok(mut text) = hint.single_mut() else {
         return;
     };
+    let fps = diagnostics
+        .get(&FrameTimeDiagnosticsPlugin::FPS)
+        .and_then(|d| d.value())
+        .unwrap_or(0.0);
     let mode = if blueprint.active {
         format!(
             "蓝图模式: {}  完成度 {:.0}%",
@@ -88,13 +96,19 @@ fn update_hint(
          1-9:选积木  Q/E:切换  R:旋转90°  M:蓝图/自由  T:昼夜\n\
          C:挑战  F5:保存  F6:导出JSON  F9:读取  Esc:退出\n\
          {mode}\n\
-         当前积木: {} [{} / {}]（{}） 旋转 {}°\n\
+         当前积木: {name} [{cur} / {total}]（{layer}） 旋转 {rot}°\n\
          {challenge_line}\n\
-         {tutorial_line}",
-        def.name,
-        library.current + 1,
-        library.defs.len(),
-        def.layer,
-        library.rotation as u32 * 90
+         {tutorial_line}\n\
+         FPS {fps:.0} | 积木 {blocks}",
+        name = def.name,
+        cur = library.current + 1,
+        total = library.defs.len(),
+        layer = def.layer,
+        rot = library.rotation as u32 * 90,
+        mode = mode,
+        challenge_line = challenge_line,
+        tutorial_line = tutorial_line,
+        fps = fps,
+        blocks = stack.records.len(),
     );
 }

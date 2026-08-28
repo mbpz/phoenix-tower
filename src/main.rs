@@ -9,8 +9,10 @@ mod camera;
 mod game_state;
 mod save;
 mod scene;
+mod stress;
 mod ui;
 
+use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 
@@ -23,6 +25,7 @@ use camera::orbit_camera::OrbitCameraPlugin;
 use game_state::GameState;
 use save::SavePlugin;
 use scene::ScenePlugin;
+use stress::StressPlugin;
 use ui::block_panel::BlockPanelPlugin;
 use ui::hud::HudPlugin;
 
@@ -36,6 +39,7 @@ fn main() {
             ..default()
         }))
         .add_plugins(EguiPlugin::default())
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .init_state::<GameState>()
         .add_plugins((
             OrbitCameraPlugin,
@@ -48,6 +52,7 @@ fn main() {
             HudPlugin,
             BlockPanelPlugin,
             SavePlugin,
+            StressPlugin,
         ))
         .run();
 }

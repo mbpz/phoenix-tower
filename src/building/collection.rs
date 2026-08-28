@@ -67,6 +67,8 @@ pub struct Collection {
     pub undo_used_this_run: bool,
     /// 检测状态：挑战胜利上升沿
     challenge_won_seen: bool,
+    /// 上次处理的世界版本（revision 门控，B-20）
+    last_revision: u64,
     /// 有待写入磁盘的变更
     dirty: bool,
 }
@@ -89,6 +91,7 @@ impl Default for Collection {
             blueprint_active_prev: false,
             undo_used_this_run: false,
             challenge_won_seen: false,
+            last_revision: 0,
             dirty: false,
         }
     }
@@ -96,6 +99,7 @@ impl Default for Collection {
 
 impl Collection {
     /// 纯函数式检测：给定世界事实，推进状态并返回新解锁。
+    /// `revision` 为世界变更版本号：不变时跳过 O(n) 的图鉴扫描（B-20）。
     pub fn update(
         &mut self,
         stack: &PlacedBlocks,
@@ -104,14 +108,19 @@ impl Collection {
         challenge_state: ChallengeState,
         challenge_stars: u8,
         undo_pressed: bool,
+        revision: u64,
     ) -> Updates {
         let mut updates = Updates::default();
 
         // 图鉴：蓝图模式下已放置积木全部解锁（严格模式保证放置正确）
-        if blueprint_active {
-            for r in &stack.records {
-                if self.codex.insert(r.def_id.clone()) {
-                    updates.codex.push(r.def_id.clone());
+        // revision 门控：世界未变更时跳过（放置/撤销/重做/读档会递增 revision）
+        if revision != self.last_revision {
+            self.last_revision = revision;
+            if blueprint_active {
+                for r in &stack.records {
+                    if self.codex.insert(r.def_id.clone()) {
+                        updates.codex.push(r.def_id.clone());
+                    }
                 }
             }
         }
@@ -268,6 +277,7 @@ fn collection_system(
         challenge.state,
         challenge.stars,
         undo_pressed,
+        stack.revision,
     );
 
     for id in &updates.codex {
@@ -319,7 +329,7 @@ mod tests {
     fn first_completion_unlocks() {
         let mut col = Collection::default();
         let stack = stack_with(5);
-        let u = col.update(&stack, true, true, ChallengeState::Idle, 0, false);
+        let u = col.update(&stack, true, true, ChallengeState::Idle, 0, false, 1);
         assert!(u.achievements.contains(&ACH_FIRST.to_string()));
         assert!(
             u.achievements.contains(&ACH_FLAWLESS.to_string()),
@@ -331,9 +341,9 @@ mod tests {
     fn flawless_requires_no_undo() {
         let mut col = Collection::default();
         // 用了一次撤销后再完成
-        col.update(&stack_with(1), false, true, ChallengeState::Idle, 0, true);
+        col.update(&stack_with(1), false, true, ChallengeState::Idle, 0, true, 1);
         let stack = stack_with(5);
-        let u = col.update(&stack, true, true, ChallengeState::Idle, 0, false);
+        let u = col.update(&stack, true, true, ChallengeState::Idle, 0, false, 1);
         assert!(u.achievements.contains(&ACH_FIRST.to_string()));
         assert!(!u.achievements.contains(&ACH_FLAWLESS.to_string()), "用过撤销不应解锁一气呵成");
     }
@@ -342,7 +352,7 @@ mod tests {
     fn challenge_win_unlocks_and_rare() {
         let mut col = Collection::default();
         let stack = stack_with(0);
-        let u = col.update(&stack, false, true, ChallengeState::Won, 3, false);
+        let u = col.update(&stack, false, true, ChallengeState::Won, 3, false, 1);
         assert!(u.achievements.contains(&ACH_WINNER.to_string()));
         assert!(u.achievements.contains(&ACH_PERFECT.to_string()));
         assert_eq!(u.rare, vec!["baoding".to_string()]);
@@ -352,20 +362,20 @@ mod tests {
     fn codex_unlocks_blueprint_placements() {
         let mut col = Collection::default();
         let stack = stack_with(1); // 1 块 taiji
-        let u = col.update(&stack, false, true, ChallengeState::Idle, 0, false);
+        let u = col.update(&stack, false, true, ChallengeState::Idle, 0, false, 1);
         assert_eq!(u.codex, vec!["taiji".to_string()]);
         // 非蓝图模式不放图鉴
         let mut col2 = Collection::default();
-        let u2 = col2.update(&stack, false, false, ChallengeState::Idle, 0, false);
+        let u2 = col2.update(&stack, false, false, ChallengeState::Idle, 0, false, 1);
         assert!(u2.codex.is_empty());
     }
 
     #[test]
     fn builder_achievement_at_30() {
         let mut col = Collection::default();
-        let u = col.update(&stack_with(29), false, false, ChallengeState::Idle, 0, false);
+        let u = col.update(&stack_with(29), false, false, ChallengeState::Idle, 0, false, 1);
         assert!(!u.achievements.contains(&ACH_BUILDER.to_string()));
-        let u2 = col.update(&stack_with(30), false, false, ChallengeState::Idle, 0, false);
+        let u2 = col.update(&stack_with(30), false, false, ChallengeState::Idle, 0, false, 1);
         assert!(u2.achievements.contains(&ACH_BUILDER.to_string()));
     }
 

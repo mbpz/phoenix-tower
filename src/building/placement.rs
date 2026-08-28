@@ -78,6 +78,9 @@ pub struct PlacedBlocks {
     pub occupied: HashSet<IVec3>,
     /// (x, z) → 该列当前最高已占用行 + 1（即下一层落位高度）
     pub col_top: HashMap<(i32, i32), i32>,
+    /// 世界变更版本号：放置/撤销/重做/读档/清空时递增，
+    /// 供集合扫描等 O(n) 系统做增量门控（B-20 性能优化）
+    pub revision: u64,
 }
 
 /// 一条放置记录（撤销栈元素）。
@@ -461,6 +464,7 @@ fn handle_place_and_undo(
                 challenge.refund(&record.def_id);
             }
             stack.redo.push(record);
+            stack.revision += 1;
             if blueprint.active {
                 refresh_completion(&stack, &library, &mut blueprint);
             }
@@ -507,6 +511,7 @@ fn handle_place_and_undo(
                     rot: record.rot,
                     cells: record.cells.clone(),
                 });
+                stack.revision += 1;
                 if blueprint.active {
                     refresh_completion(&stack, &library, &mut blueprint);
                 }
@@ -588,6 +593,7 @@ fn handle_place_and_undo(
                             // 丢弃最旧后列顶可能失效，重建（O(n)，低频）
                             rebuild_col_top_mut(&mut stack);
                         }
+                        stack.revision += 1;
 
                         if blueprint.active {
                             refresh_completion(&stack, &library, &mut blueprint);
