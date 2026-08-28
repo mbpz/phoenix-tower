@@ -64,9 +64,7 @@ pub enum SnapMode {
 }
 
 /// 积木库资源：全部定义 + 索引 + 当前选中。
-// by_id 供存档（B-11）与蓝图匹配（B-08）按 ID 快速定位，当前未消费，故 allow(dead_code)。
 #[derive(Resource)]
-#[allow(dead_code)]
 pub struct BlockLibrary {
     pub defs: Vec<BlockDef>,
     pub by_id: HashMap<String, usize>,

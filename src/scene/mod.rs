@@ -41,17 +41,17 @@ fn setup_ground(
     ));
 }
 
-/// 蛇山：三级青石台地堆叠（简化示意，正式地形 Phase 2 用高度图）。
+/// 蛇山：三级青石台地堆叠（移出建造区作背景，正式地形 Phase 2 用高度图）。
 fn setup_snake_hill(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    // (w, d, h, y_center, x_center) —— 山体中心 (-18, 14)，避开建造区
     let layers: [(f32, f32, f32, f32, f32); 3] = [
-        // (w, d, h, y_center, x_center) —— 以 (0, 6) 为山体中心
-        (18.0, 18.0, 2.0, 1.0, 0.0),
-        (12.0, 12.0, 2.0, 3.0, 0.0),
-        (7.0, 7.0, 2.0, 5.0, 0.0),
+        (18.0, 18.0, 2.0, 1.0, -18.0),
+        (12.0, 12.0, 2.0, 3.0, -18.0),
+        (7.0, 7.0, 2.0, 5.0, -18.0),
     ];
     for (i, (w, d, h, y, x)) in layers.iter().enumerate() {
         let shade = 0.34 + i as f32 * 0.04;
@@ -62,7 +62,7 @@ fn setup_snake_hill(
                 perceptual_roughness: 0.9,
                 ..default()
             })),
-            Transform::from_xyz(*x, *y, 6.0),
+            Transform::from_xyz(*x, *y, 14.0),
             Name::new(format!("SnakeHillLayer{i}")),
         ));
     }

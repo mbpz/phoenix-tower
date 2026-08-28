@@ -1,32 +1,39 @@
-//! 积木放置系统（B-06 数据驱动版）。
+//! 积木放置系统（B-08 三维版 + 蓝图模式）。
 //!
-//! 验证方案 §4「放置逻辑规约」主链路：
-//! `射线检测 → 候选网格位置 → 合法性校验（重叠）→ 生成 Entity`。
+//! 主链路：`射线检测 → 候选网格位置 → 合法性校验（占用/蓝图匹配）→ 生成 Entity`。
 //!
-//! 本轮升级：
-//! - 积木定义数据驱动化（resources/blocks/*.ron，见 block_defs.rs）；
-//! - 支持多尺寸积木（占用 w×1×d 格，哈希集合 O(1) 查重，见 ADR-005）；
-//! - 幽灵预览跟随当前选中积木的尺寸与位置。
-//!
-//! 待办（见 BACKLOG）：热重载、蓝图匹配校验、Command 模式撤销历史（≥20 步）。
+//! - 三维堆叠：光标列上按「列顶高度」落位，可向上建造多层；
+//! - 蓝图模式（M 键）：幽灵蓝图 + 严格吸附——仅当放置块 footprint 与蓝图
+//!   期望完全一致才允许放置（幽灵红/绿反馈），完成度实时计算（ADR-005）；
+//! - 撤销栈保留（Phase 1 完整版替换为 Command 模式 ≥20 步）。
 
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use std::collections::{HashMap, HashSet};
 
 use super::block_defs::{load_block_library, BlockDef, BlockLibrary};
+use super::blueprint::{
+    compute_completion, footprint_matches, load_blueprint, Blueprint, BlueprintGhost,
+};
 
 pub struct PlacementPlugin;
 
 impl Plugin for PlacementPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(load_block_library())
+            .insert_resource(load_blueprint())
             .insert_resource(PlacedBlocks::default())
             .insert_resource(ClickState::default())
             .add_systems(Startup, setup_block_assets)
             .add_systems(
                 Update,
-                (select_block, update_ghost_preview, handle_place_and_undo).chain(),
+                (
+                    toggle_blueprint,
+                    select_block,
+                    update_ghost_preview,
+                    handle_place_and_undo,
+                )
+                    .chain(),
             );
     }
 }
@@ -35,24 +42,35 @@ impl Plugin for PlacementPlugin {
 const GRID: f32 = 1.0;
 /// 点击 / 拖拽判定阈值（逻辑像素）
 const CLICK_DRAG_THRESHOLD: f32 = 6.0;
+/// 蓝图模式 y 扫描上限（防失控循环）
+const MAX_BLUEPRINT_Y: i32 = 64;
 
 /// 渲染资产：def.id → (网格, 材质)，全部预生成并复用（实例化思路）。
 #[derive(Resource)]
 pub struct BlockRenderAssets {
     pub per_def: HashMap<String, (Handle<Mesh>, Handle<StandardMaterial>)>,
+    /// 幽灵（可放置，绿）
     pub ghost_material: Handle<StandardMaterial>,
+    /// 幽灵（蓝图不匹配，红）
+    pub ghost_bad_material: Handle<StandardMaterial>,
+    /// 幽灵蓝图材质：def.id → 半透明
+    pub blueprint_materials: HashMap<String, Handle<StandardMaterial>>,
 }
 
-/// 已放置积木：撤销栈 + 占用集合（O(1) 查重，ADR-005）。
+/// 已放置积木：撤销栈 + 占用集合 + 列顶高度（ADR-005 O(1) 查重）。
 #[derive(Resource, Default)]
 pub struct PlacedBlocks {
     pub records: Vec<PlacedRecord>,
     pub occupied: HashSet<IVec3>,
+    /// (x, z) → 该列当前最高已占用行 + 1（即下一层落位高度）
+    pub col_top: HashMap<(i32, i32), i32>,
 }
 
 /// 一条放置记录（撤销栈元素）。
 pub struct PlacedRecord {
     pub entity: Entity,
+    pub def_id: String,
+    /// 占用格（3D）
     pub cells: Vec<IVec3>,
 }
 
@@ -78,6 +96,7 @@ fn setup_block_assets(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let mut per_def = HashMap::new();
+    let mut blueprint_materials = HashMap::new();
     for def in &library.defs {
         let (w, h, d) = (def.size[0] as f32, def.size[1] as f32, def.size[2] as f32);
         let mesh = meshes.add(Cuboid::new(w * GRID, h * GRID, d * GRID));
@@ -87,6 +106,15 @@ fn setup_block_assets(
             ..default()
         });
         per_def.insert(def.id.clone(), (mesh, mat));
+
+        // 幽灵蓝图：半透明（保留积木本色）
+        let ghost_mat = materials.add(StandardMaterial {
+            base_color: Color::srgba(def.color[0], def.color[1], def.color[2], 0.35),
+            unlit: true,
+            alpha_mode: AlphaMode::Blend,
+            ..default()
+        });
+        blueprint_materials.insert(def.id.clone(), ghost_mat);
     }
     commands.insert_resource(BlockRenderAssets {
         per_def,
@@ -96,59 +124,163 @@ fn setup_block_assets(
             alpha_mode: AlphaMode::Blend,
             ..default()
         }),
+        ghost_bad_material: materials.add(StandardMaterial {
+            base_color: Color::srgba(0.9, 0.25, 0.2, 0.4),
+            unlit: true,
+            alpha_mode: AlphaMode::Blend,
+            ..default()
+        }),
+        blueprint_materials,
     });
 }
 
-/// 鼠标位置 → y=0 地面上的网格单元（IVec3，y 恒为 0）。
-/// 返回 None：光标不在窗口内 / 射线未击中地面（如视角朝上）。
-fn cursor_grid_cell(
+// ---------- 几何与匹配辅助 ----------
+
+/// 鼠标位置 → y=0 地面上的列 (x, z)。
+fn cursor_column(
     windows: &Query<&Window, With<PrimaryWindow>>,
     cameras: &Query<(&Camera, &GlobalTransform), With<Camera3d>>,
-) -> Option<IVec3> {
+) -> Option<(i32, i32)> {
     let window = windows.single().ok()?;
     let cursor = window.cursor_position()?;
     let (camera, cam_gt) = cameras.single().ok()?;
     let ray = camera.viewport_to_world(cam_gt, cursor).ok()?;
     let t = ray.intersect_plane(Vec3::ZERO, InfinitePlane3d::new(Vec3::Y))?;
     let hit = ray.get_point(t);
-    Some(snap_to_grid(hit))
+    Some(((hit.x / GRID).round() as i32, (hit.z / GRID).round() as i32))
 }
 
-/// 任意点吸附到网格单元（单层贴地放置，y 恒为 0）。
-fn snap_to_grid(p: Vec3) -> IVec3 {
-    IVec3::new(
-        (p.x / GRID).round() as i32,
-        0,
-        (p.z / GRID).round() as i32,
+/// 以光标格为中心对齐的 footprint 锚点（左上角格，仅 x/z）。
+fn anchor_xz(center: (i32, i32), def: &BlockDef) -> (i32, i32) {
+    (
+        center.0 - (def.size[0] as i32 - 1) / 2,
+        center.1 - (def.size[2] as i32 - 1) / 2,
     )
 }
 
-/// 以光标格为中心对齐的多尺寸积木锚点（footprint 左上角格）。
-fn anchor_for(center_cell: IVec3, def: &BlockDef) -> IVec3 {
+/// footprint 覆盖的列集合。
+fn footprint_columns(def: &BlockDef, anchor_x: i32, anchor_z: i32) -> Vec<(i32, i32)> {
     let (w, d) = (def.size[0] as i32, def.size[2] as i32);
-    IVec3::new(center_cell.x - (w - 1) / 2, 0, center_cell.z - (d - 1) / 2)
-}
-
-/// 积木 footprint 占用格集合（y 恒为 0）。
-fn footprint_cells(anchor: IVec3, def: &BlockDef) -> Vec<IVec3> {
-    let (w, d) = (def.size[0] as i32, def.size[2] as i32);
-    let mut cells = Vec::with_capacity((w * d) as usize);
+    let mut cols = Vec::with_capacity((w * d) as usize);
     for dx in 0..w {
         for dz in 0..d {
-            cells.push(IVec3::new(anchor.x + dx, 0, anchor.z + dz));
+            cols.push((anchor_x + dx, anchor_z + dz));
+        }
+    }
+    cols
+}
+
+/// 列顶最高值 → 自由模式落位高度。
+fn base_y_for(col_top: &HashMap<(i32, i32), i32>, cols: &[(i32, i32)]) -> i32 {
+    cols.iter()
+        .map(|c| col_top.get(c).copied().unwrap_or(0))
+        .max()
+        .unwrap_or(0)
+}
+
+/// footprint 占用格（3D，y 为底行）。
+fn footprint_cells(anchor: IVec3, def: &BlockDef) -> Vec<IVec3> {
+    let (w, h, d) = (def.size[0] as i32, def.size[1] as i32, def.size[2] as i32);
+    let mut cells = Vec::with_capacity((w * h * d) as usize);
+    for dy in 0..h {
+        for dz in 0..d {
+            for dx in 0..w {
+                cells.push(IVec3::new(anchor.x + dx, anchor.y + dy, anchor.z + dz));
+            }
         }
     }
     cells
 }
 
-/// 积木渲染中心（底面贴地 y=0）。
+/// 积木渲染中心（底面贴 anchor.y）。
 fn block_center(anchor: IVec3, def: &BlockDef) -> Vec3 {
     let (w, h, d) = (def.size[0] as f32, def.size[1] as f32, def.size[2] as f32);
     Vec3::new(
         (anchor.x as f32 + (w - 1.0) * 0.5) * GRID,
-        h * 0.5 * GRID,
+        (anchor.y as f32 + h * 0.5) * GRID,
         (anchor.z as f32 + (d - 1.0) * 0.5) * GRID,
     )
+}
+
+/// 计算放置锚点：
+/// - 自由模式：按列顶堆叠；
+/// - 蓝图模式：扫描 y 寻找使 footprint 完全匹配蓝图的落位（严格吸附）。
+fn placement_anchor(
+    col: (i32, i32),
+    def: &BlockDef,
+    stack: &PlacedBlocks,
+    blueprint: &Blueprint,
+) -> Option<IVec3> {
+    let (ax, az) = anchor_xz(col, def);
+    if blueprint.active {
+        for y in 0..=MAX_BLUEPRINT_Y {
+            let anchor = IVec3::new(ax, y, az);
+            let cells = footprint_cells(anchor, def);
+            if footprint_matches(&blueprint.expected, &cells, &def.id) {
+                return Some(anchor);
+            }
+        }
+        None
+    } else {
+        let cols = footprint_columns(def, ax, az);
+        let y = base_y_for(&stack.col_top, &cols);
+        Some(IVec3::new(ax, y, az))
+    }
+}
+
+/// 由放置记录重建「列顶高度」映射（撤销后使用）。
+fn rebuild_col_top_mut(stack: &mut PlacedBlocks) {
+    let mut col_top: HashMap<(i32, i32), i32> = HashMap::new();
+    for record in &stack.records {
+        for cell in &record.cells {
+            let entry = col_top.entry((cell.x, cell.z)).or_insert(0);
+            *entry = (*entry).max(cell.y + 1);
+        }
+    }
+    stack.col_top = col_top;
+}
+
+// ---------- 系统 ----------
+
+/// M 键切换蓝图模式，并生成/销毁幽灵蓝图实体。
+fn toggle_blueprint(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut blueprint: ResMut<Blueprint>,
+    mut commands: Commands,
+    existing: Query<Entity, With<BlueprintGhost>>,
+    render: Res<BlockRenderAssets>,
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
+    if !keys.just_pressed(KeyCode::KeyM) {
+        return;
+    }
+    blueprint.active = !blueprint.active;
+    if blueprint.active {
+        let unit = meshes.add(Cuboid::new(0.92, 0.92, 0.92));
+        for cell in &blueprint.cell_list {
+            let id = &blueprint.expected[cell];
+            let mat = render
+                .blueprint_materials
+                .get(id)
+                .cloned()
+                .unwrap_or_else(|| render.ghost_material.clone());
+            commands.spawn((
+                Mesh3d(unit.clone()),
+                MeshMaterial3d(mat),
+                Transform::from_translation(Vec3::new(
+                    cell.x as f32 + 0.5,
+                    cell.y as f32 + 0.5,
+                    cell.z as f32 + 0.5,
+                )),
+                BlueprintGhost,
+                Name::new(format!("BlueprintGhost:{}", id)),
+            ));
+        }
+    } else {
+        for entity in existing.iter() {
+            commands.entity(entity).despawn();
+        }
+    }
 }
 
 /// 积木选择：数字键 1-9 直接选择；Q/E 循环切换。
@@ -179,40 +311,51 @@ fn select_block(keys: Res<ButtonInput<KeyCode>>, mut library: ResMut<BlockLibrar
     }
 }
 
-/// 幽灵预览：光标不在地面时隐藏；落入地面时吸附并跟随当前积木尺寸。
+/// 幽灵预览：跟随当前积木在光标列的落位；蓝图模式下红/绿反馈。
 fn update_ghost_preview(
     mut commands: Commands,
     windows: Query<&Window, With<PrimaryWindow>>,
     cameras: Query<(&Camera, &GlobalTransform), With<Camera3d>>,
-    mut ghost: Query<(Entity, &mut Transform, &mut Mesh3d), With<GhostBlock>>,
+    mut ghost: Query<
+        (Entity, &mut Transform, &mut Mesh3d, &mut MeshMaterial3d<StandardMaterial>),
+        With<GhostBlock>,
+    >,
     library: Res<BlockLibrary>,
     render: Res<BlockRenderAssets>,
+    stack: Res<PlacedBlocks>,
+    blueprint: Res<Blueprint>,
 ) {
     let def = library.current_def();
     let (mesh_handle, _) = &render.per_def[&def.id];
-    let cell = cursor_grid_cell(&windows, &cameras);
-    let anchor = cell.map(|c| anchor_for(c, def));
+    let col = cursor_column(&windows, &cameras);
+    let anchor = col.and_then(|c| placement_anchor(c, def, &stack, &blueprint));
     let target = anchor.map(|a| block_center(a, def));
+    let ok = anchor.is_some();
+    let ghost_mat = if ok {
+        render.ghost_material.clone()
+    } else {
+        render.ghost_bad_material.clone()
+    };
 
     let mut existing = ghost.single_mut().ok();
     match (existing.take(), target) {
         (None, Some(pos)) => {
             commands.spawn((
                 Mesh3d(mesh_handle.clone()),
-                MeshMaterial3d(render.ghost_material.clone()),
+                MeshMaterial3d(ghost_mat),
                 Transform::from_translation(pos),
                 GhostBlock,
                 Name::new("GhostBlock"),
             ));
         }
-        (Some((_e, mut transform, mut mesh)), Some(pos)) => {
+        (Some((_e, mut transform, mut mesh, mut mat)), Some(pos)) => {
             transform.translation = pos;
-            // 切换积木时同步幽灵网格
             if mesh.0 != *mesh_handle {
                 mesh.0 = mesh_handle.clone();
             }
+            mat.0 = ghost_mat;
         }
-        (Some((_e, mut transform, _mesh)), None) => {
+        (Some((_e, mut transform, _mesh, _mat)), None) => {
             transform.translation = Vec3::new(0.0, -1000.0, 0.0);
         }
         (None, None) => {}
@@ -220,8 +363,8 @@ fn update_ghost_preview(
 }
 
 /// 放置与撤销：
-/// - Backspace：撤销最后一次放置
-/// - 左键点击（非拖拽）：在幽灵所在网格放置当前积木（footprint 被占用时跳过）
+/// - Backspace：撤销最后一次放置并重建列顶高度
+/// - 左键点击（非拖拽）：在幽灵所在位置放置当前积木（占用/蓝图匹配校验）
 fn handle_place_and_undo(
     mut commands: Commands,
     mut click: ResMut<ClickState>,
@@ -232,14 +375,18 @@ fn handle_place_and_undo(
     mouse: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut stack: ResMut<PlacedBlocks>,
+    mut blueprint: ResMut<Blueprint>,
 ) {
-    // 撤销：移除最后放置的积木并释放占用格
     if keys.just_pressed(KeyCode::Backspace) {
         if let Some(record) = stack.records.pop() {
             for c in &record.cells {
                 stack.occupied.remove(c);
             }
+            rebuild_col_top_mut(&mut stack);
             commands.entity(record.entity).despawn();
+            if blueprint.active {
+                refresh_completion(&stack, &library, &mut blueprint);
+            }
         }
         return;
     }
@@ -257,29 +404,61 @@ fn handle_place_and_undo(
             _ => true,
         };
         if !dragged && !click.placed_this_press {
-            if let Some(cell) = cursor_grid_cell(&windows, &cameras) {
+            if let Some(col) = cursor_column(&windows, &cameras) {
                 let def = library.current_def();
-                let anchor = anchor_for(cell, def);
-                let cells = footprint_cells(anchor, def);
-                if cells.iter().all(|c| !stack.occupied.contains(c)) {
-                    let (mesh, mat) = render.per_def.get(&def.id).expect("积木资产应已预生成");
-                    let entity = commands
-                        .spawn((
-                            Mesh3d(mesh.clone()),
-                            MeshMaterial3d(mat.clone()),
-                            Transform::from_translation(block_center(anchor, def)),
-                            PlacedBlock,
-                            Name::new(format!("Block:{}", def.id)),
-                        ))
-                        .id();
-                    for c in &cells {
-                        stack.occupied.insert(*c);
+                if let Some(anchor) = placement_anchor(col, def, &stack, &blueprint) {
+                    let cells = footprint_cells(anchor, def);
+                    let free = cells.iter().all(|c| !stack.occupied.contains(c));
+                    if free {
+                        let (mesh, mat) =
+                            render.per_def.get(&def.id).expect("积木资产应已预生成");
+                        let entity = commands
+                            .spawn((
+                                Mesh3d(mesh.clone()),
+                                MeshMaterial3d(mat.clone()),
+                                Transform::from_translation(block_center(anchor, def)),
+                                PlacedBlock,
+                                Name::new(format!("Block:{}", def.id)),
+                            ))
+                            .id();
+                        for c in &cells {
+                            stack.occupied.insert(*c);
+                        }
+                        let (ax, az) = (anchor.x, anchor.z);
+                        for (x, z) in footprint_columns(def, ax, az) {
+                            let top = stack.col_top.entry((x, z)).or_insert(0);
+                            *top = (*top).max(anchor.y + def.size[1] as i32);
+                        }
+                        stack.records.push(PlacedRecord {
+                            entity,
+                            def_id: def.id.clone(),
+                            cells,
+                        });
+                        click.placed_this_press = true;
+                        if blueprint.active {
+                            refresh_completion(&stack, &library, &mut blueprint);
+                        }
                     }
-                    stack.records.push(PlacedRecord { entity, cells });
-                    click.placed_this_press = true;
                 }
             }
         }
         click.pressed_at = None;
+    }
+}
+
+/// 蓝图模式下实时刷新完成度；≥95% 触发完成事件。
+fn refresh_completion(stack: &PlacedBlocks, library: &BlockLibrary, blueprint: &mut Blueprint) {
+    let placed: HashMap<IVec3, String> = stack
+        .records
+        .iter()
+        .flat_map(|r| r.cells.iter().map(move |c| (*c, r.def_id.clone())))
+        .collect();
+    blueprint.completion = compute_completion(&blueprint.expected, &placed, library);
+    if blueprint.completion >= 0.95 && !blueprint.completed {
+        blueprint.completed = true;
+        info!(
+            "🏛️ 黄鹤楼复原完成！完成度 {:.0}%",
+            blueprint.completion * 100.0
+        );
     }
 }
