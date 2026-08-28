@@ -1,10 +1,10 @@
 (
-    id: "speed_restoration",
-    order: 1,
-    name: "限时复原",
-    description: "300 秒内按蓝图复原五层收分黄鹤楼，材料恰好够用，考验规划与手速。",
+    id: "speed_demon",
+    order: 2,
+    name: "极速复原",
+    description: "120 秒内复原五层收分黄鹤楼，材料分毫不差，挑战手速极限。",
     blueprint_id: "yellow_crane_tower",
-    time_limit_secs: 300,
+    time_limit_secs: 120,
     rotation_locked: true,
     quota: [
         ("datiji", 1),

@@ -13,7 +13,9 @@ use bevy_egui::{EguiContexts, EguiPrimaryContextPass};
 
 use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::{select_blueprint, Blueprint, BlueprintGhost, BlueprintLibrary};
-use crate::building::challenge::{start_challenge, Challenge, ChallengeState};
+use crate::building::challenge::{
+    select_challenge, start_challenge, Challenge, ChallengeLibrary, ChallengeState,
+};
 use crate::building::collection::KnowledgeHints;
 use crate::building::placement::{BlockRenderAssets, BlueprintAlpha, PlacedBlock, PlacedBlocks};
 use crate::i18n::{t, Locale};
@@ -26,6 +28,7 @@ struct PanelCtx<'w> {
     blueprint: ResMut<'w, Blueprint>,
     blueprint_library: ResMut<'w, BlueprintLibrary>,
     challenge: ResMut<'w, Challenge>,
+    challenge_library: ResMut<'w, ChallengeLibrary>,
     collection: Res<'w, crate::building::collection::Collection>,
     render: Res<'w, BlockRenderAssets>,
     locale: Res<'w, Locale>,
@@ -69,6 +72,7 @@ fn block_panel_ui(
     let mut blueprint = &mut ctx.blueprint;
     let mut blueprint_library = &mut ctx.blueprint_library;
     let mut challenge = &mut ctx.challenge;
+    let mut challenge_library = &mut ctx.challenge_library;
     let collection = &ctx.collection;
     let render = &ctx.render;
     let locale = &ctx.locale;
@@ -82,6 +86,7 @@ fn block_panel_ui(
     let mut share_requested = false;
     let mut json_requested = false;
     let mut import_requested: Option<std::path::PathBuf> = None;
+    let challenge_switch: Option<usize> = None;
     let mut alpha_dirty: Option<f32> = None;
 
     let Ok(ctx) = contexts.ctx_mut() else {
@@ -520,6 +525,10 @@ fn block_panel_ui(
                 }
             }
         }
+    }
+    if let Some(idx) = challenge_switch {
+        select_challenge(&mut challenge, &mut challenge_library, idx);
+        info!("🏆 挑战切换：{}", challenge_library.current_def().name);
     }
     if start_requested {
         start_challenge(

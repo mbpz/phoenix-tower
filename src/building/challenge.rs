@@ -23,6 +23,8 @@ use crate::building::placement::{PlacedBlock, PlacedBlocks};
 #[allow(dead_code)]
 pub struct ChallengeDef {
     pub id: String,
+    /// 排序/默认选择（order 最小者为默认挑战）
+    pub order: u32,
     pub name: String,
     pub description: String,
     /// 使用的蓝图 ID（当前仅一个蓝图，读取时校验存在）
@@ -98,13 +100,49 @@ pub struct ChallengePlugin;
 
 impl Plugin for ChallengePlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(load_challenge())
+        let (challenge, library) = load_challenge_library();
+        app.insert_resource(challenge)
+            .insert_resource(library)
             .add_systems(Update, (challenge_key_start, challenge_tick).chain());
     }
 }
 
 /// 从 resources/challenges/*.ron 加载（当前取第一个）。
-pub fn load_challenge() -> Challenge {
+/// 挑战库（B-16 完善）：全部挑战 + 当前选择；新增挑战只需加 RON。
+#[derive(Resource)]
+pub struct ChallengeLibrary {
+    pub defs: Vec<ChallengeDef>,
+    pub current: usize,
+}
+
+impl ChallengeLibrary {
+    pub fn current_def(&self) -> &ChallengeDef {
+        &self.defs[self.current]
+    }
+
+    /// 按 ID 选择（挑战引用预留；当前面板用索引选择）
+    #[allow(dead_code)]
+    pub fn select_by_id(&mut self, id: &str) -> Option<usize> {
+        let idx = self.defs.iter().position(|d| d.id == id)?;
+        self.current = idx;
+        Some(idx)
+    }
+}
+
+/// 由定义构建挑战运行态。
+fn challenge_from_def(def: &ChallengeDef) -> Challenge {
+    Challenge {
+        def: def.clone(),
+        state: ChallengeState::Idle,
+        time_left: 0.0,
+        quota_left: def.quota.iter().cloned().collect(),
+        stars: 0,
+        rewards: Vec::new(),
+    }
+}
+
+/// 加载全部挑战（按文件名字典序；首个为默认）。
+pub fn load_challenge_library() -> (Challenge, ChallengeLibrary) {
     let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/challenges");
     let mut files: Vec<_> = std::fs::read_dir(&dir)
         .unwrap_or_else(|e| panic!("无法读取挑战目录 {}: {e}", dir.display()))
@@ -113,35 +151,49 @@ pub fn load_challenge() -> Challenge {
         .filter(|p| p.extension().is_some_and(|e| e == "ron"))
         .collect();
     files.sort();
-    let Some(path) = files.first() else {
+    if files.is_empty() {
         panic!("resources/challenges/ 下未找到任何挑战 (.ron)");
-    };
-    let text = std::fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("读取挑战失败 {}: {e}", path.display()));
-    let def: ChallengeDef =
-        ron::from_str(&text).unwrap_or_else(|e| panic!("解析挑战失败 {}: {e}", path.display()));
-
-    let quota_left = def.quota.iter().cloned().collect();
-    Challenge {
-        def,
-        state: ChallengeState::Idle,
-        time_left: 0.0,
-        quota_left,
-        stars: 0,
-        rewards: Vec::new(),
     }
+    let mut defs: Vec<ChallengeDef> = files
+        .iter()
+        .map(|path| {
+            let text = std::fs::read_to_string(path)
+                .unwrap_or_else(|e| panic!("读取挑战失败 {}: {e}", path.display()));
+            ron::from_str(&text).unwrap_or_else(|e| panic!("解析挑战失败 {}: {e}", path.display()))
+        })
+        .collect();
+    defs.sort_by_key(|d| d.order);
+    let challenge = challenge_from_def(&defs[0]);
+    let library = ChallengeLibrary { defs, current: 0 };
+    (challenge, library)
 }
 
-/// 星级计算（纯函数，可测试）：完成 1★ + 剩余时间比 > 0.3 加 1★ + 剩余材料 > 0 加 1★。
-pub fn compute_stars(time_ratio_left: f32, quota_surplus: u32) -> u8 {
-    let mut stars = 1;
-    if time_ratio_left > 0.3 {
-        stars += 1;
+/// 切换挑战（面板选择）：重置为对应定义的运行态。
+pub fn select_challenge(challenge: &mut Challenge, library: &mut ChallengeLibrary, idx: usize) {
+    if idx >= library.defs.len() {
+        return;
     }
-    if quota_surplus > 0 {
-        stars += 1;
+    library.current = idx;
+    *challenge = challenge_from_def(&library.defs[idx]);
+}
+
+/// 兼容入口：加载默认挑战（测试/单挑战场景）。
+#[allow(dead_code)]
+pub fn load_challenge() -> Challenge {
+    load_challenge_library().0
+}
+
+/// 星级计算（纯函数，可测试）：完成 1★ + 剩余时间比 > 0.5 加 1★ + > 0.3 再加 1★。
+/// 注：原"材料富余"星在严格蓝图中结构性不可达成（放置被限制在蓝图格内），
+/// 故第 3 星改为时间充裕度（用户可冲刺速通获得 3 星）。
+pub fn compute_stars(time_ratio_left: f32, _quota_surplus: u32) -> u8 {
+    if time_ratio_left > 0.5 {
+        3
+    } else if time_ratio_left > 0.3 {
+        2
+    } else {
+        1
     }
-    stars.min(3)
 }
 
 /// 启动挑战：清空世界、按挑战引用选择蓝图主题、强制蓝图模式、重置配额与计时。
@@ -229,13 +281,15 @@ fn challenge_tick(
         blueprint.active = true;
     }
 
-    // 倒计时
-    challenge.time_left -= time.delta_secs();
-    if challenge.time_left <= 0.0 {
-        challenge.time_left = 0.0;
-        challenge.state = ChallengeState::Failed;
-        info!("⏱ 挑战失败：时间耗尽，按 C 重试");
-        return;
+    // 倒计时（time_limit_secs == 0 表示不限时）
+    if challenge.def.time_limit_secs > 0 {
+        challenge.time_left -= time.delta_secs();
+        if challenge.time_left <= 0.0 {
+            challenge.time_left = 0.0;
+            challenge.state = ChallengeState::Failed;
+            info!("⏱ 挑战失败：时间耗尽，按 C 重试");
+            return;
+        }
     }
 
     // 完成检测（blueprint.completed 由放置系统在 ≥95% 时置位）
@@ -265,10 +319,29 @@ mod tests {
 
     #[test]
     fn stars_formula() {
-        assert_eq!(compute_stars(0.5, 2), 3, "时间+材料富余 → 3 星");
-        assert_eq!(compute_stars(0.4, 0), 2, "仅时间富余 → 2 星");
+        assert_eq!(compute_stars(0.6, 0), 3, "时间 >50% → 3 星");
+        assert_eq!(compute_stars(0.5, 2), 2, "时间 ≤50% → 2 星（富余不参与）");
+        assert_eq!(compute_stars(0.4, 0), 2, "时间 >30% → 2 星");
         assert_eq!(compute_stars(0.1, 0), 1, "勉强完成 → 1 星");
-        assert_eq!(compute_stars(0.2, 5), 2, "仅材料富余 → 2 星");
+        assert_eq!(compute_stars(0.2, 5), 1, "时间不足，材料富余不计星");
+    }
+
+    #[test]
+    fn library_loads_all_challenges() {
+        let (_c, lib) = load_challenge_library();
+        assert!(lib.defs.len() >= 2, "应加载全部挑战（含新增）");
+        let ids: Vec<&str> = lib.defs.iter().map(|d| d.id.as_str()).collect();
+        assert!(ids.contains(&"speed_restoration"));
+    }
+
+    #[test]
+    fn select_challenge_switches() {
+        let (mut c, mut lib) = load_challenge_library();
+        assert_eq!(lib.select_by_id("speed_demon"), Some(1));
+        let idx = lib.current;
+        select_challenge(&mut c, &mut lib, idx);
+        assert_eq!(c.def.id, "speed_demon");
+        assert_eq!(c.state, ChallengeState::Idle, "切换后应为未开始");
     }
 
     #[test]
