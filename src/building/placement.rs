@@ -144,6 +144,8 @@ fn setup_block_assets(
             "dengzhu" => crate::building::meshes::column(0.22, h * GRID, 8),
             "liuliwa" | "chuiwa" => crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.26),
             "feiyan" | "qiaoshou" => crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.45),
+            "louban" | "louban5" => crate::building::meshes::eave_slab(w * GRID, d * GRID, 0.5),
+            "taiji" | "datiji" => crate::building::meshes::eave_slab(w * GRID, d * GRID, 0.5),
             "baoding" => crate::building::meshes::spire(0.9),
             "jizhuanding" => crate::building::meshes::conical_roof(w * GRID, d * GRID, h * GRID, 8),
             _ => Mesh::from(Cuboid::new(w * GRID, h * GRID, d * GRID)),

@@ -236,6 +236,77 @@ pub fn spire(height: f32) -> Mesh {
     )
 }
 
+/// 檐板（楼板级）：主体楼板 + 四边出挑檐口 + 四角起翘。
+/// 让每一层的楼板线读作"飞檐"，形成五层重檐的轮廓（黄鹤楼标志）。
+pub fn eave_slab(w: f32, d: f32, thick: f32) -> Mesh {
+    let o = 0.18; // 檐口出挑量
+    let u = 0.14; // 四角起翘量
+    let mid_y = thick * 0.85; // 檐边（非角）略低于顶面
+    let corner_y = thick + u; // 四角翘起
+
+    let hw = w / 2.0;
+    let hd = d / 2.0;
+
+    // 顶点：
+    // 0-3  底面四角 (y=0)
+    // 4-7  顶面四角 (y=thick)
+    // 8-15 檐口环：8 点（四角翘起 + 四边中点略低）
+    let bottom = [
+        [-hw, 0.0, -hd],
+        [hw, 0.0, -hd],
+        [hw, 0.0, hd],
+        [-hw, 0.0, hd],
+    ];
+    let top = [
+        [-hw, thick, -hd],
+        [hw, thick, -hd],
+        [hw, thick, hd],
+        [-hw, thick, hd],
+    ];
+    // 檐口环（外扩 o）：顺序 = 角0,边0,角1,边1,角2,边2,角3,边3
+    let lip: [[f32; 3]; 8] = [
+        [-hw - o, corner_y, -hd - o],
+        [0.0, mid_y, -hd - o],
+        [hw + o, corner_y, -hd - o],
+        [hw + o, mid_y, 0.0],
+        [hw + o, corner_y, hd + o],
+        [0.0, mid_y, hd + o],
+        [-hw - o, corner_y, hd + o],
+        [-hw - o, mid_y, 0.0],
+    ];
+
+    let mut positions: Vec<[f32; 3]> = Vec::new();
+    let mut normals: Vec<[f32; 3]> = Vec::new();
+    let mut uvs: Vec<[f32; 2]> = Vec::new();
+    let mut indices: Vec<u32> = Vec::new();
+
+    for p in bottom.iter().chain(top.iter()).chain(lip.iter()) {
+        positions.push(*p);
+        normals.push([0.0, 1.0, 0.0]);
+        uvs.push([0.0, 0.0]);
+    }
+
+    // 侧面：底面→顶面
+    for i in 0..4 {
+        let a = i;
+        let b = (i + 1) % 4;
+        indices.extend_from_slice(&[a, b, 4 + b, 4 + b, 4 + a, a]);
+    }
+    // 檐口：顶面角 → 檐口环（8 段）
+    // 顶面角 i (4+i) 对应檐口环角 (2i)；边 (2i+1)
+    for i in 0..4 {
+        let t = 4 + i; // 顶面角
+        let l0 = 2 * i; // 檐口角
+        let l1 = (2 * i + 1) % 8; // 檐口边
+        let l2 = (2 * i + 2) % 8; // 下一檐口角
+        indices.extend_from_slice(&[t, 8 + l0, 8 + l1, t, 8 + l1, 8 + l2]);
+    }
+    // 底面
+    indices.extend_from_slice(&[0, 2, 1, 0, 3, 2]);
+
+    finish(new_mesh(), positions, normals, uvs, indices)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -257,6 +328,21 @@ mod tests {
             assert!(mesh.attribute(Mesh::ATTRIBUTE_POSITION).is_some());
             assert!(mesh.attribute(Mesh::ATTRIBUTE_NORMAL).is_some());
         }
+    }
+
+    #[test]
+    fn eave_slab_has_upturned_corners() {
+        let mesh = eave_slab(4.0, 4.0, 0.5);
+        assert!(mesh.count_vertices() > 0);
+        let tris = mesh.triangles().map(|it| it.count()).unwrap_or(0);
+        assert!(tris > 0);
+        // 最高顶点应高于板厚（四角起翘）
+        let pos = mesh.attribute(Mesh::ATTRIBUTE_POSITION).unwrap();
+        let max_y = match pos {
+            VertexAttributeValues::Float32x3(v) => v.iter().map(|p| p[1]).fold(f32::MIN, f32::max),
+            _ => 0.0,
+        };
+        assert!(max_y > 0.6, "檐角应起翘（高于板厚 0.5），实际 {max_y}");
     }
 
     #[test]
