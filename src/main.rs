@@ -7,6 +7,7 @@ mod audio;
 mod building;
 mod camera;
 mod game_state;
+mod i18n;
 mod save;
 mod scene;
 mod screenshot;
@@ -24,6 +25,7 @@ use building::collection::CollectionPlugin;
 use building::placement::PlacementPlugin;
 use building::tutorial::TutorialPlugin;
 use camera::orbit_camera::OrbitCameraPlugin;
+use i18n::I18nPlugin;
 use game_state::GameState;
 use save::SavePlugin;
 use scene::ScenePlugin;
@@ -58,6 +60,7 @@ fn main() {
             SavePlugin,
             ScreenshotPlugin,
             StabilityPlugin,
+            I18nPlugin,
             StressPlugin,
         ))
         .run();

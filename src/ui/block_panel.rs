@@ -15,6 +15,7 @@ use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::{select_blueprint, Blueprint, BlueprintGhost, BlueprintLibrary};
 use crate::building::challenge::{start_challenge, Challenge, ChallengeState};
 use crate::building::placement::{PlacedBlock, PlacedBlocks};
+use crate::i18n::{t, Locale};
 use crate::save::{import_save, latest_ptw, load_save_from_path, SAVE_VERSION};
 
 /// 面板 Tab。
@@ -48,6 +49,7 @@ fn block_panel_ui(
     mut challenge: ResMut<Challenge>,
     collection: Res<crate::building::collection::Collection>,
     render: Res<crate::building::placement::BlockRenderAssets>,
+    locale: Res<Locale>,
     mut commands: Commands,
     mut stack: ResMut<PlacedBlocks>,
     placed_query: Query<Entity, With<PlacedBlock>>,
@@ -63,6 +65,7 @@ fn block_panel_ui(
     let Ok(ctx) = contexts.ctx_mut() else {
         return;
     };
+    let lang = locale.lang;
 
     // 首次运行时注入 CJK 子集字体（egui 默认字体不含中文）
     if !*fonts_loaded {
@@ -102,47 +105,44 @@ fn block_panel_ui(
         .default_size(210.0)
         .resizable(true)
         .show(&mut viewport_ui, |ui| {
-            ui.heading("黄鹤楼积木");
+            ui.heading(t("黄鹤楼积木", "Tower Blocks", lang));
             ui.separator();
 
             // Tab 切换
             ui.horizontal(|ui| {
-                ui.selectable_value(&mut *tab, PanelTab::Blocks, "积木");
-                ui.selectable_value(&mut *tab, PanelTab::Codex, "图鉴");
-                ui.selectable_value(&mut *tab, PanelTab::Achievements, "成就");
-                ui.selectable_value(&mut *tab, PanelTab::Archive, "存档");
+                ui.selectable_value(&mut *tab, PanelTab::Blocks, t("积木", "Blocks", lang));
+                ui.selectable_value(&mut *tab, PanelTab::Codex, t("图鉴", "Codex", lang));
+                ui.selectable_value(&mut *tab, PanelTab::Achievements, t("成就", "Achievements", lang));
+                ui.selectable_value(&mut *tab, PanelTab::Archive, t("存档", "Saves", lang));
             });
             ui.separator();
 
             // 挑战模式（B-16）
-            ui.label(format!("🏆 挑战：{}", challenge.def.name));
+            ui.label(format!("🏆 {}：{}", t("挑战", "Challenge", lang), challenge.def.name));
             match challenge.state {
                 ChallengeState::Active => {
-                    ui.label(format!("⏱ 剩余 {:.0} 秒", challenge.time_left));
+                    ui.label(format!("⏱ {} {:.0}s", t("剩余", "left", lang), challenge.time_left));
                     let (used, total) = challenge.quota_used_total();
-                    ui.label(format!("🧱 材料 {used}/{total}"));
-                    if ui.button("重新开始（C）").clicked() {
+                    ui.label(format!("🧱 {} {used}/{total}", t("材料", "materials", lang)));
+                    if ui.button(format!("{}（C）", t("重新开始", "Restart", lang))).clicked() {
                         start_requested = true;
                     }
                 }
                 ChallengeState::Won => {
-                    ui.label(format!(
-                        "✨ 完成：{} ★",
-                        "★".repeat(challenge.stars as usize)
-                    ));
-                    if ui.button("再次挑战（C）").clicked() {
+                    ui.label(format!("✨ {}: {} ★", t("完成", "Won", lang), "★".repeat(challenge.stars as usize)));
+                    if ui.button(format!("{}（C）", t("再次挑战", "Play again", lang))).clicked() {
                         start_requested = true;
                     }
                 }
                 ChallengeState::Failed => {
-                    ui.label("⏱ 挑战失败：时间耗尽");
-                    if ui.button("重试（C）").clicked() {
+                    ui.label(format!("⏱ {}: {}", t("挑战失败", "Failed", lang), t("时间耗尽", "time up", lang)));
+                    if ui.button(format!("{}（C）", t("重试", "Retry", lang))).clicked() {
                         start_requested = true;
                     }
                 }
                 ChallengeState::Idle => {
                     ui.label(&challenge.def.description);
-                    if ui.button("开始挑战（C）").clicked() {
+                    if ui.button(format!("{}（C）", t("开始挑战", "Start Challenge", lang))).clicked() {
                         start_requested = true;
                     }
                 }
@@ -152,7 +152,7 @@ fn block_panel_ui(
             // 蓝图模式：主题选择 + 完成度进度条
             if blueprint.active {
                 let mut picked = blueprint_library.current;
-                egui::ComboBox::from_label("蓝图主题")
+                egui::ComboBox::from_label(t("蓝图主题", "Blueprint Theme", lang))
                     .selected_text(blueprint_library.current_def().name.clone())
                     .show_ui(ui, |ui| {
                         for (i, def) in blueprint_library.defs.iter().enumerate() {
@@ -162,13 +162,13 @@ fn block_panel_ui(
                 if picked != blueprint_library.current {
                     theme_switch = Some(picked);
                 }
-                ui.label(format!("蓝图：{}", blueprint.def.name));
+                ui.label(format!("{}: {}", t("蓝图", "Blueprint", lang), blueprint.def.name));
                 let completion = blueprint.completion.clamp(0.0, 1.0);
                 ui.add(
                     egui::ProgressBar::new(completion)
-                        .text(format!("完成度 {:.0}%", completion * 100.0)),
+                        .text(format!("{} {:.0}%", t("完成度", "Done", lang), completion * 100.0)),
                 );
-                ui.label("仅可放置蓝图期望格（红=不匹配）");
+                ui.label(t("仅可放置蓝图期望格（红=不匹配）", "Only blueprint cells (red = mismatch)", lang));
                 ui.separator();
             }
 
@@ -206,11 +206,7 @@ fn block_panel_ui(
                 }
                 PanelTab::Codex => {
                     // 图鉴（B-18）
-                    ui.label(format!(
-                        "📖 部件图鉴 {}/{}",
-                        collection.codex.len(),
-                        library.defs.len()
-                    ));
+                    ui.label(format!("📖 {} {}/{}", t("部件图鉴", "Codex", lang), collection.codex.len(), library.defs.len()));
                     ui.separator();
                     egui::ScrollArea::vertical()
                         .auto_shrink([false, false])
@@ -239,7 +235,7 @@ fn block_panel_ui(
                                         );
                                     }
                                 } else {
-                                    ui.label(format!("？？？ — 蓝图复原中放置「{}」解锁", def.name));
+                                    ui.label(format!("？？？ — {}「{}」", t("蓝图复原中放置此部件解锁", "Place this part in blueprint mode to unlock", lang), def.name));
                                 }
                                 ui.separator();
                             }
@@ -247,10 +243,7 @@ fn block_panel_ui(
                 }
                 PanelTab::Achievements => {
                     // 成就（B-18）
-                    ui.label(format!(
-                        "🏅 成就 {}/5",
-                        collection.achievements.len()
-                    ));
+                    ui.label(format!("🏅 {} {}/5", t("成就", "Achievements", lang), collection.achievements.len()));
                     ui.separator();
                     for (id, name, desc) in crate::building::collection::achievement_defs() {
                         let unlocked = collection.achievements.contains(id);
@@ -268,21 +261,21 @@ fn block_panel_ui(
                 }
                 PanelTab::Archive => {
                     // 存档与分享（B-23）
-                    ui.label(format!("格式版本 v{SAVE_VERSION}，.ptw"));
+                    ui.label(format!("{} v{SAVE_VERSION} .ptw", t("格式版本", "Format", lang)));
                     ui.separator();
                     ui.horizontal(|ui| {
-                        if ui.button("💾 保存 (F5)").clicked() {
+                        if ui.button(format!("💾 {} (F5)", t("保存", "Save", lang))).clicked() {
                             save_requested = true;
                         }
-                        if ui.button("📤 分享导出 (F7)").clicked() {
+                        if ui.button(format!("📤 {} (F7)", t("分享导出", "Share", lang))).clicked() {
                             share_requested = true;
                         }
-                        if ui.button("📄 JSON 导出 (F6)").clicked() {
+                        if ui.button(format!("📄 JSON {} (F6)", t("导出", "Export", lang))).clicked() {
                             json_requested = true;
                         }
                     });
                     ui.separator();
-                    ui.label("存档列表（点击加载）：");
+                    ui.label(t("存档列表（点击加载）", "Save files (click to load):", lang));
                     let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("saves");
                     let files = latest_ptw(&dir).map(|_| {
                         std::fs::read_dir(&dir)
@@ -307,12 +300,12 @@ fn block_panel_ui(
                         }
                     }
                     if files.is_empty() {
-                        ui.label("（暂无存档，先按 F5 保存）");
+                        ui.label(t("（暂无存档，先按 F5 保存）", "(No saves yet - press F5)", lang));
                     }
                     ui.separator();
-                    ui.label("自定义路径导入：");
+                    ui.label(t("自定义路径导入", "Import from path", lang));
                     ui.text_edit_singleline(&mut *import_path);
-                    if ui.button("导入 .ptw").clicked() {
+                    if ui.button(format!("{} .ptw", t("导入", "Import", lang))).clicked() {
                         let p = import_path.trim().to_string();
                         if !p.is_empty() {
                             import_requested = Some(std::path::PathBuf::from(p));

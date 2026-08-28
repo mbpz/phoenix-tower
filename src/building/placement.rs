@@ -405,8 +405,10 @@ fn select_block(keys: Res<ButtonInput<KeyCode>>, mut library: ResMut<BlockLibrar
 
 /// 幽灵预览：跟随当前积木在光标列的落位；蓝图模式下红/绿反馈；
 /// 挑战模式配额耗尽时同样显示红色。
+/// 无障碍（B-25）：无效态除红色外叠加脉冲缩放——不依赖纯颜色的可辨反馈。
 fn update_ghost_preview(
     mut commands: Commands,
+    time: Res<Time>,
     windows: Query<&Window, With<PrimaryWindow>>,
     cameras: Query<(&Camera, &GlobalTransform), With<Camera3d>>,
     mut ghost: Query<
@@ -442,6 +444,13 @@ fn update_ghost_preview(
         render.ghost_bad_material.clone()
     };
     let ghost_rot = rotation_quat(rot);
+    // 无效态脉冲（无障碍：非纯颜色反馈，约 2.5 Hz 呼吸）
+    let pulse = if ok {
+        Vec3::ONE
+    } else {
+        let s = 1.0 + 0.18 * (time.elapsed_secs() * 16.0).sin().abs();
+        Vec3::splat(s)
+    };
 
     let mut existing = ghost.single_mut().ok();
     match (existing.take(), target) {
@@ -449,7 +458,7 @@ fn update_ghost_preview(
             commands.spawn((
                 Mesh3d(mesh_handle.clone()),
                 MeshMaterial3d(ghost_mat),
-                Transform::from_translation(pos).with_rotation(ghost_rot),
+                Transform::from_translation(pos).with_rotation(ghost_rot).with_scale(pulse),
                 GhostBlock,
                 Name::new("GhostBlock"),
             ));
@@ -457,6 +466,7 @@ fn update_ghost_preview(
         (Some((_e, mut transform, mut mesh, mut mat)), Some(pos)) => {
             transform.translation = pos;
             transform.rotation = ghost_rot;
+            transform.scale = pulse;
             if mesh.0 != *mesh_handle {
                 mesh.0 = mesh_handle.clone();
             }

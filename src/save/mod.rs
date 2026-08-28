@@ -255,7 +255,12 @@ fn handle_save_load(
     }
 
     if keys.just_pressed(KeyCode::F9) {
-        match load_save_from_path(&dir.join(SLOT_FILENAME)) {
+        let slot = dir.join(SLOT_FILENAME);
+        if !slot.exists() {
+            info!("💾 暂无存档（先按 F5 保存）");
+            return;
+        }
+        match load_save_from_path(&slot) {
             Ok(save) => {
                 let loaded = import_save(
                     &mut commands,

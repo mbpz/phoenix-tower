@@ -17,6 +17,7 @@ use crate::building::placement::PlacedBlocks;
 pub struct TutorialStep {
     pub block_id: String,
     pub label: String,
+    pub label_en: String,
     pub cells: Vec<IVec3>,
 }
 
@@ -74,16 +75,19 @@ pub fn load_tutorial() -> Tutorial {
             TutorialStep {
                 block_id: "taiji".to_string(),
                 label: "第 1 步（共 3 步）：放置台基 —— 把绿色幽灵对准中央地面，左键点击放置".to_string(),
+                label_en: "Step 1/3: Place the base platform — aim the green ghost at the ground center and left-click".to_string(),
                 cells: taiji_cells,
             },
             TutorialStep {
                 block_id: "hongzhu".to_string(),
                 label: "第 2 步（共 3 步）：放置红柱 —— 在台基四角立起朱红立柱（已自动选中红柱）".to_string(),
+                label_en: "Step 2/3: Place vermilion columns at the four corners (auto-selected)".to_string(),
                 cells: zhu_cells,
             },
             TutorialStep {
                 block_id: "liuliwa".to_string(),
                 label: "第 3 步（共 3 步）：铺设琉璃瓦 —— 在楼顶铺满黄色琉璃瓦".to_string(),
+                label_en: "Step 3/3: Cover the roof with golden glazed tiles".to_string(),
                 cells: wa_cells,
             },
         ],
