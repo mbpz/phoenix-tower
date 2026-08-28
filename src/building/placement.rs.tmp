@@ -1,0 +1,17 @@
+#[test]
+fn debug_anchor() {
+    let lib = load_block_library();
+    let (bp, _) = crate::building::blueprint::load_blueprint_library();
+    let stack = PlacedBlocks::default();
+    let taiji = &lib.defs[lib.by_id["taiji"]];
+    // 直接检查 (-4,0,-4) 的 footprint 是否匹配
+    let cells = footprint_cells(IVec3::new(-4, 0, -4), taiji, 0);
+    eprintln!("footprint len: {}", cells.len());
+    eprintln!("match(-4,0,-4): {}", footprint_matches(&bp.expected, &cells, "taiji"));
+    // 光标 (-2,-2) 的完整搜索
+    let a = placement_anchor((-2, -2), taiji, 0, &stack, &bp);
+    eprintln!("anchor for (-2,-2): {:?}", a);
+    // 检查 expected 中 y=0 的格子
+    let y0: Vec<_> = bp.expected.keys().filter(|c| c.y == 0).collect();
+    eprintln!("y0 count: {}", y0.len());
+}

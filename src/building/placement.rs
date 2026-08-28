@@ -47,8 +47,8 @@ impl Plugin for PlacementPlugin {
 
 /// 网格尺寸：1 单位 = 1 格。
 const GRID: f32 = 1.0;
-/// 点击 / 拖拽判定阈值（逻辑像素）
-const CLICK_DRAG_THRESHOLD: f32 = 6.0;
+/// 点击 / 拖拽判定阈值（逻辑像素；10px 兼容触控板按下时的微动）
+const CLICK_DRAG_THRESHOLD: f32 = 10.0;
 /// 蓝图模式 y 扫描上限（防失控循环）
 const MAX_BLUEPRINT_Y: i32 = 64;
 /// 撤销历史上限（PRD §3.2：撤销/重做至少 20 步）
@@ -275,17 +275,36 @@ fn placement_anchor(
     stack: &PlacedBlocks,
     blueprint: &Blueprint,
 ) -> Option<IVec3> {
-    let (ax, az) = anchor_xz(col, def, rot);
     if blueprint.active {
-        for y in 0..=MAX_BLUEPRINT_Y {
-            let anchor = IVec3::new(ax, y, az);
-            let cells = footprint_cells(anchor, def, rot);
-            if footprint_matches(&blueprint.expected, &cells, &def.id) {
-                return Some(anchor);
+        // 蓝图模式：宽容定位——光标落在 footprint 内即可。
+        // 从最接近中心的光标偏移开始搜索合法锚点（优先居中）。
+        // （原实现只试"光标为中心"的单一锚点，5×5 台基等大块只有 1 个
+        //   有效光标位，教程几乎无法完成——用户反馈后修复）
+        let (w, d) = rotated_footprint(def, rot);
+        let (w, d) = (w as i32, d as i32);
+        let mut offsets: Vec<(i32, i32)> = Vec::with_capacity((w * d) as usize);
+        for dx in 0..w {
+            for dz in 0..d {
+                offsets.push((dx, dz));
+            }
+        }
+        // 按与中心偏移的距离排序：|dx - (w-1)/2| + |dz - (d-1)/2|
+        let (cw, cd) = ((w - 1) / 2, (d - 1) / 2);
+        offsets.sort_by_key(|(dx, dz)| (dx - cw).abs() + (dz - cd).abs());
+        for (dx, dz) in offsets {
+            let ax = col.0 - dx;
+            let az = col.1 - dz;
+            for y in 0..=MAX_BLUEPRINT_Y {
+                let anchor = IVec3::new(ax, y, az);
+                let cells = footprint_cells(anchor, def, rot);
+                if footprint_matches(&blueprint.expected, &cells, &def.id) {
+                    return Some(anchor);
+                }
             }
         }
         None
     } else {
+        let (ax, az) = anchor_xz(col, def, rot);
         let cols = footprint_columns(def, ax, az, rot);
         let y = base_y_for(&stack.col_top, &cols);
         Some(IVec3::new(ax, y, az))
@@ -755,5 +774,43 @@ mod tests {
         a.sort();
         b.sort();
         assert_eq!(a, b, "180° 旋转 footprint 应与 0° 一致");
+    }
+
+    #[test]
+    fn blueprint_tolerant_anchor_covers_full_footprint() {
+        let lib = load_block_library();
+        let (mut bp, _) = crate::building::blueprint::load_blueprint_library();
+        bp.active = true; // 蓝图分支（load 返回的 bp.active 为 false）
+        let stack = PlacedBlocks::default();
+        let taiji = &lib.defs[lib.by_id["taiji"]]; // 5×1×5
+                                                   // 台基区域内任意光标格都应宽容定位到唯一合法锚点 (-2,0,-2)
+        for (cx, cz) in [(-2, -2), (1, 1), (-1, 2), (0, 0), (2, -1)] {
+            let anchor = placement_anchor((cx, cz), taiji, 0, &stack, &bp);
+            assert_eq!(
+                anchor,
+                Some(IVec3::new(-2, 0, -2)),
+                "光标 ({cx},{cz}) 应宽容定位到台基锚点"
+            );
+        }
+        // 区域外（如 (5,5)）仍应失败
+        assert_eq!(placement_anchor((5, 5), taiji, 0, &stack, &bp), None);
+    }
+
+    #[test]
+    fn blueprint_tolerant_anchor_beam_any_cell() {
+        let lib = load_block_library();
+        let (mut bp, _) = crate::building::blueprint::load_blueprint_library();
+        bp.active = true;
+        let stack = PlacedBlocks::default();
+        let liangfang = &lib.defs[lib.by_id["liangfang"]]; // 4×1×1
+                                                           // 4 格梁枋：光标在梁身任意格都应定位到合法锚点（y=5）
+        for (cx, cz) in [(-2, -2), (-1, -2), (0, -2), (1, -2), (0, 1), (1, 1)] {
+            let anchor = placement_anchor((cx, cz), liangfang, 0, &stack, &bp);
+            assert!(anchor.is_some(), "光标 ({cx},{cz}) 应可放置梁枋");
+            let a = anchor.unwrap();
+            assert_eq!(a.y, 5, "梁枋应在 y=5");
+        }
+        // 不在梁枋行的位置应失败
+        assert_eq!(placement_anchor((0, 3), liangfang, 0, &stack, &bp), None);
     }
 }
