@@ -2,8 +2,9 @@
 
 基于 **Rust + Bevy 0.19** 的轻量级 3D 积木搭建游戏：以武汉黄鹤楼为主题，玩家通过放置模块化积木**精准复原**、**自由创造**或**挑战重建**这座千年名楼。
 
-> 状态：**Phase 0 技术验证进行中**（当前进度见下方）
+> 状态：**Phase 0-3 自动可交付项全部完成**（仅剩人工验收与 Web 决策）
 > 产品方案：`docs/PRD.md` ｜ 评审报告：`docs/REVIEW.md` ｜ 任务清单：`docs/BACKLOG.md` ｜ 技术决策：`docs/adr/`
+> 人工验收清单：`docs/ACCEPTANCE.md` ｜ Web 移植评估：`docs/WEB_ASSESSMENT.md`
 
 ## 快速开始
 
