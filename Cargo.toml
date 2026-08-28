@@ -8,7 +8,8 @@ license = "MIT"
 [dependencies]
 # 引擎锁定 0.19 大版本（当前最新稳定 0.19.1）。
 # 升级策略见 docs/adr/ADR-001-engine-versioning.md
-bevy = "0.19"
+# wav 特性：B-19 音频使用程序化生成的 WAV 音效（默认 audio 特性仅含 vorbis）
+bevy = { version = "0.19", features = ["wav"] }
 # 积木定义数据驱动（B-06）：resources/blocks/*.ron
 serde = { version = "1", features = ["derive"] }
 ron = "0.9"

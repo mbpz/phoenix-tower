@@ -16,6 +16,7 @@ use super::blueprint::{
     compute_completion, footprint_matches, load_blueprint, Blueprint, BlueprintGhost,
 };
 use super::challenge::Challenge;
+use crate::audio::{play_placement_sound, sound_kind_for, AudioAssets};
 
 pub struct PlacementPlugin;
 
@@ -435,6 +436,7 @@ fn handle_place_and_undo(
     cameras: Query<(&Camera, &GlobalTransform), With<Camera3d>>,
     library: Res<BlockLibrary>,
     render: Res<BlockRenderAssets>,
+    audio: Res<AudioAssets>,
     mouse: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut stack: ResMut<PlacedBlocks>,
@@ -565,6 +567,9 @@ fn handle_place_and_undo(
                             cells,
                         });
                         click.placed_this_press = true;
+
+                        // 放置音效（B-19）：按积木分类
+                        play_placement_sound(&mut commands, &audio, sound_kind_for(&def.category));
 
                         // 新放置清空重做栈（标准撤销/重做语义）
                         stack.redo.clear();

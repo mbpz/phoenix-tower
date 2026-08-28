@@ -3,6 +3,7 @@
 //! 当前阶段：Phase 1 起步（B-06 数据驱动积木 + B-13 场景基础）。
 //! 任务追踪见 docs/BACKLOG.md，产品方案见 docs/PRD.md。
 
+mod audio;
 mod building;
 mod camera;
 mod game_state;
@@ -13,6 +14,7 @@ mod ui;
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 
+use audio::AudioPlugin;
 use building::challenge::ChallengePlugin;
 use building::collection::CollectionPlugin;
 use building::placement::PlacementPlugin;
@@ -41,6 +43,7 @@ fn main() {
             TutorialPlugin,
             ChallengePlugin,
             CollectionPlugin,
+            AudioPlugin,
             ScenePlugin,
             HudPlugin,
             BlockPanelPlugin,
