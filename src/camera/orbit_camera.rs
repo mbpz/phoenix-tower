@@ -7,7 +7,7 @@
 //!
 //! 参数均收敛在有界范围内，保证古建对称美学下视角始终稳定。
 
-use bevy::input::mouse::{MouseMotion, MouseWheel};
+use bevy::input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll};
 use bevy::prelude::*;
 
 pub struct OrbitCameraPlugin;
@@ -80,18 +80,12 @@ fn orbit_camera_system(
     mut orbit: ResMut<OrbitCamera>,
     mut camera_query: Query<&mut Transform, With<Camera3d>>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
-    mut mouse_motion: EventReader<MouseMotion>,
-    mut scroll_events: EventReader<MouseWheel>,
+    mouse_motion: Res<AccumulatedMouseMotion>,
+    mouse_scroll: Res<AccumulatedMouseScroll>,
 ) {
-    let mut drag_delta = Vec2::ZERO;
-    for ev in mouse_motion.read() {
-        drag_delta += ev.delta;
-    }
-
-    let mut scroll = 0.0;
-    for ev in scroll_events.read() {
-        scroll += ev.y;
-    }
+    // Bevy 0.19：鼠标位移/滚轮为逐帧累加资源（每帧自动清零）
+    let drag_delta = mouse_motion.delta;
+    let scroll = mouse_scroll.delta.y;
 
     if mouse_buttons.pressed(MouseButton::Left) {
         orbit.yaw -= drag_delta.x * ORBIT_SPEED;
@@ -103,7 +97,8 @@ fn orbit_camera_system(
         let forward = (orbit.target - orbit.position()).normalize_or_zero();
         let right = forward.cross(Vec3::Y).normalize_or_zero();
         let up = right.cross(forward).normalize_or_zero();
-        orbit.target += (right * drag_delta.x + up * drag_delta.y) * PAN_SPEED * orbit.distance;
+        let distance = orbit.distance;
+        orbit.target += (right * drag_delta.x + up * drag_delta.y) * PAN_SPEED * distance;
     }
 
     orbit.distance =

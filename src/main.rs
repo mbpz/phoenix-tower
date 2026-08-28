@@ -74,7 +74,7 @@ fn setup_ui_hint(mut commands: Commands) {
              Scroll: zoom | Backspace: undo last | Esc: quit",
         ),
         TextFont {
-            font_size: 16.0,
+            font_size: FontSize::Px(16.0),
             ..default()
         },
         TextColor(Color::WHITE),
