@@ -14,7 +14,7 @@ use std::collections::HashMap;
 use bevy::prelude::*;
 use serde::Deserialize;
 
-use crate::building::blueprint::Blueprint;
+use crate::building::blueprint::{blueprint_from_def, Blueprint, BlueprintLibrary};
 use crate::building::placement::{PlacedBlock, PlacedBlocks};
 
 /// 挑战定义（resources/challenges/*.ron）。
@@ -144,12 +144,13 @@ pub fn compute_stars(time_ratio_left: f32, quota_surplus: u32) -> u8 {
     stars.min(3)
 }
 
-/// 启动挑战：清空世界、强制蓝图模式、重置配额与计时。
+/// 启动挑战：清空世界、按挑战引用选择蓝图主题、强制蓝图模式、重置配额与计时。
 /// （C 键与面板按钮共用此入口）
 pub fn start_challenge(
     commands: &mut Commands,
     stack: &mut PlacedBlocks,
     blueprint: &mut Blueprint,
+    blueprint_library: &mut BlueprintLibrary,
     challenge: &mut Challenge,
     placed_query: &Query<Entity, With<PlacedBlock>>,
 ) {
@@ -162,17 +163,20 @@ pub fn start_challenge(
     stack.redo.clear();
     stack.revision += 1;
 
+    // 挑战按 blueprint_id 选择主题（B-24：主题包切换后挑战仍对应正确蓝图）
+    if let Some(idx) = blueprint_library.select_by_id(&challenge.def.blueprint_id) {
+        *blueprint = blueprint_from_def(blueprint_library.current_def());
+        debug_assert_eq!(idx, blueprint_library.current);
+    } else {
+        warn!(
+            "挑战「{}」引用的蓝图 {} 未加载",
+            challenge.def.name, challenge.def.blueprint_id
+        );
+    }
+
     blueprint.active = true;
     blueprint.completed = false;
     blueprint.completion = 0.0;
-
-    // 校验挑战引用的蓝图存在（当前仅一个蓝图，全匹配；多蓝图时用于选择）
-    if blueprint.def.id != challenge.def.blueprint_id {
-        warn!(
-            "挑战「{}」引用的蓝图 {} 未加载（当前蓝图 {}）",
-            challenge.def.name, challenge.def.blueprint_id, blueprint.def.id
-        );
-    }
 
     challenge.state = ChallengeState::Active;
     challenge.time_left = challenge.def.time_limit_secs as f32;
@@ -194,6 +198,7 @@ fn challenge_key_start(
     mut commands: Commands,
     mut stack: ResMut<PlacedBlocks>,
     mut blueprint: ResMut<Blueprint>,
+    mut blueprint_library: ResMut<BlueprintLibrary>,
     mut challenge: ResMut<Challenge>,
     placed_query: Query<Entity, With<PlacedBlock>>,
 ) {
@@ -202,6 +207,7 @@ fn challenge_key_start(
             &mut commands,
             &mut stack,
             &mut blueprint,
+            &mut blueprint_library,
             &mut challenge,
             &placed_query,
         );

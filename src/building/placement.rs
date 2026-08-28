@@ -13,7 +13,7 @@ use std::collections::{HashMap, HashSet};
 
 use super::block_defs::{load_block_library, BlockDef, BlockLibrary};
 use super::blueprint::{
-    compute_completion, footprint_matches, load_blueprint, Blueprint, BlueprintGhost,
+    compute_completion, footprint_matches, load_blueprint_library, Blueprint, BlueprintGhost,
 };
 use super::challenge::Challenge;
 use crate::audio::{play_placement_sound, sound_kind_for, AudioAssets};
@@ -23,8 +23,10 @@ pub struct PlacementPlugin;
 
 impl Plugin for PlacementPlugin {
     fn build(&self, app: &mut App) {
+        let (blueprint, blueprint_library) = load_blueprint_library();
         app.insert_resource(load_block_library())
-            .insert_resource(load_blueprint())
+            .insert_resource(blueprint)
+            .insert_resource(blueprint_library)
             .insert_resource(PlacedBlocks::default())
             .insert_resource(ClickState::default())
             .add_systems(Startup, setup_block_assets)

@@ -1,7 +1,7 @@
 (
-    id: "yellow_crane_tower",
-    order: 1,
-    name: "黄鹤楼（简化版）",
+    id: "yueyanglou",
+    name: "岳阳楼（简化版）",
+    order: 3,
     cells: [
         (-2, 0, -2, "taiji"),
         (-2, 0, -1, "taiji"),
@@ -81,8 +81,9 @@
         (1, 6, 0, "liuliwa"),
         (1, 6, 1, "liuliwa"),
         (0, 7, 0, "baoding"),
-        (0, 2, 2, "biane"),
         (2, 4, 2, "denglong"),
         (-2, 4, 2, "denglong"),
+        (0, 2, 2, "biane"),
+        (0, 4, 2, "tonghe"),
     ],
 )

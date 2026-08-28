@@ -12,7 +12,7 @@ use bevy_egui::egui::{self, Color32, FontData, FontDefinitions, LayerId, RichTex
 use bevy_egui::{EguiContexts, EguiPrimaryContextPass};
 
 use crate::building::block_defs::BlockLibrary;
-use crate::building::blueprint::Blueprint;
+use crate::building::blueprint::{select_blueprint, Blueprint, BlueprintGhost, BlueprintLibrary};
 use crate::building::challenge::{start_challenge, Challenge, ChallengeState};
 use crate::building::placement::{PlacedBlock, PlacedBlocks};
 
@@ -41,11 +41,13 @@ fn block_panel_ui(
     mut tab: Local<PanelTab>,
     mut library: ResMut<BlockLibrary>,
     mut blueprint: ResMut<Blueprint>,
+    mut blueprint_library: ResMut<BlueprintLibrary>,
     mut challenge: ResMut<Challenge>,
     collection: Res<crate::building::collection::Collection>,
     mut commands: Commands,
     mut stack: ResMut<PlacedBlocks>,
     placed_query: Query<Entity, With<PlacedBlock>>,
+    ghost_query: Query<Entity, With<BlueprintGhost>>,
 ) {
     let Ok(ctx) = contexts.ctx_mut() else {
         return;
@@ -86,6 +88,7 @@ fn block_panel_ui(
     );
 
     let mut start_requested = false;
+    let mut theme_switch: Option<usize> = None;
     egui::Panel::left("block_panel")
         .default_size(210.0)
         .resizable(true)
@@ -136,8 +139,19 @@ fn block_panel_ui(
             }
             ui.separator();
 
-            // 蓝图模式：完成度进度条
+            // 蓝图模式：主题选择 + 完成度进度条
             if blueprint.active {
+                let mut picked = blueprint_library.current;
+                egui::ComboBox::from_label("蓝图主题")
+                    .selected_text(blueprint_library.current_def().name.clone())
+                    .show_ui(ui, |ui| {
+                        for (i, def) in blueprint_library.defs.iter().enumerate() {
+                            ui.selectable_value(&mut picked, i, def.name.clone());
+                        }
+                    });
+                if picked != blueprint_library.current {
+                    theme_switch = Some(picked);
+                }
                 ui.label(format!("蓝图：{}", blueprint.def.name));
                 let completion = blueprint.completion.clamp(0.0, 1.0);
                 ui.add(
@@ -245,12 +259,21 @@ fn block_panel_ui(
             }
         });
 
-    // 面板关闭后应用挑战启动（需要可变借用 stack/blueprint/challenge）
+    // 面板关闭后应用挑战启动 / 主题切换（需要可变借用）
+    if let Some(idx) = theme_switch {
+        select_blueprint(&mut blueprint, &mut blueprint_library, idx);
+        // 切换后销毁旧幽灵蓝图，由对账系统按新蓝图重建
+        for e in ghost_query.iter() {
+            commands.entity(e).despawn();
+        }
+        info!("🏯 主题切换：{}", blueprint_library.current_def().name);
+    }
     if start_requested {
         start_challenge(
             &mut commands,
             &mut stack,
             &mut blueprint,
+            &mut blueprint_library,
             &mut challenge,
             &placed_query,
         );
