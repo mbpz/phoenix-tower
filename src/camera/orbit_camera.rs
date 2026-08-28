@@ -18,8 +18,30 @@ impl Plugin for OrbitCameraPlugin {
             .add_systems(Startup, spawn_orbit_camera)
             .add_systems(
                 Update,
-                (completion_autopilot_system, orbit_camera_system).chain(),
+                (
+                    camera_sanity_check,
+                    completion_autopilot_system,
+                    orbit_camera_system,
+                )
+                    .chain(),
             );
+    }
+}
+
+/// 护栏：主相机（排除截图相机）必须恰好 1 个。
+/// 多个 Camera3d 会让 `.single()` 静默失效（B-21 曾因此导致鼠标交互全挂），
+/// 启动即响亮报错以便及时发现。
+fn camera_sanity_check(
+    mut done: Local<bool>,
+    cameras: Query<(), (With<Camera3d>, Without<crate::screenshot::CaptureCamera>)>,
+) {
+    if *done {
+        return;
+    }
+    *done = true;
+    let n = cameras.iter().count();
+    if n != 1 {
+        error!("主相机数量异常：{n}（应为 1；多相机会导致 .single() 查询静默失效）");
     }
 }
 
@@ -92,7 +114,11 @@ fn spawn_orbit_camera(mut commands: Commands, orbit: Res<OrbitCamera>) {
 
 fn orbit_camera_system(
     mut orbit: ResMut<OrbitCamera>,
-    mut camera_query: Query<&mut Transform, With<Camera3d>>,
+    // 排除离屏截图相机（B-21 引入的第二个 Camera3d），否则 single_mut 失效
+    mut camera_query: Query<
+        &mut Transform,
+        (With<Camera3d>, Without<crate::screenshot::CaptureCamera>),
+    >,
     time: Res<Time>,
     mouse_buttons: Res<ButtonInput<MouseButton>>,
     mouse_motion: Res<AccumulatedMouseMotion>,

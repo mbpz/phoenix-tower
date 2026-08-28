@@ -175,9 +175,13 @@ fn setup_block_assets(
 // ---------- 几何与匹配辅助 ----------
 
 /// 鼠标位置 → y=0 地面上的列 (x, z)。
+/// 排除离屏截图相机（B-21 引入的第二个 Camera3d），否则 single() 会因多匹配失效。
 fn cursor_column(
     windows: &Query<&Window, With<PrimaryWindow>>,
-    cameras: &Query<(&Camera, &GlobalTransform), With<Camera3d>>,
+    cameras: &Query<
+        (&Camera, &GlobalTransform),
+        (With<Camera3d>, Without<crate::screenshot::CaptureCamera>),
+    >,
 ) -> Option<(i32, i32)> {
     let window = windows.single().ok()?;
     let cursor = window.cursor_position()?;
@@ -425,7 +429,10 @@ fn update_ghost_preview(
     mut commands: Commands,
     time: Res<Time>,
     windows: Query<&Window, With<PrimaryWindow>>,
-    cameras: Query<(&Camera, &GlobalTransform), With<Camera3d>>,
+    cameras: Query<
+        (&Camera, &GlobalTransform),
+        (With<Camera3d>, Without<crate::screenshot::CaptureCamera>),
+    >,
     mut ghost: Query<
         (
             Entity,
@@ -509,7 +516,10 @@ fn handle_place_and_undo(
     mut commands: Commands,
     mut click: ResMut<ClickState>,
     windows: Query<&Window, With<PrimaryWindow>>,
-    cameras: Query<(&Camera, &GlobalTransform), With<Camera3d>>,
+    cameras: Query<
+        (&Camera, &GlobalTransform),
+        (With<Camera3d>, Without<crate::screenshot::CaptureCamera>),
+    >,
     library: Res<BlockLibrary>,
     render: Res<BlockRenderAssets>,
     audio: Res<AudioAssets>,

@@ -19,7 +19,6 @@ use crate::building::placement::{BlockRenderAssets, BlueprintAlpha, PlacedBlock,
 use crate::i18n::{t, Locale};
 use crate::save::{import_save, latest_ptw, load_save_from_path, SAVE_VERSION};
 
-
 /// 面板资源打包（Bevy 系统参数上限 16，合并为一组）。
 #[derive(bevy::ecs::system::SystemParam)]
 struct PanelCtx<'w> {
@@ -239,10 +238,11 @@ fn block_panel_ui(
                 // 蓝图透明度滑杆（B-10 打磨）：实时调整幽灵蓝图透明度
                 let mut alpha = ghost_alpha.value;
                 if ui
-                    .add(
-                        egui::Slider::new(&mut alpha, 0.1..=0.8)
-                            .text(t("蓝图透明度", "Ghost opacity", lang)),
-                    )
+                    .add(egui::Slider::new(&mut alpha, 0.1..=0.8).text(t(
+                        "蓝图透明度",
+                        "Ghost opacity",
+                        lang,
+                    )))
                     .changed()
                 {
                     alpha_dirty = Some(alpha);
