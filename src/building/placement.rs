@@ -17,6 +17,7 @@ use super::blueprint::{
 };
 use super::challenge::Challenge;
 use crate::audio::{play_placement_sound, sound_kind_for, AudioAssets};
+use crate::stability::RemoveMode;
 
 pub struct PlacementPlugin;
 
@@ -271,7 +272,7 @@ fn placement_anchor(
 }
 
 /// 由放置记录重建「列顶高度」映射（撤销后使用）。
-fn rebuild_col_top_mut(stack: &mut PlacedBlocks) {
+pub(crate) fn rebuild_col_top_mut(stack: &mut PlacedBlocks) {
     let mut col_top: HashMap<(i32, i32), i32> = HashMap::new();
     for record in &stack.records {
         for cell in &record.cells {
@@ -280,6 +281,39 @@ fn rebuild_col_top_mut(stack: &mut PlacedBlocks) {
         }
     }
     stack.col_top = col_top;
+}
+
+/// 生成积木实体（放置/重做/读档/复原共用）。
+pub(crate) fn spawn_block_entity(
+    commands: &mut Commands,
+    library: &BlockLibrary,
+    render: &BlockRenderAssets,
+    def_id: &str,
+    anchor: IVec3,
+    rot: u8,
+) -> Entity {
+    let def = &library.defs[library.by_id[def_id]];
+    let (mesh, mat) = render.per_def.get(def_id).expect("积木资产应已预生成");
+    commands
+        .spawn((
+            Mesh3d(mesh.clone()),
+            MeshMaterial3d(mat.clone()),
+            Transform::from_translation(block_center(anchor, def, rot))
+                .with_rotation(rotation_quat(rot)),
+            PlacedBlock,
+            Name::new(format!("Block:{def_id}")),
+        ))
+        .id()
+}
+
+/// 覆盖光标列的最高积木记录索引（拆除用，纯查询）。
+pub(crate) fn top_block_index_at(records: &[PlacedRecord], col: (i32, i32)) -> Option<usize> {
+    records
+        .iter()
+        .enumerate()
+        .filter(|(_, r)| r.cells.iter().any(|c| c.x == col.0 && c.z == col.1))
+        .max_by_key(|(_, r)| r.anchor.y)
+        .map(|(i, _)| i)
 }
 
 // ---------- 系统 ----------
@@ -382,6 +416,7 @@ fn update_ghost_preview(
     stack: Res<PlacedBlocks>,
     blueprint: Res<Blueprint>,
     challenge: Res<Challenge>,
+    remove: Res<RemoveMode>,
 ) {
     let def = library.current_def();
     let (mesh_handle, _) = &render.per_def[&def.id];
@@ -392,7 +427,11 @@ fn update_ghost_preview(
         library.rotation
     };
     let col = cursor_column(&windows, &cameras);
-    let anchor = col.and_then(|c| placement_anchor(c, def, rot, &stack, &blueprint));
+    let anchor = if remove.active {
+        None
+    } else {
+        col.and_then(|c| placement_anchor(c, def, rot, &stack, &blueprint))
+    };
     let target = anchor.map(|a| block_center(a, def, rot));
     let ok = anchor.is_some() && challenge.can_place(&def.id);
     let ghost_mat = if ok {
@@ -445,6 +484,7 @@ fn handle_place_and_undo(
     mut stack: ResMut<PlacedBlocks>,
     mut blueprint: ResMut<Blueprint>,
     mut challenge: ResMut<Challenge>,
+    remove: Res<RemoveMode>,
 ) {
     let modifier =
         keys.pressed(KeyCode::ControlLeft) || keys.pressed(KeyCode::ControlRight)
@@ -481,18 +521,14 @@ fn handle_place_and_undo(
         if can_redo {
             if let Some(record) = stack.redo.pop() {
                 let def = &library.defs[library.by_id[&record.def_id]];
-                let (mesh, mat) =
-                    render.per_def.get(&record.def_id).expect("积木资产应已预生成");
-                let entity = commands
-                    .spawn((
-                        Mesh3d(mesh.clone()),
-                        MeshMaterial3d(mat.clone()),
-                        Transform::from_translation(block_center(record.anchor, def, record.rot))
-                            .with_rotation(rotation_quat(record.rot)),
-                        PlacedBlock,
-                        Name::new(format!("Block:{}", record.def_id)),
-                    ))
-                    .id();
+                let entity = spawn_block_entity(
+                    &mut commands,
+                    &library,
+                    &render,
+                    &record.def_id,
+                    record.anchor,
+                    record.rot,
+                );
                 for c in &record.cells {
                     stack.occupied.insert(*c);
                 }
@@ -534,6 +570,25 @@ fn handle_place_and_undo(
         };
         if !dragged && !click.placed_this_press {
             if let Some(col) = cursor_column(&windows, &cameras) {
+                // 拆除模式：移除光标列最顶部的积木
+                if remove.active {
+                    if let Some(idx) = top_block_index_at(&stack.records, col) {
+                        let record = stack.records.remove(idx);
+                        for c in &record.cells {
+                            stack.occupied.remove(c);
+                        }
+                        rebuild_col_top_mut(&mut stack);
+                        commands.entity(record.entity).despawn();
+                        stack.revision += 1;
+                        if blueprint.active {
+                            refresh_completion(&stack, &library, &mut blueprint);
+                        }
+                        click.placed_this_press = true;
+                    }
+                    click.pressed_at = None;
+                    return;
+                }
+
                 let def = library.current_def();
                 let rot = if rot_override { 0 } else { library.rotation };
                 if let Some(anchor) = placement_anchor(col, def, rot, &stack, &blueprint) {
@@ -541,18 +596,14 @@ fn handle_place_and_undo(
                     let free = cells.iter().all(|c| !stack.occupied.contains(c));
                     let quota_ok = challenge.can_place(&def.id);
                     if free && quota_ok {
-                        let (mesh, mat) =
-                            render.per_def.get(&def.id).expect("积木资产应已预生成");
-                        let entity = commands
-                            .spawn((
-                                Mesh3d(mesh.clone()),
-                                MeshMaterial3d(mat.clone()),
-                                Transform::from_translation(block_center(anchor, def, rot))
-                                    .with_rotation(rotation_quat(rot)),
-                                PlacedBlock,
-                                Name::new(format!("Block:{}", def.id)),
-                            ))
-                            .id();
+                        let entity = spawn_block_entity(
+                            &mut commands,
+                            &library,
+                            &render,
+                            &def.id,
+                            anchor,
+                            rot,
+                        );
                         for c in &cells {
                             stack.occupied.insert(*c);
                         }

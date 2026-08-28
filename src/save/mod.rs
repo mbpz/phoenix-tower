@@ -17,8 +17,8 @@ use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::Blueprint;
 use crate::building::challenge::{Challenge, ChallengeState};
 use crate::building::placement::{
-    footprint_cells, footprint_columns, refresh_completion, BlockRenderAssets, PlacedBlock,
-    PlacedBlocks, PlacedRecord,
+    footprint_cells, footprint_columns, refresh_completion, spawn_block_entity, BlockRenderAssets,
+    PlacedBlock, PlacedBlocks, PlacedRecord,
 };
 
 /// 当前存档格式版本（ADR-006：只增不减）
@@ -149,17 +149,7 @@ pub fn apply_save(
         let anchor = IVec3::new(rec.cell.0, rec.cell.1, rec.cell.2);
         let rot = rec.rot_90.min(3);
         let cells = footprint_cells(anchor, def, rot);
-        let (mesh, mat) = render.per_def.get(&rec.id).expect("积木资产应已预生成");
-        let entity = commands
-            .spawn((
-                Mesh3d(mesh.clone()),
-                MeshMaterial3d(mat.clone()),
-                Transform::from_translation(crate::building::placement::block_center(anchor, def, rot))
-                    .with_rotation(crate::building::placement::rotation_quat(rot)),
-                PlacedBlock,
-                Name::new(format!("Block:{}", def.id)),
-            ))
-            .id();
+        let entity = spawn_block_entity(commands, library, render, &rec.id, anchor, rot);
         for c in &cells {
             stack.occupied.insert(*c);
         }

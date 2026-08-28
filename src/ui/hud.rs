@@ -12,6 +12,7 @@ use crate::building::blueprint::Blueprint;
 use crate::building::challenge::{Challenge, ChallengeState};
 use crate::building::placement::PlacedBlocks;
 use crate::building::tutorial::Tutorial;
+use crate::stability::{RemoveMode, StabilityTest, TestState};
 
 pub struct HudPlugin;
 
@@ -52,6 +53,8 @@ fn update_hint(
     tutorial: Res<Tutorial>,
     challenge: Res<Challenge>,
     stack: Res<PlacedBlocks>,
+    remove: Res<RemoveMode>,
+    stability: Res<StabilityTest>,
     diagnostics: Res<DiagnosticsStore>,
 ) {
     let def = library.current_def();
@@ -90,14 +93,30 @@ fn update_hint(
         ChallengeState::Failed => "⏱ 挑战失败，按 C 重试".to_string(),
         ChallengeState::Idle => String::new(),
     };
+    let stability_line = match stability.state {
+        TestState::Running => format!("🏗 重力测试中… {:.0}s", stability.timer),
+        TestState::Done => format!(
+            "🏗 测试完成：存活 {:.0}% → {} ★（G 复原）",
+            stability.survival * 100.0,
+            "★".repeat(stability.stars as usize)
+        ),
+        TestState::Idle => String::new(),
+    };
+    let tool_line = if remove.active {
+        "🔧 拆除模式：点击移除积木（X 退出）".to_string()
+    } else {
+        String::new()
+    };
     text.0 = format!(
         "左键:放置  左拖:旋转  右拖:平移  滚轮:缩放\n\
          撤销:Backspace/Ctrl+Z  重做:Ctrl+Y（20 步）\n\
-         1-9:选积木  Q/E:切换  R:旋转90°  M:蓝图/自由  T:昼夜\n\
-         C:挑战  F2:截图  F5:保存  F6:导出JSON  F9:读取  Esc:退出\n\
+         1-9:选积木  Q/E:切换  R:旋转90°  X:拆除  M:蓝图/自由  T:昼夜\n\
+         G:重力测试  C:挑战  F2:截图  F5:保存  F6:导出JSON  F9:读取\n\
          {mode}\n\
          当前积木: {name} [{cur} / {total}]（{layer}） 旋转 {rot}°\n\
          {challenge_line}\n\
+         {stability_line}\n\
+         {tool_line}\n\
          {tutorial_line}\n\
          FPS {fps:.0} | 积木 {blocks}",
         name = def.name,
@@ -107,6 +126,8 @@ fn update_hint(
         rot = library.rotation as u32 * 90,
         mode = mode,
         challenge_line = challenge_line,
+        stability_line = stability_line,
+        tool_line = tool_line,
         tutorial_line = tutorial_line,
         fps = fps,
         blocks = stack.records.len(),

@@ -18,6 +18,8 @@ bincode = { version = "2", features = ["serde"] }
 serde_json = "1"
 # 积木面板 / 进度条 UI（B-10）
 bevy_egui = "0.42"
+# 物理（B-17）：结构稳定性挑战变体（ADR-002）
+avian3d = "0.7"
 
 [profile.dev]
 # 加速开发期迭代：Bevy 编译很重，开启增量优化以加快链接
@@ -25,3 +27,8 @@ opt-level = 1
 
 [profile.dev.package."*"]
 opt-level = 3
+
+[profile.test]
+# 降低测试编译内存峰值（16GB 机器上多路并行 codegen 会触发 rustc OOM/SIGSEGV，
+# 见 B-17 开发记录；必要时可再加 -j 2）
+debug = "line-tables-only"

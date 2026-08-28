@@ -10,6 +10,7 @@ mod game_state;
 mod save;
 mod scene;
 mod screenshot;
+mod stability;
 mod stress;
 mod ui;
 
@@ -27,6 +28,7 @@ use game_state::GameState;
 use save::SavePlugin;
 use scene::ScenePlugin;
 use screenshot::ScreenshotPlugin;
+use stability::StabilityPlugin;
 use stress::StressPlugin;
 use ui::block_panel::BlockPanelPlugin;
 use ui::hud::HudPlugin;
@@ -55,6 +57,7 @@ fn main() {
             BlockPanelPlugin,
             SavePlugin,
             ScreenshotPlugin,
+            StabilityPlugin,
             StressPlugin,
         ))
         .run();
