@@ -1,5 +1,8 @@
 //! HUD 提示（对应 PRD §3.3 引导与教学的基础文本层）。
 //! Phase 1 升级为 bevy_egui 积木面板（BACKLOG B-10）。
+//!
+//! 中文字体：assets/fonts/NotoSansSC-subset.otf（由 Noto Sans CJK SC 子集化，
+//! 仅含游戏实际使用字符，见 docs/BACKLOG B-10）。
 
 use bevy::prelude::*;
 
@@ -18,10 +21,11 @@ impl Plugin for HudPlugin {
 #[derive(Component)]
 struct HintText;
 
-fn spawn_hint(mut commands: Commands) {
+fn spawn_hint(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Text::new(""),
         TextFont {
+            font: FontSource::Handle(asset_server.load("fonts/NotoSansSC-subset.otf")),
             font_size: FontSize::Px(15.0),
             ..default()
         },
@@ -56,7 +60,8 @@ fn update_hint(
     };
     text.0 = format!(
         "左键:放置  左拖:旋转  右拖:平移  滚轮:缩放  Backspace:撤销\n\
-         1-9:选积木  Q/E:切换  M:蓝图/自由  T:昼夜  Esc:退出\n\
+         1-9:选积木  Q/E:切换  M:蓝图/自由  T:昼夜\n\
+         F5:保存  F6:导出JSON  F9:读取  Esc:退出\n\
          {mode}\n\
          当前积木: {} [{} / {}]（{}）",
         def.name,

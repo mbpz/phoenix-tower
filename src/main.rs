@@ -6,6 +6,7 @@
 mod building;
 mod camera;
 mod game_state;
+mod save;
 mod scene;
 mod ui;
 
@@ -14,18 +15,26 @@ use bevy::prelude::*;
 use building::placement::PlacementPlugin;
 use camera::orbit_camera::OrbitCameraPlugin;
 use game_state::GameState;
+use save::SavePlugin;
 use scene::ScenePlugin;
 use ui::hud::HudPlugin;
 
 fn main() {
+    // 资产根目录显式锚定到项目根（Bevy 默认以可执行文件目录为基准，
+    // 直接运行 target/debug/phoenix-tower 时会找不到 assets/）
+    let asset_root = format!("{}/assets", env!("CARGO_MANIFEST_DIR"));
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(AssetPlugin {
+            file_path: asset_root,
+            ..default()
+        }))
         .init_state::<GameState>()
         .add_plugins((
             OrbitCameraPlugin,
             PlacementPlugin,
             ScenePlugin,
             HudPlugin,
+            SavePlugin,
         ))
         .run();
 }

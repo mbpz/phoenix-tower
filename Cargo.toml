@@ -12,6 +12,9 @@ bevy = "0.19"
 # 积木定义数据驱动（B-06）：resources/blocks/*.ron
 serde = { version = "1", features = ["derive"] }
 ron = "0.9"
+# 本地存档（B-11）：.ptw bincode 压缩 + JSON 导出（ADR-006）
+bincode = { version = "2", features = ["serde"] }
+serde_json = "1"
 
 [profile.dev]
 # 加速开发期迭代：Bevy 编译很重，开启增量优化以加快链接

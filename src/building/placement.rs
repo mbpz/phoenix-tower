@@ -70,6 +70,8 @@ pub struct PlacedBlocks {
 pub struct PlacedRecord {
     pub entity: Entity,
     pub def_id: String,
+    /// 锚点格（footprint 左上角，含 y）
+    pub anchor: IVec3,
     /// 占用格（3D）
     pub cells: Vec<IVec3>,
 }
@@ -159,7 +161,7 @@ fn anchor_xz(center: (i32, i32), def: &BlockDef) -> (i32, i32) {
 }
 
 /// footprint 覆盖的列集合。
-fn footprint_columns(def: &BlockDef, anchor_x: i32, anchor_z: i32) -> Vec<(i32, i32)> {
+pub(crate) fn footprint_columns(def: &BlockDef, anchor_x: i32, anchor_z: i32) -> Vec<(i32, i32)> {
     let (w, d) = (def.size[0] as i32, def.size[2] as i32);
     let mut cols = Vec::with_capacity((w * d) as usize);
     for dx in 0..w {
@@ -179,7 +181,7 @@ fn base_y_for(col_top: &HashMap<(i32, i32), i32>, cols: &[(i32, i32)]) -> i32 {
 }
 
 /// footprint 占用格（3D，y 为底行）。
-fn footprint_cells(anchor: IVec3, def: &BlockDef) -> Vec<IVec3> {
+pub(crate) fn footprint_cells(anchor: IVec3, def: &BlockDef) -> Vec<IVec3> {
     let (w, h, d) = (def.size[0] as i32, def.size[1] as i32, def.size[2] as i32);
     let mut cells = Vec::with_capacity((w * h * d) as usize);
     for dy in 0..h {
@@ -193,7 +195,7 @@ fn footprint_cells(anchor: IVec3, def: &BlockDef) -> Vec<IVec3> {
 }
 
 /// 积木渲染中心（底面贴 anchor.y）。
-fn block_center(anchor: IVec3, def: &BlockDef) -> Vec3 {
+pub(crate) fn block_center(anchor: IVec3, def: &BlockDef) -> Vec3 {
     let (w, h, d) = (def.size[0] as f32, def.size[1] as f32, def.size[2] as f32);
     Vec3::new(
         (anchor.x as f32 + (w - 1.0) * 0.5) * GRID,
@@ -432,6 +434,7 @@ fn handle_place_and_undo(
                         stack.records.push(PlacedRecord {
                             entity,
                             def_id: def.id.clone(),
+                            anchor,
                             cells,
                         });
                         click.placed_this_press = true;
@@ -447,7 +450,7 @@ fn handle_place_and_undo(
 }
 
 /// 蓝图模式下实时刷新完成度；≥95% 触发完成事件。
-fn refresh_completion(stack: &PlacedBlocks, library: &BlockLibrary, blueprint: &mut Blueprint) {
+pub(crate) fn refresh_completion(stack: &PlacedBlocks, library: &BlockLibrary, blueprint: &mut Blueprint) {
     let placed: HashMap<IVec3, String> = stack
         .records
         .iter()
