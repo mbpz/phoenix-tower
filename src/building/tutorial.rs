@@ -44,7 +44,7 @@ pub fn load_tutorial() -> Tutorial {
     let liuliwa = &library.defs[library.by_id["liuliwa"]];
 
     // 第 1 步：台基（5×1×5，锚点 (-2,0,-2)）
-    let taiji_cells = crate::building::placement::footprint_cells(IVec3::new(-2, 0, -2), taiji);
+    let taiji_cells = crate::building::placement::footprint_cells(IVec3::new(-2, 0, -2), taiji, 0);
 
     // 第 2 步：红柱（四角 (±2,±2)，y 1..3，共 12 格）
     let mut zhu_cells = Vec::new();
@@ -156,7 +156,6 @@ fn tutorial_system(
 mod tests {
     use super::*;
     use crate::building::blueprint::load_blueprint;
-    use crate::building::placement::PlacedBlocks;
 
     #[test]
     fn empty_placement_not_complete() {

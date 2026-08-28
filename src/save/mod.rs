@@ -74,7 +74,7 @@ pub fn build_save(stack: &PlacedBlocks, blueprint: &Blueprint, mode: &str) -> Sa
         .map(|r| PlacedBlockRecord {
             id: r.def_id.clone(),
             cell: (r.anchor.x, r.anchor.y, r.anchor.z),
-            rot_90: 0,
+            rot_90: r.rot,
         })
         .collect();
     SaveFile {
@@ -146,13 +146,15 @@ pub fn apply_save(
         };
         let def = &library.defs[idx];
         let anchor = IVec3::new(rec.cell.0, rec.cell.1, rec.cell.2);
-        let cells = footprint_cells(anchor, def);
+        let rot = rec.rot_90.min(3);
+        let cells = footprint_cells(anchor, def, rot);
         let (mesh, mat) = render.per_def.get(&rec.id).expect("积木资产应已预生成");
         let entity = commands
             .spawn((
                 Mesh3d(mesh.clone()),
                 MeshMaterial3d(mat.clone()),
-                Transform::from_translation(crate::building::placement::block_center(anchor, def)),
+                Transform::from_translation(crate::building::placement::block_center(anchor, def, rot))
+                    .with_rotation(crate::building::placement::rotation_quat(rot)),
                 PlacedBlock,
                 Name::new(format!("Block:{}", def.id)),
             ))
@@ -161,7 +163,7 @@ pub fn apply_save(
             stack.occupied.insert(*c);
         }
         let h = def.size[1] as i32;
-        for (x, z) in footprint_columns(def, anchor.x, anchor.z) {
+        for (x, z) in footprint_columns(def, anchor.x, anchor.z, rot) {
             let top = stack.col_top.entry((x, z)).or_insert(0);
             *top = (*top).max(anchor.y + h);
         }
@@ -169,6 +171,7 @@ pub fn apply_save(
             entity,
             def_id: rec.id.clone(),
             anchor,
+            rot,
             cells,
         });
         loaded += 1;
@@ -254,7 +257,7 @@ mod tests {
         let taiji = lib.by_id["taiji"];
         let def = &lib.defs[taiji];
         let anchor = IVec3::new(0, 0, 0);
-        let cells = footprint_cells(anchor, def);
+        let cells = footprint_cells(anchor, def, 0);
         for c in &cells {
             stack.occupied.insert(*c);
         }
@@ -263,6 +266,7 @@ mod tests {
             entity: Entity::PLACEHOLDER,
             def_id: "taiji".to_string(),
             anchor,
+            rot: 0,
             cells,
         });
 

@@ -68,8 +68,10 @@ pub enum SnapMode {
 pub struct BlockLibrary {
     pub defs: Vec<BlockDef>,
     pub by_id: HashMap<String, usize>,
-    /// 当前选中的积木索引（HUD/快捷键选择）
+    /// 当前选中的积木索引（HUD/快捷键/面板选择）
     pub current: usize,
+    /// 当前选中积木的旋转（0..=3，×90°，R 键切换，PRD §3.1 旋转 90° 限制）
+    pub rotation: u8,
 }
 
 impl BlockLibrary {
@@ -111,5 +113,6 @@ pub fn load_block_library() -> BlockLibrary {
         defs,
         by_id,
         current: 0,
+        rotation: 0,
     }
 }

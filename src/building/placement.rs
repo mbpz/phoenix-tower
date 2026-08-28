@@ -84,6 +84,8 @@ pub struct PlacedRecord {
     pub def_id: String,
     /// 锚点格（footprint 左上角，含 y）
     pub anchor: IVec3,
+    /// 旋转（90°×rot）
+    pub rot: u8,
     /// 占用格（3D）
     pub cells: Vec<IVec3>,
 }
@@ -165,17 +167,28 @@ fn cursor_column(
     Some(((hit.x / GRID).round() as i32, (hit.z / GRID).round() as i32))
 }
 
+/// 旋转后的平面 footprint 尺寸 (w, d)：90°/270° 时 w/d 互换。
+fn rotated_footprint(def: &BlockDef, rot: u8) -> (u32, u32) {
+    if rot % 2 == 1 {
+        (def.size[2], def.size[0])
+    } else {
+        (def.size[0], def.size[2])
+    }
+}
+
 /// 以光标格为中心对齐的 footprint 锚点（左上角格，仅 x/z）。
-fn anchor_xz(center: (i32, i32), def: &BlockDef) -> (i32, i32) {
+fn anchor_xz(center: (i32, i32), def: &BlockDef, rot: u8) -> (i32, i32) {
+    let (w, d) = rotated_footprint(def, rot);
     (
-        center.0 - (def.size[0] as i32 - 1) / 2,
-        center.1 - (def.size[2] as i32 - 1) / 2,
+        center.0 - (w as i32 - 1) / 2,
+        center.1 - (d as i32 - 1) / 2,
     )
 }
 
 /// footprint 覆盖的列集合。
-pub(crate) fn footprint_columns(def: &BlockDef, anchor_x: i32, anchor_z: i32) -> Vec<(i32, i32)> {
-    let (w, d) = (def.size[0] as i32, def.size[2] as i32);
+pub(crate) fn footprint_columns(def: &BlockDef, anchor_x: i32, anchor_z: i32, rot: u8) -> Vec<(i32, i32)> {
+    let (w, d) = rotated_footprint(def, rot);
+    let (w, d) = (w as i32, d as i32);
     let mut cols = Vec::with_capacity((w * d) as usize);
     for dx in 0..w {
         for dz in 0..d {
@@ -194,8 +207,9 @@ fn base_y_for(col_top: &HashMap<(i32, i32), i32>, cols: &[(i32, i32)]) -> i32 {
 }
 
 /// footprint 占用格（3D，y 为底行）。
-pub(crate) fn footprint_cells(anchor: IVec3, def: &BlockDef) -> Vec<IVec3> {
-    let (w, h, d) = (def.size[0] as i32, def.size[1] as i32, def.size[2] as i32);
+pub(crate) fn footprint_cells(anchor: IVec3, def: &BlockDef, rot: u8) -> Vec<IVec3> {
+    let (w, d) = rotated_footprint(def, rot);
+    let (w, h, d) = (w as i32, def.size[1] as i32, d as i32);
     let mut cells = Vec::with_capacity((w * h * d) as usize);
     for dy in 0..h {
         for dz in 0..d {
@@ -207,9 +221,10 @@ pub(crate) fn footprint_cells(anchor: IVec3, def: &BlockDef) -> Vec<IVec3> {
     cells
 }
 
-/// 积木渲染中心（底面贴 anchor.y）。
-pub(crate) fn block_center(anchor: IVec3, def: &BlockDef) -> Vec3 {
-    let (w, h, d) = (def.size[0] as f32, def.size[1] as f32, def.size[2] as f32);
+/// 积木渲染中心（底面贴 anchor.y；按旋转后的 footprint 计算）。
+pub(crate) fn block_center(anchor: IVec3, def: &BlockDef, rot: u8) -> Vec3 {
+    let (w, d) = rotated_footprint(def, rot);
+    let (w, h, d) = (w as f32, def.size[1] as f32, d as f32);
     Vec3::new(
         (anchor.x as f32 + (w - 1.0) * 0.5) * GRID,
         (anchor.y as f32 + h * 0.5) * GRID,
@@ -217,27 +232,34 @@ pub(crate) fn block_center(anchor: IVec3, def: &BlockDef) -> Vec3 {
     )
 }
 
+/// 实体旋转（90°×rot，绕 Y 轴）。
+pub(crate) fn rotation_quat(rot: u8) -> Quat {
+    Quat::from_rotation_y(rot as f32 * std::f32::consts::FRAC_PI_2)
+}
+
 /// 计算放置锚点：
 /// - 自由模式：按列顶堆叠；
-/// - 蓝图模式：扫描 y 寻找使 footprint 完全匹配蓝图的落位（严格吸附）。
+/// - 蓝图模式：扫描 y 寻找使 footprint 完全匹配蓝图的落位（严格吸附，
+///   旋转方向由玩家 R 键控制，与蓝图朝向一致时幽灵变绿）。
 fn placement_anchor(
     col: (i32, i32),
     def: &BlockDef,
+    rot: u8,
     stack: &PlacedBlocks,
     blueprint: &Blueprint,
 ) -> Option<IVec3> {
-    let (ax, az) = anchor_xz(col, def);
+    let (ax, az) = anchor_xz(col, def, rot);
     if blueprint.active {
         for y in 0..=MAX_BLUEPRINT_Y {
             let anchor = IVec3::new(ax, y, az);
-            let cells = footprint_cells(anchor, def);
+            let cells = footprint_cells(anchor, def, rot);
             if footprint_matches(&blueprint.expected, &cells, &def.id) {
                 return Some(anchor);
             }
         }
         None
     } else {
-        let cols = footprint_columns(def, ax, az);
+        let cols = footprint_columns(def, ax, az, rot);
         let y = base_y_for(&stack.col_top, &cols);
         Some(IVec3::new(ax, y, az))
     }
@@ -309,7 +331,7 @@ fn reconcile_blueprint_ghosts(
     }
 }
 
-/// 积木选择：数字键 1-9 直接选择；Q/E 循环切换。
+/// 积木选择：数字键 1-9 直接选择；Q/E 循环切换；R 键旋转（90°步进）。
 fn select_block(keys: Res<ButtonInput<KeyCode>>, mut library: ResMut<BlockLibrary>) {
     const DIGITS: [KeyCode; 9] = [
         KeyCode::Digit1,
@@ -335,6 +357,9 @@ fn select_block(keys: Res<ButtonInput<KeyCode>>, mut library: ResMut<BlockLibrar
     if keys.just_pressed(KeyCode::KeyE) {
         library.current = (library.current + 1) % len;
     }
+    if keys.just_pressed(KeyCode::KeyR) {
+        library.rotation = (library.rotation + 1) % 4;
+    }
 }
 
 /// 幽灵预览：跟随当前积木在光标列的落位；蓝图模式下红/绿反馈。
@@ -353,15 +378,17 @@ fn update_ghost_preview(
 ) {
     let def = library.current_def();
     let (mesh_handle, _) = &render.per_def[&def.id];
+    let rot = library.rotation;
     let col = cursor_column(&windows, &cameras);
-    let anchor = col.and_then(|c| placement_anchor(c, def, &stack, &blueprint));
-    let target = anchor.map(|a| block_center(a, def));
+    let anchor = col.and_then(|c| placement_anchor(c, def, rot, &stack, &blueprint));
+    let target = anchor.map(|a| block_center(a, def, rot));
     let ok = anchor.is_some();
     let ghost_mat = if ok {
         render.ghost_material.clone()
     } else {
         render.ghost_bad_material.clone()
     };
+    let ghost_rot = rotation_quat(rot);
 
     let mut existing = ghost.single_mut().ok();
     match (existing.take(), target) {
@@ -369,13 +396,14 @@ fn update_ghost_preview(
             commands.spawn((
                 Mesh3d(mesh_handle.clone()),
                 MeshMaterial3d(ghost_mat),
-                Transform::from_translation(pos),
+                Transform::from_translation(pos).with_rotation(ghost_rot),
                 GhostBlock,
                 Name::new("GhostBlock"),
             ));
         }
         (Some((_e, mut transform, mut mesh, mut mat)), Some(pos)) => {
             transform.translation = pos;
+            transform.rotation = ghost_rot;
             if mesh.0 != *mesh_handle {
                 mesh.0 = mesh_handle.clone();
             }
@@ -433,7 +461,8 @@ fn handle_place_and_undo(
                 .spawn((
                     Mesh3d(mesh.clone()),
                     MeshMaterial3d(mat.clone()),
-                    Transform::from_translation(block_center(record.anchor, def)),
+                    Transform::from_translation(block_center(record.anchor, def, record.rot))
+                        .with_rotation(rotation_quat(record.rot)),
                     PlacedBlock,
                     Name::new(format!("Block:{}", record.def_id)),
                 ))
@@ -442,7 +471,7 @@ fn handle_place_and_undo(
                 stack.occupied.insert(*c);
             }
             let h = def.size[1] as i32;
-            for (x, z) in footprint_columns(def, record.anchor.x, record.anchor.z) {
+            for (x, z) in footprint_columns(def, record.anchor.x, record.anchor.z, record.rot) {
                 let top = stack.col_top.entry((x, z)).or_insert(0);
                 *top = (*top).max(record.anchor.y + h);
             }
@@ -450,6 +479,7 @@ fn handle_place_and_undo(
                 entity,
                 def_id: record.def_id.clone(),
                 anchor: record.anchor,
+                rot: record.rot,
                 cells: record.cells.clone(),
             });
             if blueprint.active {
@@ -474,8 +504,9 @@ fn handle_place_and_undo(
         if !dragged && !click.placed_this_press {
             if let Some(col) = cursor_column(&windows, &cameras) {
                 let def = library.current_def();
-                if let Some(anchor) = placement_anchor(col, def, &stack, &blueprint) {
-                    let cells = footprint_cells(anchor, def);
+                let rot = library.rotation;
+                if let Some(anchor) = placement_anchor(col, def, rot, &stack, &blueprint) {
+                    let cells = footprint_cells(anchor, def, rot);
                     let free = cells.iter().all(|c| !stack.occupied.contains(c));
                     if free {
                         let (mesh, mat) =
@@ -484,7 +515,8 @@ fn handle_place_and_undo(
                             .spawn((
                                 Mesh3d(mesh.clone()),
                                 MeshMaterial3d(mat.clone()),
-                                Transform::from_translation(block_center(anchor, def)),
+                                Transform::from_translation(block_center(anchor, def, rot))
+                                    .with_rotation(rotation_quat(rot)),
                                 PlacedBlock,
                                 Name::new(format!("Block:{}", def.id)),
                             ))
@@ -493,7 +525,7 @@ fn handle_place_and_undo(
                             stack.occupied.insert(*c);
                         }
                         let (ax, az) = (anchor.x, anchor.z);
-                        for (x, z) in footprint_columns(def, ax, az) {
+                        for (x, z) in footprint_columns(def, ax, az, rot) {
                             let top = stack.col_top.entry((x, z)).or_insert(0);
                             *top = (*top).max(anchor.y + def.size[1] as i32);
                         }
@@ -501,6 +533,7 @@ fn handle_place_and_undo(
                             entity,
                             def_id: def.id.clone(),
                             anchor,
+                            rot,
                             cells,
                         });
                         click.placed_this_press = true;
@@ -548,5 +581,40 @@ pub(crate) fn refresh_completion(stack: &PlacedBlocks, library: &BlockLibrary, b
             "🏛️ 黄鹤楼复原完成！完成度 {:.0}%",
             blueprint.completion * 100.0
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::building::block_defs::load_block_library;
+
+    #[test]
+    fn rotation_swaps_footprint() {
+        let lib = load_block_library();
+        let def = &lib.defs[lib.by_id["liangfang"]]; // 4×1×1
+        let rot0 = footprint_cells(IVec3::new(0, 0, 0), def, 0);
+        let rot1 = footprint_cells(IVec3::new(0, 0, 0), def, 1);
+        assert_eq!(rot0.len(), 4);
+        assert_eq!(rot1.len(), 4);
+        // rot0 沿 x 展开 4 格；rot1 沿 z 展开 4 格
+        assert!(rot0.contains(&IVec3::new(3, 0, 0)));
+        assert!(!rot0.contains(&IVec3::new(0, 0, 3)));
+        assert!(rot1.contains(&IVec3::new(0, 0, 3)));
+        assert!(!rot1.contains(&IVec3::new(3, 0, 0)));
+    }
+
+    #[test]
+    fn rotation_180_same_as_0() {
+        let lib = load_block_library();
+        let def = &lib.defs[lib.by_id["liangfang"]];
+        let rot0 = footprint_cells(IVec3::new(0, 0, 0), def, 0);
+        let rot2 = footprint_cells(IVec3::new(0, 0, 0), def, 2);
+        let key = |c: &IVec3| (c.x, c.y, c.z);
+        let mut a: Vec<_> = rot0.iter().map(key).collect();
+        let mut b: Vec<_> = rot2.iter().map(key).collect();
+        a.sort();
+        b.sort();
+        assert_eq!(a, b, "180° 旋转 footprint 应与 0° 一致");
     }
 }
