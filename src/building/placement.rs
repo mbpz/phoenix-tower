@@ -37,6 +37,7 @@ impl Plugin for PlacementPlugin {
                     toggle_blueprint,
                     reconcile_blueprint_ghosts,
                     reconcile_lantern_lights,
+                    reconcile_plaque_text,
                     select_block,
                     update_ghost_preview,
                     handle_place_and_undo,
@@ -151,6 +152,7 @@ fn setup_block_assets(
             }
             "dengzhu" => crate::building::meshes::column(0.22, h * GRID, 8),
             "denglong" => crate::building::meshes::column(0.42, 0.7, 8),
+            "biane" => crate::building::meshes::plaque(),
             "liuliwa" | "chuiwa" => crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.26),
             "feiyan" | "qiaoshou" => crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.45),
             "dougong" => crate::building::meshes::dougong_bracket(),
@@ -579,6 +581,43 @@ fn reconcile_lantern_lights(
                         ..default()
                     },
                     LanternLight,
+                ));
+            });
+        }
+    }
+}
+
+/// 匾额文字标记
+#[derive(Component)]
+pub struct PlaqueText;
+
+/// 匾额题字对账：已放置的匾额自动挂 Text3d「黄鹤楼」（CJK 字体）。
+fn reconcile_plaque_text(
+    mut commands: Commands,
+    mut font: Local<Option<Handle<bevy::text::Font>>>,
+    asset_server: Res<AssetServer>,
+    blocks: Query<(Entity, &BlockId), (With<PlacedBlock>, Without<PlaqueText>)>,
+) {
+    if font.is_none() {
+        *font = Some(asset_server.load("fonts/NotoSansSC-subset.otf"));
+    }
+    let Some(font) = font.as_ref() else {
+        return;
+    };
+    for (entity, id) in &blocks {
+        if id.0 == "biane" {
+            commands.entity(entity).with_children(|parent| {
+                parent.spawn((
+                    Text2d::new("黄鹤楼"),
+                    TextFont {
+                        font: FontSource::Handle(font.clone()),
+                        font_size: FontSize::Px(0.9),
+                        ..default()
+                    },
+                    TextColor(Color::srgb(0.95, 0.85, 0.4)),
+                    TextLayout::justify(bevy::text::Justify::Center),
+                    Transform::from_xyz(0.0, 0.0, 0.06),
+                    PlaqueText,
                 ));
             });
         }

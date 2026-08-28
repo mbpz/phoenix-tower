@@ -7,6 +7,7 @@
 //! 说明：这是"精致积木风"的程序化近似，非考古级精确（真实形制需 glTF 美术）。
 
 use bevy::asset::RenderAssetUsages;
+use bevy::math::primitives::Cuboid;
 use bevy::mesh::{Indices, Mesh, PrimitiveTopology};
 
 /// 基础网格构造器。
@@ -271,6 +272,12 @@ pub fn dougong_bracket() -> Mesh {
         y += h;
     }
     finish(new_mesh(), positions, normals, uvs, indices)
+}
+
+
+/// 匾额：横置薄板（0.9 宽 × 0.3 高 × 0.08 厚），字由 Text3d 子实体呈现。
+pub fn plaque() -> Mesh {
+    Mesh::from(Cuboid::new(0.9, 0.3, 0.08))
 }
 
 /// 琉璃瓦勾缝纹理：32×32 RGBA8，金色瓦面 + 深色勾缝 + 轻微噪声。
