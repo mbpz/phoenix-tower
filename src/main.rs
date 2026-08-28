@@ -9,6 +9,7 @@ mod camera;
 mod game_state;
 mod save;
 mod scene;
+mod screenshot;
 mod stress;
 mod ui;
 
@@ -25,6 +26,7 @@ use camera::orbit_camera::OrbitCameraPlugin;
 use game_state::GameState;
 use save::SavePlugin;
 use scene::ScenePlugin;
+use screenshot::ScreenshotPlugin;
 use stress::StressPlugin;
 use ui::block_panel::BlockPanelPlugin;
 use ui::hud::HudPlugin;
@@ -52,6 +54,7 @@ fn main() {
             HudPlugin,
             BlockPanelPlugin,
             SavePlugin,
+            ScreenshotPlugin,
             StressPlugin,
         ))
         .run();
