@@ -15,6 +15,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::Blueprint;
+use crate::building::challenge::{Challenge, ChallengeState};
 use crate::building::placement::{
     footprint_cells, footprint_columns, refresh_completion, BlockRenderAssets, PlacedBlock,
     PlacedBlocks, PlacedRecord,
@@ -186,6 +187,7 @@ fn handle_save_load(
     library: Res<BlockLibrary>,
     render: Res<BlockRenderAssets>,
     mut blueprint: ResMut<Blueprint>,
+    mut challenge: ResMut<Challenge>,
     placed_query: Query<Entity, With<PlacedBlock>>,
 ) {
     let dir = saves_dir();
@@ -230,6 +232,10 @@ fn handle_save_load(
                     commands.entity(entity).despawn();
                 }
                 let loaded = apply_save(&mut commands, &mut stack, &library, &render, &save);
+                // 读档后重置挑战（避免配额与世界不一致）
+                challenge.state = ChallengeState::Idle;
+                challenge.rewards.clear();
+                challenge.stars = 0;
                 if blueprint.active {
                     refresh_completion(&stack, &library, &mut blueprint);
                 }

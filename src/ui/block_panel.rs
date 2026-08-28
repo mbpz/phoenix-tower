@@ -13,6 +13,8 @@ use bevy_egui::{EguiContexts, EguiPrimaryContextPass};
 
 use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::Blueprint;
+use crate::building::challenge::{start_challenge, Challenge, ChallengeState};
+use crate::building::placement::{PlacedBlock, PlacedBlocks};
 
 pub struct BlockPanelPlugin;
 
@@ -28,7 +30,11 @@ fn block_panel_ui(
     mut contexts: EguiContexts,
     mut fonts_loaded: Local<bool>,
     mut library: ResMut<BlockLibrary>,
-    blueprint: Res<Blueprint>,
+    mut blueprint: ResMut<Blueprint>,
+    mut challenge: ResMut<Challenge>,
+    mut commands: Commands,
+    mut stack: ResMut<PlacedBlocks>,
+    placed_query: Query<Entity, With<PlacedBlock>>,
 ) {
     let Ok(ctx) = contexts.ctx_mut() else {
         return;
@@ -68,11 +74,47 @@ fn block_panel_ui(
             .max_rect(ctx.viewport_rect()),
     );
 
+    let mut start_requested = false;
     egui::Panel::left("block_panel")
         .default_size(200.0)
         .resizable(true)
         .show(&mut viewport_ui, |ui| {
             ui.heading("积木库");
+            ui.separator();
+
+            // 挑战模式（B-16）
+            ui.label(format!("🏆 挑战：{}", challenge.def.name));
+            match challenge.state {
+                ChallengeState::Active => {
+                    ui.label(format!("⏱ 剩余 {:.0} 秒", challenge.time_left));
+                    let (used, total) = challenge.quota_used_total();
+                    ui.label(format!("🧱 材料 {used}/{total}"));
+                    if ui.button("重新开始（C）").clicked() {
+                        start_requested = true;
+                    }
+                }
+                ChallengeState::Won => {
+                    ui.label(format!(
+                        "✨ 完成：{} ★",
+                        "★".repeat(challenge.stars as usize)
+                    ));
+                    if ui.button("再次挑战（C）").clicked() {
+                        start_requested = true;
+                    }
+                }
+                ChallengeState::Failed => {
+                    ui.label("⏱ 挑战失败：时间耗尽");
+                    if ui.button("重试（C）").clicked() {
+                        start_requested = true;
+                    }
+                }
+                ChallengeState::Idle => {
+                    ui.label(&challenge.def.description);
+                    if ui.button("开始挑战（C）").clicked() {
+                        start_requested = true;
+                    }
+                }
+            }
             ui.separator();
 
             // 蓝图模式：完成度进度条
@@ -116,4 +158,15 @@ fn block_panel_ui(
                 library.current = i;
             }
         });
+
+    // 面板关闭后应用挑战启动（需要可变借用 stack/blueprint/challenge）
+    if start_requested {
+        start_challenge(
+            &mut commands,
+            &mut stack,
+            &mut blueprint,
+            &mut challenge,
+            &placed_query,
+        );
+    }
 }

@@ -8,6 +8,7 @@ use bevy::prelude::*;
 
 use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::Blueprint;
+use crate::building::challenge::{Challenge, ChallengeState};
 use crate::building::tutorial::Tutorial;
 
 pub struct HudPlugin;
@@ -47,6 +48,7 @@ fn update_hint(
     library: Res<BlockLibrary>,
     blueprint: Res<Blueprint>,
     tutorial: Res<Tutorial>,
+    challenge: Res<Challenge>,
 ) {
     let def = library.current_def();
     let Ok(mut text) = hint.single_mut() else {
@@ -66,13 +68,28 @@ fn update_hint(
     } else {
         String::new()
     };
+    let challenge_line = match challenge.state {
+        ChallengeState::Active => {
+            let (used, total) = challenge.quota_used_total();
+            format!(
+                "🏆 挑战: {}  ⏱ {:.0}s  🧱 {used}/{total}",
+                challenge.def.name, challenge.time_left
+            )
+        }
+        ChallengeState::Won => {
+            format!("🏆 挑战完成: {} ★（C 再来一局）", "★".repeat(challenge.stars as usize))
+        }
+        ChallengeState::Failed => "⏱ 挑战失败，按 C 重试".to_string(),
+        ChallengeState::Idle => String::new(),
+    };
     text.0 = format!(
         "左键:放置  左拖:旋转  右拖:平移  滚轮:缩放\n\
          撤销:Backspace/Ctrl+Z  重做:Ctrl+Y（20 步）\n\
          1-9:选积木  Q/E:切换  R:旋转90°  M:蓝图/自由  T:昼夜\n\
-         F5:保存  F6:导出JSON  F9:读取  Esc:退出\n\
+         C:挑战  F5:保存  F6:导出JSON  F9:读取  Esc:退出\n\
          {mode}\n\
          当前积木: {} [{} / {}]（{}） 旋转 {}°\n\
+         {challenge_line}\n\
          {tutorial_line}",
         def.name,
         library.current + 1,

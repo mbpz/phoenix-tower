@@ -13,6 +13,7 @@ mod ui;
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 
+use building::challenge::ChallengePlugin;
 use building::placement::PlacementPlugin;
 use building::tutorial::TutorialPlugin;
 use camera::orbit_camera::OrbitCameraPlugin;
@@ -37,6 +38,7 @@ fn main() {
             OrbitCameraPlugin,
             PlacementPlugin,
             TutorialPlugin,
+            ChallengePlugin,
             ScenePlugin,
             HudPlugin,
             BlockPanelPlugin,

@@ -15,6 +15,7 @@ use super::block_defs::{load_block_library, BlockDef, BlockLibrary};
 use super::blueprint::{
     compute_completion, footprint_matches, load_blueprint, Blueprint, BlueprintGhost,
 };
+use super::challenge::Challenge;
 
 pub struct PlacementPlugin;
 
@@ -362,7 +363,8 @@ fn select_block(keys: Res<ButtonInput<KeyCode>>, mut library: ResMut<BlockLibrar
     }
 }
 
-/// 幽灵预览：跟随当前积木在光标列的落位；蓝图模式下红/绿反馈。
+/// 幽灵预览：跟随当前积木在光标列的落位；蓝图模式下红/绿反馈；
+/// 挑战模式配额耗尽时同样显示红色。
 fn update_ghost_preview(
     mut commands: Commands,
     windows: Query<&Window, With<PrimaryWindow>>,
@@ -375,14 +377,20 @@ fn update_ghost_preview(
     render: Res<BlockRenderAssets>,
     stack: Res<PlacedBlocks>,
     blueprint: Res<Blueprint>,
+    challenge: Res<Challenge>,
 ) {
     let def = library.current_def();
     let (mesh_handle, _) = &render.per_def[&def.id];
-    let rot = library.rotation;
+    // 挑战限旋转：强制 0°
+    let rot = if challenge.def.rotation_locked && challenge.is_active() {
+        0
+    } else {
+        library.rotation
+    };
     let col = cursor_column(&windows, &cameras);
     let anchor = col.and_then(|c| placement_anchor(c, def, rot, &stack, &blueprint));
     let target = anchor.map(|a| block_center(a, def, rot));
-    let ok = anchor.is_some();
+    let ok = anchor.is_some() && challenge.can_place(&def.id);
     let ghost_mat = if ok {
         render.ghost_material.clone()
     } else {
@@ -431,10 +439,12 @@ fn handle_place_and_undo(
     keys: Res<ButtonInput<KeyCode>>,
     mut stack: ResMut<PlacedBlocks>,
     mut blueprint: ResMut<Blueprint>,
+    mut challenge: ResMut<Challenge>,
 ) {
     let modifier =
         keys.pressed(KeyCode::ControlLeft) || keys.pressed(KeyCode::ControlRight)
             || keys.pressed(KeyCode::SuperLeft) || keys.pressed(KeyCode::SuperRight);
+    let rot_override = challenge.def.rotation_locked && challenge.is_active();
 
     // 撤销
     if keys.just_pressed(KeyCode::Backspace) || (modifier && keys.just_pressed(KeyCode::KeyZ)) {
@@ -444,6 +454,10 @@ fn handle_place_and_undo(
             }
             rebuild_col_top_mut(&mut stack);
             commands.entity(record.entity).despawn();
+            // 挑战配额退返
+            if challenge.is_active() {
+                challenge.refund(&record.def_id);
+            }
             stack.redo.push(record);
             if blueprint.active {
                 refresh_completion(&stack, &library, &mut blueprint);
@@ -452,38 +466,48 @@ fn handle_place_and_undo(
         return;
     }
 
-    // 重做：重建实体并重新占用
+    // 重做：重建实体并重新占用（挑战中需配额足够）
     if modifier && keys.just_pressed(KeyCode::KeyY) {
-        if let Some(record) = stack.redo.pop() {
-            let def = &library.defs[library.by_id[&record.def_id]];
-            let (mesh, mat) = render.per_def.get(&record.def_id).expect("积木资产应已预生成");
-            let entity = commands
-                .spawn((
-                    Mesh3d(mesh.clone()),
-                    MeshMaterial3d(mat.clone()),
-                    Transform::from_translation(block_center(record.anchor, def, record.rot))
-                        .with_rotation(rotation_quat(record.rot)),
-                    PlacedBlock,
-                    Name::new(format!("Block:{}", record.def_id)),
-                ))
-                .id();
-            for c in &record.cells {
-                stack.occupied.insert(*c);
-            }
-            let h = def.size[1] as i32;
-            for (x, z) in footprint_columns(def, record.anchor.x, record.anchor.z, record.rot) {
-                let top = stack.col_top.entry((x, z)).or_insert(0);
-                *top = (*top).max(record.anchor.y + h);
-            }
-            stack.records.push(PlacedRecord {
-                entity,
-                def_id: record.def_id.clone(),
-                anchor: record.anchor,
-                rot: record.rot,
-                cells: record.cells.clone(),
-            });
-            if blueprint.active {
-                refresh_completion(&stack, &library, &mut blueprint);
+        let can_redo = stack
+            .redo
+            .last()
+            .is_none_or(|r| !challenge.is_active() || challenge.can_place(&r.def_id));
+        if can_redo {
+            if let Some(record) = stack.redo.pop() {
+                let def = &library.defs[library.by_id[&record.def_id]];
+                let (mesh, mat) =
+                    render.per_def.get(&record.def_id).expect("积木资产应已预生成");
+                let entity = commands
+                    .spawn((
+                        Mesh3d(mesh.clone()),
+                        MeshMaterial3d(mat.clone()),
+                        Transform::from_translation(block_center(record.anchor, def, record.rot))
+                            .with_rotation(rotation_quat(record.rot)),
+                        PlacedBlock,
+                        Name::new(format!("Block:{}", record.def_id)),
+                    ))
+                    .id();
+                for c in &record.cells {
+                    stack.occupied.insert(*c);
+                }
+                let h = def.size[1] as i32;
+                for (x, z) in footprint_columns(def, record.anchor.x, record.anchor.z, record.rot) {
+                    let top = stack.col_top.entry((x, z)).or_insert(0);
+                    *top = (*top).max(record.anchor.y + h);
+                }
+                if challenge.is_active() {
+                    challenge.consume(&record.def_id);
+                }
+                stack.records.push(PlacedRecord {
+                    entity,
+                    def_id: record.def_id.clone(),
+                    anchor: record.anchor,
+                    rot: record.rot,
+                    cells: record.cells.clone(),
+                });
+                if blueprint.active {
+                    refresh_completion(&stack, &library, &mut blueprint);
+                }
             }
         }
         return;
@@ -504,11 +528,12 @@ fn handle_place_and_undo(
         if !dragged && !click.placed_this_press {
             if let Some(col) = cursor_column(&windows, &cameras) {
                 let def = library.current_def();
-                let rot = library.rotation;
+                let rot = if rot_override { 0 } else { library.rotation };
                 if let Some(anchor) = placement_anchor(col, def, rot, &stack, &blueprint) {
                     let cells = footprint_cells(anchor, def, rot);
                     let free = cells.iter().all(|c| !stack.occupied.contains(c));
-                    if free {
+                    let quota_ok = challenge.can_place(&def.id);
+                    if free && quota_ok {
                         let (mesh, mat) =
                             render.per_def.get(&def.id).expect("积木资产应已预生成");
                         let entity = commands
@@ -528,6 +553,9 @@ fn handle_place_and_undo(
                         for (x, z) in footprint_columns(def, ax, az, rot) {
                             let top = stack.col_top.entry((x, z)).or_insert(0);
                             *top = (*top).max(anchor.y + def.size[1] as i32);
+                        }
+                        if challenge.is_active() {
+                            challenge.consume(&def.id);
                         }
                         stack.records.push(PlacedRecord {
                             entity,
