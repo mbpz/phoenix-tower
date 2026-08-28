@@ -42,7 +42,7 @@ pub fn load_tutorial() -> Tutorial {
     let library = crate::building::block_defs::load_block_library();
     let taiji = &library.defs[library.by_id["taiji"]];
     let hongzhu = &library.defs[library.by_id["hongzhu"]];
-    let liuliwa = &library.defs[library.by_id["liuliwa"]];
+    let liangfang = &library.defs[library.by_id["liangfang"]];
 
     // 第 1 步：台基（5×1×5，锚点 (-2,0,-2)）
     let taiji_cells = crate::building::placement::footprint_cells(IVec3::new(-2, 0, -2), taiji, 0);
@@ -59,14 +59,14 @@ pub fn load_tutorial() -> Tutorial {
     // 校验红柱 footprint（1×3×1）确实覆盖这些格
     debug_assert!(hongzhu.size == [1, 3, 1]);
 
-    // 第 3 步：琉璃瓦（y=6，x -2..1，z -2..1，共 16 格）
-    let mut wa_cells = Vec::new();
+    // 第 3 步：重檐梁枋（y=5，x -2..1 沿 z=-2 与 z=1，共 8 格）——
+    // 对应 B-05 三层重檐黄鹤楼的一层重檐
+    let mut liang_cells = Vec::new();
     for x in -2..2 {
-        for z in -2..2 {
-            wa_cells.push(IVec3::new(x, 6, z));
-        }
+        liang_cells.push(IVec3::new(x, 5, -2));
+        liang_cells.push(IVec3::new(x, 5, 1));
     }
-    debug_assert!(liuliwa.size == [2, 1, 2]);
+    debug_assert!(liangfang.size == [4, 1, 1]);
 
     Tutorial {
         active: true,
@@ -85,10 +85,10 @@ pub fn load_tutorial() -> Tutorial {
                 cells: zhu_cells,
             },
             TutorialStep {
-                block_id: "liuliwa".to_string(),
-                label: "第 3 步（共 3 步）：铺设琉璃瓦 —— 在楼顶铺满黄色琉璃瓦".to_string(),
-                label_en: "Step 3/3: Cover the roof with golden glazed tiles".to_string(),
-                cells: wa_cells,
+                block_id: "liangfang".to_string(),
+                label: "第 3 步（共 3 步）：架设重檐梁枋 —— 在一层柱顶铺上梁枋（已自动选中）".to_string(),
+                label_en: "Step 3/3: Lay the eave beams across the first-tier columns (auto-selected)".to_string(),
+                cells: liang_cells,
             },
         ],
     }

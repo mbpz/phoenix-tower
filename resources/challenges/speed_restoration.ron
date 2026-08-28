@@ -1,18 +1,20 @@
 (
     id: "speed_restoration",
     name: "限时复原",
-    description: "180 秒内按蓝图复原黄鹤楼，材料恰好够用，考验规划与手速。",
+    description: "180 秒内按蓝图复原三层重檐黄鹤楼，材料恰好够用，考验规划与手速。",
     blueprint_id: "yellow_crane_tower",
     time_limit_secs: 180,
     rotation_locked: true,
     quota: [
         ("taiji", 1),
         ("hongzhu", 4),
-        ("liangfang", 2),
-        ("louban", 1),
+        ("fangzhu", 8),
+        ("liangfang", 4),
+        ("louban", 3),
         ("liuliwa", 4),
         ("baoding", 1),
         ("biane", 1),
+        ("tonghe", 2),
         ("denglong", 2),
     ],
 )

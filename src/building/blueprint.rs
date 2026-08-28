@@ -268,10 +268,10 @@ mod tests {
 
     #[test]
     fn blueprint_reference_integrity_default() {
-        // 默认蓝图（order 最小）应为黄鹤楼——教程依赖其格子布局
+        // 默认蓝图（order 最小）应为三层重檐黄鹤楼——教程依赖其格子布局
         let (bp, _lib) = load_blueprint_library();
         assert_eq!(bp.def.id, "yellow_crane_tower");
-        assert_eq!(bp.expected.len(), 81);
+        assert_eq!(bp.expected.len(), 139);
     }
 
     #[test]

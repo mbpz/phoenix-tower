@@ -155,8 +155,8 @@ fn completion_autopilot_system(
     if blueprint.completed && !*prev_completed {
         orbit.autopilot = Some(AutoPilot {
             goal_yaw: 0.15,
-            goal_pitch: 0.5,
-            goal_distance: 26.0,
+            goal_pitch: 0.55,
+            goal_distance: 40.0,
         });
         info!("🎥 观赏视角已就位（移动鼠标接管）");
     }
