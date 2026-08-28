@@ -29,6 +29,7 @@ impl Plugin for PlacementPlugin {
             .insert_resource(blueprint_library)
             .insert_resource(PlacedBlocks::default())
             .insert_resource(ClickState::default())
+            .insert_resource(BlueprintAlpha::default())
             .add_systems(Startup, setup_block_assets)
             .add_systems(
                 Update,
@@ -52,6 +53,18 @@ const CLICK_DRAG_THRESHOLD: f32 = 6.0;
 const MAX_BLUEPRINT_Y: i32 = 64;
 /// 撤销历史上限（PRD §3.2：撤销/重做至少 20 步）
 const MAX_HISTORY: usize = 20;
+
+/// 幽灵蓝图透明度（B-10 打磨：面板滑杆实时调节）。
+#[derive(Resource)]
+pub struct BlueprintAlpha {
+    pub value: f32,
+}
+
+impl Default for BlueprintAlpha {
+    fn default() -> Self {
+        Self { value: 0.35 }
+    }
+}
 
 /// 渲染资产：def.id → (网格, 材质)，全部预生成并复用（实例化思路）。
 #[derive(Resource)]

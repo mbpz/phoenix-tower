@@ -141,14 +141,14 @@ fn update_hint(
             "左键:放置  左拖:旋转  右拖:平移  滚轮:缩放\n\
          撤销:Backspace/Ctrl+Z  重做:Ctrl+Y（20 步）\n\
          1-9:选积木  Q/E:切换  R:旋转90°  X:拆除  M:蓝图/自由\n\
-         L:中/英  T:昼夜  G:重力测试  C:挑战\n\
+         L:中/英  K:知识提示  T:昼夜  G:重力测试  C:挑战\n\
          F2:截图  F5:保存  F6:JSON  F7:分享  F8:导入  F9:槽位"
         }
         Lang::En => {
             "LMB:place  LMB-drag:orbit  RMB-drag:pan  wheel:zoom\n\
          undo:Backspace/Ctrl+Z  redo:Ctrl+Y (20)\n\
          1-9:blocks  Q/E:cycle  R:rotate  X:remove  M:blueprint/free\n\
-         L:zh/en  T:day/night  G:physics  C:challenge\n\
+         L:zh/en  K:knowledge  T:day/night  G:physics  C:challenge\n\
          F2:shot  F5:save  F6:JSON  F7:share  F8:import  F9:slot"
         }
     };

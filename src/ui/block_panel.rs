@@ -14,9 +14,27 @@ use bevy_egui::{EguiContexts, EguiPrimaryContextPass};
 use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::{select_blueprint, Blueprint, BlueprintGhost, BlueprintLibrary};
 use crate::building::challenge::{start_challenge, Challenge, ChallengeState};
-use crate::building::placement::{PlacedBlock, PlacedBlocks};
+use crate::building::collection::KnowledgeHints;
+use crate::building::placement::{BlockRenderAssets, BlueprintAlpha, PlacedBlock, PlacedBlocks};
 use crate::i18n::{t, Locale};
 use crate::save::{import_save, latest_ptw, load_save_from_path, SAVE_VERSION};
+
+
+/// 面板资源打包（Bevy 系统参数上限 16，合并为一组）。
+#[derive(bevy::ecs::system::SystemParam)]
+struct PanelCtx<'w> {
+    library: ResMut<'w, BlockLibrary>,
+    blueprint: ResMut<'w, Blueprint>,
+    blueprint_library: ResMut<'w, BlueprintLibrary>,
+    challenge: ResMut<'w, Challenge>,
+    collection: Res<'w, crate::building::collection::Collection>,
+    render: Res<'w, BlockRenderAssets>,
+    locale: Res<'w, Locale>,
+    hints: Res<'w, KnowledgeHints>,
+    ghost_alpha: ResMut<'w, BlueprintAlpha>,
+    materials: ResMut<'w, Assets<StandardMaterial>>,
+    stack: ResMut<'w, PlacedBlocks>,
+}
 
 /// 面板 Tab。
 #[derive(Clone, Copy, PartialEq, Eq, Default)]
@@ -43,24 +61,29 @@ fn block_panel_ui(
     mut fonts_loaded: Local<bool>,
     mut tab: Local<PanelTab>,
     mut import_path: Local<String>,
-    mut library: ResMut<BlockLibrary>,
-    mut blueprint: ResMut<Blueprint>,
-    mut blueprint_library: ResMut<BlueprintLibrary>,
-    mut challenge: ResMut<Challenge>,
-    collection: Res<crate::building::collection::Collection>,
-    render: Res<crate::building::placement::BlockRenderAssets>,
-    locale: Res<Locale>,
+    mut ctx: PanelCtx,
     mut commands: Commands,
-    mut stack: ResMut<PlacedBlocks>,
     placed_query: Query<Entity, With<PlacedBlock>>,
     ghost_query: Query<Entity, With<BlueprintGhost>>,
 ) {
+    let library = &mut ctx.library;
+    let mut blueprint = &mut ctx.blueprint;
+    let mut blueprint_library = &mut ctx.blueprint_library;
+    let mut challenge = &mut ctx.challenge;
+    let collection = &ctx.collection;
+    let render = &ctx.render;
+    let locale = &ctx.locale;
+    let hints = &ctx.hints;
+    let ghost_alpha = &mut ctx.ghost_alpha;
+    let materials = &mut ctx.materials;
+    let mut stack = &mut ctx.stack;
     let mut start_requested = false;
     let mut theme_switch: Option<usize> = None;
     let mut save_requested = false;
     let mut share_requested = false;
     let mut json_requested = false;
     let mut import_requested: Option<std::path::PathBuf> = None;
+    let mut alpha_dirty: Option<f32> = None;
 
     let Ok(ctx) = contexts.ctx_mut() else {
         return;
@@ -213,6 +236,26 @@ fn block_panel_ui(
                     "Only blueprint cells (red = mismatch)",
                     lang,
                 ));
+                // 蓝图透明度滑杆（B-10 打磨）：实时调整幽灵蓝图透明度
+                let mut alpha = ghost_alpha.value;
+                if ui
+                    .add(
+                        egui::Slider::new(&mut alpha, 0.1..=0.8)
+                            .text(t("蓝图透明度", "Ghost opacity", lang)),
+                    )
+                    .changed()
+                {
+                    alpha_dirty = Some(alpha);
+                }
+                ui.separator();
+            }
+
+            // 知识卡片（PRD §3.3 智能提示）
+            if let Some(card) = &hints.card {
+                ui.group(|ui| {
+                    ui.label(RichText::new(format!("📖 {}", card.name)).strong());
+                    ui.label(&card.desc);
+                });
                 ui.separator();
             }
 
@@ -403,6 +446,14 @@ fn block_panel_ui(
         });
 
     // 面板关闭后应用动作（需要可变借用）
+    if let Some(a) = alpha_dirty {
+        for handle in render.blueprint_materials.values() {
+            if let Some(mut mat) = materials.get_mut(handle) {
+                mat.base_color.set_alpha(a);
+            }
+        }
+        ghost_alpha.value = a;
+    }
     if let Some(idx) = theme_switch {
         select_blueprint(&mut blueprint, &mut blueprint_library, idx);
         // 切换后销毁旧幽灵蓝图，由对账系统按新蓝图重建

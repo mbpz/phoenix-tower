@@ -18,6 +18,7 @@ use std::path::{Path, PathBuf};
 use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
+use crate::building::block_defs::BlockLibrary;
 use crate::building::challenge::ChallengeState;
 use crate::building::placement::PlacedBlocks;
 
@@ -229,6 +230,105 @@ pub fn load_progress_from(path: &Path) -> Collection {
     }
 }
 
+// ---------- 知识卡片智能提示（PRD §3.3） ----------
+
+/// 知识卡片（文化小知识）。
+#[derive(Clone, Debug)]
+pub struct KnowledgeCard {
+    pub name: String,
+    pub desc: String,
+}
+
+/// 智能提示状态：蓝图模式长时间停顿（>12s）时弹出已解锁部件的知识卡片。
+#[derive(Resource)]
+pub struct KnowledgeHints {
+    pub enabled: bool,
+    /// 上次放置动作时间（秒）
+    pub last_action_secs: f32,
+    pub card: Option<KnowledgeCard>,
+    pub card_expires_at: f32,
+    /// 卡片轮换索引（循环展示不同部件）
+    pub next_idx: usize,
+}
+
+impl Default for KnowledgeHints {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            last_action_secs: 0.0,
+            card: None,
+            card_expires_at: 0.0,
+            next_idx: 0,
+        }
+    }
+}
+
+/// 选取下一张知识卡片（纯函数，可测试）：在已解锁图鉴中轮换。
+pub fn pick_next_card(
+    unlocked: &HashSet<String>,
+    library: &BlockLibrary,
+    start: usize,
+) -> Option<(KnowledgeCard, usize)> {
+    let mut ids: Vec<&String> = unlocked.iter().collect();
+    ids.sort();
+    if ids.is_empty() {
+        return None;
+    }
+    let idx = start % ids.len();
+    let def = &library.defs[library.by_id[ids[idx]]];
+    let card = KnowledgeCard {
+        name: def.name.clone(),
+        desc: def.description.clone(),
+    };
+    Some((card, (idx + 1) % ids.len()))
+}
+
+/// 智能提示系统：K 键开关；放置动作重置空闲计时；停顿 >12s 弹卡片（8s 后消失）。
+fn knowledge_hint_system(
+    time: Res<Time>,
+    keys: Res<ButtonInput<KeyCode>>,
+    stack: Res<PlacedBlocks>,
+    blueprint: Res<crate::building::blueprint::Blueprint>,
+    collection: Res<Collection>,
+    library: Res<BlockLibrary>,
+    mut hints: ResMut<KnowledgeHints>,
+    mut prev_revision: Local<u64>,
+) {
+    if keys.just_pressed(KeyCode::KeyK) {
+        hints.enabled = !hints.enabled;
+        if !hints.enabled {
+            hints.card = None;
+        }
+        info!("📖 知识提示{}", if hints.enabled { "开启" } else { "关闭" });
+    }
+    if !hints.enabled {
+        return;
+    }
+
+    // 放置/撤销等世界变更 → 重置空闲计时
+    if stack.revision != *prev_revision {
+        *prev_revision = stack.revision;
+        hints.last_action_secs = time.elapsed_secs();
+        hints.card = None;
+    }
+
+    if !blueprint.active {
+        return;
+    }
+
+    let idle = time.elapsed_secs() - hints.last_action_secs;
+    if idle > 12.0 && hints.card.is_none() {
+        if let Some((card, next)) = pick_next_card(&collection.codex, &library, hints.next_idx) {
+            hints.next_idx = next;
+            hints.card = Some(card);
+            hints.card_expires_at = time.elapsed_secs() + 8.0;
+        }
+    }
+    if hints.card.is_some() && time.elapsed_secs() > hints.card_expires_at {
+        hints.card = None;
+    }
+}
+
 // ---------- 系统 ----------
 
 pub struct CollectionPlugin;
@@ -236,7 +336,8 @@ pub struct CollectionPlugin;
 impl Plugin for CollectionPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(load_progress())
-            .add_systems(Update, collection_system);
+            .insert_resource(KnowledgeHints::default())
+            .add_systems(Update, (collection_system, knowledge_hint_system));
     }
 }
 
@@ -405,5 +506,30 @@ mod tests {
         assert!(loaded.achievements.contains(ACH_FIRST));
         assert!(loaded.rare.contains("baoding"));
         let _ = std::fs::remove_file(&path);
+    }
+}
+
+#[cfg(test)]
+mod knowledge_tests {
+    use super::*;
+    use crate::building::block_defs::load_block_library;
+
+    #[test]
+    fn pick_card_cycles_unlocked() {
+        let lib = load_block_library();
+        let mut unlocked = HashSet::new();
+        unlocked.insert("taiji".to_string());
+        unlocked.insert("hongzhu".to_string());
+        let (c1, n1) = pick_next_card(&unlocked, &lib, 0).unwrap();
+        let (c2, n2) = pick_next_card(&unlocked, &lib, n1).unwrap();
+        assert_ne!(c1.name, c2.name, "应轮换到不同部件");
+        assert!(!c1.desc.is_empty());
+        assert_eq!(n2, 0, "两元素循环后回到 0");
+    }
+
+    #[test]
+    fn pick_card_empty_returns_none() {
+        let lib = load_block_library();
+        assert!(pick_next_card(&HashSet::new(), &lib, 0).is_none());
     }
 }
