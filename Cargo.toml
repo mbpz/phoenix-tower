@@ -1,0 +1,18 @@
+[package]
+name = "phoenix-tower"
+version = "0.1.0"
+edition = "2021"
+description = "黄鹤楼积木：筑梦江城 —— 基于 Bevy 的轻量级 3D 积木搭建游戏（Phase 0 技术验证）"
+license = "MIT"
+
+[dependencies]
+# 引擎锁定 0.19 大版本（当前最新稳定 0.19.1）。
+# 升级策略见 docs/adr/ADR-001-engine-versioning.md
+bevy = "0.19"
+
+[profile.dev]
+# 加速开发期迭代：Bevy 编译很重，开启增量优化以加快链接
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
