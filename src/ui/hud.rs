@@ -32,8 +32,9 @@ fn spawn_hint(mut commands: Commands, asset_server: Res<AssetServer>) {
         TextColor(Color::WHITE),
         Node {
             position_type: PositionType::Absolute,
-            top: Val::Px(12.0),
-            left: Val::Px(12.0),
+            // 右下角：避免与左侧 egui 积木面板重叠
+            bottom: Val::Px(12.0),
+            right: Val::Px(12.0),
             ..default()
         },
         HintText,
@@ -59,7 +60,8 @@ fn update_hint(
         "自由模式".to_string()
     };
     text.0 = format!(
-        "左键:放置  左拖:旋转  右拖:平移  滚轮:缩放  Backspace:撤销\n\
+        "左键:放置  左拖:旋转  右拖:平移  滚轮:缩放\n\
+         撤销:Backspace/Ctrl+Z  重做:Ctrl+Y（20 步）\n\
          1-9:选积木  Q/E:切换  M:蓝图/自由  T:昼夜\n\
          F5:保存  F6:导出JSON  F9:读取  Esc:退出\n\
          {mode}\n\

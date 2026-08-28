@@ -44,6 +44,8 @@ const GRID: f32 = 1.0;
 const CLICK_DRAG_THRESHOLD: f32 = 6.0;
 /// 蓝图模式 y 扫描上限（防失控循环）
 const MAX_BLUEPRINT_Y: i32 = 64;
+/// 撤销历史上限（PRD §3.2：撤销/重做至少 20 步）
+const MAX_HISTORY: usize = 20;
 
 /// 渲染资产：def.id → (网格, 材质)，全部预生成并复用（实例化思路）。
 #[derive(Resource)]
@@ -57,10 +59,17 @@ pub struct BlockRenderAssets {
     pub blueprint_materials: HashMap<String, Handle<StandardMaterial>>,
 }
 
-/// 已放置积木：撤销栈 + 占用集合 + 列顶高度（ADR-005 O(1) 查重）。
+/// 已放置积木：撤销历史 + 重做栈 + 占用集合 + 列顶高度（ADR-005 O(1) 查重）。
+///
+/// Command 模式（PRD §4.4）：放置即一条命令记录；撤销（Backspace / Ctrl+Z）
+/// 移入重做栈，重做（Ctrl+Y）重新执行（重建实体）。历史上限 MAX_HISTORY，
+/// 超限时丢弃最旧记录（同时销毁其实体）。
 #[derive(Resource, Default)]
 pub struct PlacedBlocks {
+    /// 撤销历史（最近 MAX_HISTORY 条放置记录）
     pub records: Vec<PlacedRecord>,
+    /// 重做栈（记录实体已销毁，重做时重建）
+    pub redo: Vec<PlacedRecord>,
     pub occupied: HashSet<IVec3>,
     /// (x, z) → 该列当前最高已占用行 + 1（即下一层落位高度）
     pub col_top: HashMap<(i32, i32), i32>,
@@ -364,8 +373,9 @@ fn update_ghost_preview(
     }
 }
 
-/// 放置与撤销：
-/// - Backspace：撤销最后一次放置并重建列顶高度
+/// 放置与撤销/重做（Command 模式，PRD §4.4）：
+/// - 撤销：Backspace 或 Ctrl/Cmd+Z —— 移除最后一次放置，移入重做栈
+/// - 重做：Ctrl/Cmd+Y —— 重建上次撤销的积木
 /// - 左键点击（非拖拽）：在幽灵所在位置放置当前积木（占用/蓝图匹配校验）
 fn handle_place_and_undo(
     mut commands: Commands,
@@ -379,13 +389,54 @@ fn handle_place_and_undo(
     mut stack: ResMut<PlacedBlocks>,
     mut blueprint: ResMut<Blueprint>,
 ) {
-    if keys.just_pressed(KeyCode::Backspace) {
+    let modifier =
+        keys.pressed(KeyCode::ControlLeft) || keys.pressed(KeyCode::ControlRight)
+            || keys.pressed(KeyCode::SuperLeft) || keys.pressed(KeyCode::SuperRight);
+
+    // 撤销
+    if keys.just_pressed(KeyCode::Backspace) || (modifier && keys.just_pressed(KeyCode::KeyZ)) {
         if let Some(record) = stack.records.pop() {
             for c in &record.cells {
                 stack.occupied.remove(c);
             }
             rebuild_col_top_mut(&mut stack);
             commands.entity(record.entity).despawn();
+            stack.redo.push(record);
+            if blueprint.active {
+                refresh_completion(&stack, &library, &mut blueprint);
+            }
+        }
+        return;
+    }
+
+    // 重做：重建实体并重新占用
+    if modifier && keys.just_pressed(KeyCode::KeyY) {
+        if let Some(record) = stack.redo.pop() {
+            let def = &library.defs[library.by_id[&record.def_id]];
+            let (mesh, mat) = render.per_def.get(&record.def_id).expect("积木资产应已预生成");
+            let entity = commands
+                .spawn((
+                    Mesh3d(mesh.clone()),
+                    MeshMaterial3d(mat.clone()),
+                    Transform::from_translation(block_center(record.anchor, def)),
+                    PlacedBlock,
+                    Name::new(format!("Block:{}", record.def_id)),
+                ))
+                .id();
+            for c in &record.cells {
+                stack.occupied.insert(*c);
+            }
+            let h = def.size[1] as i32;
+            for (x, z) in footprint_columns(def, record.anchor.x, record.anchor.z) {
+                let top = stack.col_top.entry((x, z)).or_insert(0);
+                *top = (*top).max(record.anchor.y + h);
+            }
+            stack.records.push(PlacedRecord {
+                entity,
+                def_id: record.def_id.clone(),
+                anchor: record.anchor,
+                cells: record.cells.clone(),
+            });
             if blueprint.active {
                 refresh_completion(&stack, &library, &mut blueprint);
             }
@@ -438,6 +489,25 @@ fn handle_place_and_undo(
                             cells,
                         });
                         click.placed_this_press = true;
+
+                        // 新放置清空重做栈（标准撤销/重做语义）
+                        stack.redo.clear();
+
+                        // 历史上限：超限丢弃最旧记录（销毁其实体）
+                        let mut dropped = false;
+                        while stack.records.len() > MAX_HISTORY {
+                            let oldest = stack.records.remove(0);
+                            for c in &oldest.cells {
+                                stack.occupied.remove(c);
+                            }
+                            commands.entity(oldest.entity).despawn();
+                            dropped = true;
+                        }
+                        if dropped {
+                            // 丢弃最旧后列顶可能失效，重建（O(n)，低频）
+                            rebuild_col_top_mut(&mut stack);
+                        }
+
                         if blueprint.active {
                             refresh_completion(&stack, &library, &mut blueprint);
                         }

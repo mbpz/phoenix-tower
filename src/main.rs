@@ -11,12 +11,14 @@ mod scene;
 mod ui;
 
 use bevy::prelude::*;
+use bevy_egui::EguiPlugin;
 
 use building::placement::PlacementPlugin;
 use camera::orbit_camera::OrbitCameraPlugin;
 use game_state::GameState;
 use save::SavePlugin;
 use scene::ScenePlugin;
+use ui::block_panel::BlockPanelPlugin;
 use ui::hud::HudPlugin;
 
 fn main() {
@@ -28,12 +30,14 @@ fn main() {
             file_path: asset_root,
             ..default()
         }))
+        .add_plugins(EguiPlugin::default())
         .init_state::<GameState>()
         .add_plugins((
             OrbitCameraPlugin,
             PlacementPlugin,
             ScenePlugin,
             HudPlugin,
+            BlockPanelPlugin,
             SavePlugin,
         ))
         .run();
