@@ -62,6 +62,14 @@ fn setup_capture_camera(mut commands: Commands, mut images: ResMut<Assets<Image>
             is_active: false,
             ..default()
         },
+        DistanceFog {
+            color: Color::srgb(0.78, 0.82, 0.9),
+            falloff: FogFalloff::Linear {
+                start: 40.0,
+                end: 160.0,
+            },
+            ..default()
+        },
         RenderTarget::Image(ImageRenderTarget {
             handle: handle.clone(),
             scale_factor: 1.0,

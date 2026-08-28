@@ -129,6 +129,7 @@ fn day_night_system(
     render: Res<crate::building::placement::BlockRenderAssets>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut lantern_lights: Query<&mut PointLight, With<crate::building::placement::LanternLight>>,
+    mut fog: Query<&mut DistanceFog>,
 ) {
     if keys.just_pressed(KeyCode::KeyT) {
         sky.night = !sky.night;
@@ -169,5 +170,15 @@ fn day_night_system(
     // 灯笼点光源强度随入夜增强
     for mut light in &mut lantern_lights {
         light.intensity = t * 350.0;
+    }
+    // 雾色昼夜联动：白天浅蓝薄雾 → 夜晚深蓝
+    const DAY_FOG: [f32; 3] = [0.78, 0.82, 0.9];
+    const NIGHT_FOG: [f32; 3] = [0.05, 0.08, 0.16];
+    for mut f in &mut fog {
+        f.color = Color::srgb(
+            lerp(DAY_FOG[0], NIGHT_FOG[0]),
+            lerp(DAY_FOG[1], NIGHT_FOG[1]),
+            lerp(DAY_FOG[2], NIGHT_FOG[2]),
+        );
     }
 }

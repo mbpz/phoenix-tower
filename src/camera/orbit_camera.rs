@@ -108,6 +108,15 @@ fn spawn_orbit_camera(mut commands: Commands, orbit: Res<OrbitCamera>) {
     commands.spawn((
         Camera3d::default(),
         Transform::from_translation(orbit.position()).looking_at(orbit.target, Vec3::Y),
+        // 距离雾（场景纵深与昼夜氛围；颜色由昼夜系统驱动）
+        DistanceFog {
+            color: Color::srgb(0.78, 0.82, 0.9),
+            falloff: FogFalloff::Linear {
+                start: 40.0,
+                end: 160.0,
+            },
+            ..default()
+        },
         Name::new("OrbitCamera"),
     ));
 }
