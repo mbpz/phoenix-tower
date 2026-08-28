@@ -126,6 +126,9 @@ fn day_night_system(
     mut clear: ResMut<ClearColor>,
     mut ambient: ResMut<GlobalAmbientLight>,
     mut sun: Query<&mut DirectionalLight>,
+    render: Res<crate::building::placement::BlockRenderAssets>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut lantern_lights: Query<&mut PointLight, With<crate::building::placement::LanternLight>>,
 ) {
     if keys.just_pressed(KeyCode::KeyT) {
         sky.night = !sky.night;
@@ -150,4 +153,21 @@ fn day_night_system(
         lerp(DAY_SKY[1], NIGHT_SKY[1]),
         lerp(DAY_SKY[2], NIGHT_SKY[2]),
     );
+
+    // 夜景辉光：灯笼（暖红）与宝顶（暖金）随入夜增强
+    let glow: &[(&str, [f32; 3])] = &[
+        ("denglong", [1.0, 0.32, 0.18]),
+        ("baoding", [1.0, 0.78, 0.3]),
+    ];
+    for (id, [r, g, b]) in glow {
+        if let Some((_, handle)) = render.per_def.get(*id) {
+            if let Some(mut m) = materials.get_mut(handle) {
+                m.emissive = LinearRgba::new(r * t, g * t, b * t, 0.0);
+            }
+        }
+    }
+    // 灯笼点光源强度随入夜增强
+    for mut light in &mut lantern_lights {
+        light.intensity = t * 350.0;
+    }
 }

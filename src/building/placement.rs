@@ -36,6 +36,7 @@ impl Plugin for PlacementPlugin {
                 (
                     toggle_blueprint,
                     reconcile_blueprint_ghosts,
+                    reconcile_lantern_lights,
                     select_block,
                     update_ghost_preview,
                     handle_place_and_undo,
@@ -126,6 +127,10 @@ pub struct GhostBlock;
 #[derive(Component)]
 pub struct PlacedBlock;
 
+/// 积木 ID 组件（挂在实际实体上，供光源对账等系统按类型查询）
+#[derive(Component, Clone)]
+pub struct BlockId(pub String);
+
 fn setup_block_assets(
     mut commands: Commands,
     library: Res<BlockLibrary>,
@@ -145,6 +150,7 @@ fn setup_block_assets(
                 crate::building::meshes::column(0.5, h * GRID, 10)
             }
             "dengzhu" => crate::building::meshes::column(0.22, h * GRID, 8),
+            "denglong" => crate::building::meshes::column(0.42, 0.7, 8),
             "liuliwa" | "chuiwa" => crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.26),
             "feiyan" | "qiaoshou" => crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.45),
             "dougong" => crate::building::meshes::dougong_bracket(),
@@ -365,6 +371,7 @@ pub(crate) fn spawn_block_entity(
             Transform::from_translation(block_center(anchor, def, rot))
                 .with_rotation(rotation_quat(rot)),
             PlacedBlock,
+            BlockId(def_id.to_string()),
             Name::new(format!("Block:{def_id}")),
         ))
         .id()
@@ -548,6 +555,33 @@ fn update_ghost_preview(
             transform.translation = Vec3::new(0.0, -1000.0, 0.0);
         }
         (None, None) => {}
+    }
+}
+
+/// 灯笼光源标记（点光源子实体）
+#[derive(Component)]
+pub struct LanternLight;
+
+/// 灯笼光源对账：每个已放置的灯笼自动挂一个点光源子实体
+/// （随积木移动；积木销毁时子实体随之销毁，无需手动清理）。
+fn reconcile_lantern_lights(
+    mut commands: Commands,
+    blocks: Query<(Entity, &BlockId), (With<PlacedBlock>, Without<LanternLight>)>,
+) {
+    for (entity, id) in &blocks {
+        if id.0 == "denglong" {
+            commands.entity(entity).with_children(|parent| {
+                parent.spawn((
+                    PointLight {
+                        intensity: 0.0, // 强度由昼夜系统驱动
+                        color: Color::srgb(1.0, 0.72, 0.45),
+                        range: 4.0,
+                        ..default()
+                    },
+                    LanternLight,
+                ));
+            });
+        }
     }
 }
 
