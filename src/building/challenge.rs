@@ -284,13 +284,13 @@ mod tests {
     fn quota_consume_refund_roundtrip() {
         let mut c = load_challenge();
         c.state = ChallengeState::Active;
-        assert!(c.can_place("taiji"));
-        c.consume("taiji");
-        c.consume("taiji");
+        assert!(c.can_place("datiji"));
+        c.consume("datiji");
+        c.consume("datiji");
         // 配额 1 → 用掉 2 次后为 0，不可再放
-        assert!(!c.can_place("taiji"));
-        c.refund("taiji");
-        assert!(c.can_place("taiji"));
+        assert!(!c.can_place("datiji"));
+        c.refund("datiji");
+        assert!(c.can_place("datiji"));
     }
 
     #[test]

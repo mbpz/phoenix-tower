@@ -1,0 +1,11 @@
+(
+    id: "hongzhu4",
+    name: "高柱",
+    category: structure,
+    layer: "柱",
+    order: 32,
+    size: (1, 4, 1),
+    color: (0.69, 0.15, 0.15, 1.0),
+    snap: grid,
+    description: "一层高柱：真实黄鹤楼由七十二根圆柱支撑（游戏按四角+边中简化）。",
+)

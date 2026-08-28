@@ -1,0 +1,11 @@
+(
+    id: "datiji",
+    name: "大台基",
+    category: base,
+    layer: "台基",
+    order: 31,
+    size: (7, 2, 7),
+    color: (0.36, 0.40, 0.44, 1.0),
+    snap: grid,
+    description: "黄鹤楼立于蛇山之巅的高台上，底层边宽三十米（游戏 7 格 ≈ 1:5 模型），青石垒砌。",
+)

@@ -1,0 +1,11 @@
+(
+    id: "liangfang5",
+    name: "大梁枋",
+    category: structure,
+    layer: "梁",
+    order: 34,
+    size: (5, 1, 1),
+    color: (0.55, 0.36, 0.20, 1.0),
+    snap: grid,
+    description: "一层重檐大梁：飞檐五层层层出挑，是黄鹤楼最鲜明的轮廓。",
+)

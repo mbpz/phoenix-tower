@@ -782,18 +782,18 @@ mod tests {
         let (mut bp, _) = crate::building::blueprint::load_blueprint_library();
         bp.active = true; // 蓝图分支（load 返回的 bp.active 为 false）
         let stack = PlacedBlocks::default();
-        let taiji = &lib.defs[lib.by_id["taiji"]]; // 5×1×5
-                                                   // 台基区域内任意光标格都应宽容定位到唯一合法锚点 (-2,0,-2)
-        for (cx, cz) in [(-2, -2), (1, 1), (-1, 2), (0, 0), (2, -1)] {
-            let anchor = placement_anchor((cx, cz), taiji, 0, &stack, &bp);
+        let datiji = &lib.defs[lib.by_id["datiji"]]; // 7×2×7
+                                                     // 台基区域内任意光标格都应宽容定位到唯一合法锚点 (-3,0,-3)
+        for (cx, cz) in [(-3, -3), (1, 1), (-1, 2), (0, 0), (2, -1), (3, 2)] {
+            let anchor = placement_anchor((cx, cz), datiji, 0, &stack, &bp);
             assert_eq!(
                 anchor,
-                Some(IVec3::new(-2, 0, -2)),
-                "光标 ({cx},{cz}) 应宽容定位到台基锚点"
+                Some(IVec3::new(-3, 0, -3)),
+                "光标 ({cx},{cz}) 应宽容定位到大台基锚点"
             );
         }
         // 区域外（如 (5,5)）仍应失败
-        assert_eq!(placement_anchor((5, 5), taiji, 0, &stack, &bp), None);
+        assert_eq!(placement_anchor((5, 5), datiji, 0, &stack, &bp), None);
     }
 
     #[test]
@@ -803,12 +803,12 @@ mod tests {
         bp.active = true;
         let stack = PlacedBlocks::default();
         let liangfang = &lib.defs[lib.by_id["liangfang"]]; // 4×1×1
-                                                           // 4 格梁枋：光标在梁身任意格都应定位到合法锚点（y=5）
+                                                           // 二层梁枋（y=11，x -2..1 沿 z=-2 与 z=1）：光标在梁身任意格都可放置
         for (cx, cz) in [(-2, -2), (-1, -2), (0, -2), (1, -2), (0, 1), (1, 1)] {
             let anchor = placement_anchor((cx, cz), liangfang, 0, &stack, &bp);
             assert!(anchor.is_some(), "光标 ({cx},{cz}) 应可放置梁枋");
             let a = anchor.unwrap();
-            assert_eq!(a.y, 5, "梁枋应在 y=5");
+            assert_eq!(a.y, 11, "梁枋应在 y=11（二层重檐）");
         }
         // 不在梁枋行的位置应失败
         assert_eq!(placement_anchor((0, 3), liangfang, 0, &stack, &bp), None);

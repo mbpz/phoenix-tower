@@ -1,0 +1,11 @@
+(
+    id: "louban5",
+    name: "大楼板",
+    category: structure,
+    layer: "楼板",
+    order: 33,
+    size: (5, 1, 5),
+    color: (0.55, 0.36, 0.20, 1.0),
+    snap: grid,
+    description: "一层楼板：五层楼阁由下而上逐层收分，底层最宽。",
+)

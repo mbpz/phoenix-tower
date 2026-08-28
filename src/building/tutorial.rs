@@ -38,56 +38,55 @@ impl Plugin for TutorialPlugin {
 }
 
 /// 加载教程步骤（依赖积木库尺寸生成目标格子）。
+/// 教程对应五层收分黄鹤楼（B-05 官方比例）：基座 → 高柱 → 重檐大梁。
 pub fn load_tutorial() -> Tutorial {
     let library = crate::building::block_defs::load_block_library();
-    let taiji = &library.defs[library.by_id["taiji"]];
-    let hongzhu = &library.defs[library.by_id["hongzhu"]];
-    let liangfang = &library.defs[library.by_id["liangfang"]];
+    let datiji = &library.defs[library.by_id["datiji"]];
+    let hongzhu4 = &library.defs[library.by_id["hongzhu4"]];
+    let liangfang5 = &library.defs[library.by_id["liangfang5"]];
 
-    // 第 1 步：台基（5×1×5，锚点 (-2,0,-2)）
-    let taiji_cells = crate::building::placement::footprint_cells(IVec3::new(-2, 0, -2), taiji, 0);
+    // 第 1 步：大台基（7×2×7，锚点 (-3,0,-3)）
+    let taiji_cells = crate::building::placement::footprint_cells(IVec3::new(-3, 0, -3), datiji, 0);
 
-    // 第 2 步：红柱（四角 (±2,±2)，y 1..3，共 12 格）
+    // 第 2 步：一层高柱（四角 (±3,±3)，y 2..5，共 16 格）
     let mut zhu_cells = Vec::new();
-    for sx in [-2, 2] {
-        for sz in [-2, 2] {
-            for y in 1..=3 {
+    for sx in [-3, 3] {
+        for sz in [-3, 3] {
+            for y in 2..=5 {
                 zhu_cells.push(IVec3::new(sx, y, sz));
             }
         }
     }
-    // 校验红柱 footprint（1×3×1）确实覆盖这些格
-    debug_assert!(hongzhu.size == [1, 3, 1]);
+    debug_assert!(hongzhu4.size == [1, 4, 1]);
 
-    // 第 3 步：重檐梁枋（y=5，x -2..1 沿 z=-2 与 z=1，共 8 格）——
-    // 对应 B-05 三层重檐黄鹤楼的一层重檐
+    // 第 3 步：一层重檐大梁（y=7，x -2..2 沿 z=-2 与 z=2，共 10 格）
     let mut liang_cells = Vec::new();
-    for x in -2..2 {
-        liang_cells.push(IVec3::new(x, 5, -2));
-        liang_cells.push(IVec3::new(x, 5, 1));
+    for x in -2..=2 {
+        liang_cells.push(IVec3::new(x, 7, -2));
+        liang_cells.push(IVec3::new(x, 7, 2));
     }
-    debug_assert!(liangfang.size == [4, 1, 1]);
+    debug_assert!(liangfang5.size == [5, 1, 1]);
 
     Tutorial {
         active: true,
         step: 0,
         steps: vec![
             TutorialStep {
-                block_id: "taiji".to_string(),
-                label: "第 1 步（共 3 步）：放置台基 —— 把绿色幽灵对准中央地面，左键点击放置".to_string(),
-                label_en: "Step 1/3: Place the base platform — aim the green ghost at the ground center and left-click".to_string(),
+                block_id: "datiji".to_string(),
+                label: "第 1 步（共 3 步）：放置大台基 —— 把绿色幽灵对准中央地面，左键点击放置".to_string(),
+                label_en: "Step 1/3: Place the great stone platform — aim the green ghost at the ground center and left-click".to_string(),
                 cells: taiji_cells,
             },
             TutorialStep {
-                block_id: "hongzhu".to_string(),
-                label: "第 2 步（共 3 步）：放置红柱 —— 在台基四角立起朱红立柱（已自动选中红柱）".to_string(),
-                label_en: "Step 2/3: Place vermilion columns at the four corners (auto-selected)".to_string(),
+                block_id: "hongzhu4".to_string(),
+                label: "第 2 步（共 3 步）：放置高柱 —— 在大台基四角立起朱红高柱（已自动选中）".to_string(),
+                label_en: "Step 2/3: Place tall vermilion columns at the four corners (auto-selected)".to_string(),
                 cells: zhu_cells,
             },
             TutorialStep {
-                block_id: "liangfang".to_string(),
-                label: "第 3 步（共 3 步）：架设重檐梁枋 —— 在一层柱顶铺上梁枋（已自动选中）".to_string(),
-                label_en: "Step 3/3: Lay the eave beams across the first-tier columns (auto-selected)".to_string(),
+                block_id: "liangfang5".to_string(),
+                label: "第 3 步（共 3 步）：架设重檐大梁 —— 在一层柱顶铺上五格大梁（已自动选中）".to_string(),
+                label_en: "Step 3/3: Lay the five-cell eave beams across the first-tier columns (auto-selected)".to_string(),
                 cells: liang_cells,
             },
         ],
@@ -183,7 +182,7 @@ mod tests {
         let placed: HashMap<IVec3, String> = tut.steps[0]
             .cells
             .iter()
-            .map(|c| (*c, "taiji".to_string()))
+            .map(|c| (*c, tut.steps[0].block_id.clone()))
             .collect();
         assert!(step_complete(&placed, &tut.steps[0]));
     }
