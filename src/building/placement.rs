@@ -102,11 +102,12 @@ fn cursor_grid_cell(
     Some(snap_to_grid(hit))
 }
 
-/// 任意点吸附到网格单元。
+/// 任意点吸附到网格单元（Phase 0 为单层贴地放置，y 恒为 0；
+/// 这样已放置积木中心 y=0.5 与光标落地点 y=0 能正确比较，重叠检测才有效）。
 fn snap_to_grid(p: Vec3) -> IVec3 {
     IVec3::new(
         (p.x / GRID).round() as i32,
-        (p.y / GRID).round() as i32,
+        0,
         (p.z / GRID).round() as i32,
     )
 }
