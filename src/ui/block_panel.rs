@@ -15,6 +15,7 @@ use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::{select_blueprint, Blueprint, BlueprintGhost, BlueprintLibrary};
 use crate::building::challenge::{start_challenge, Challenge, ChallengeState};
 use crate::building::placement::{PlacedBlock, PlacedBlocks};
+use crate::save::{import_save, latest_ptw, load_save_from_path, SAVE_VERSION};
 
 /// 面板 Tab。
 #[derive(Clone, Copy, PartialEq, Eq, Default)]
@@ -23,6 +24,7 @@ enum PanelTab {
     Blocks,
     Codex,
     Achievements,
+    Archive,
 }
 
 pub struct BlockPanelPlugin;
@@ -39,16 +41,25 @@ fn block_panel_ui(
     mut contexts: EguiContexts,
     mut fonts_loaded: Local<bool>,
     mut tab: Local<PanelTab>,
+    mut import_path: Local<String>,
     mut library: ResMut<BlockLibrary>,
     mut blueprint: ResMut<Blueprint>,
     mut blueprint_library: ResMut<BlueprintLibrary>,
     mut challenge: ResMut<Challenge>,
     collection: Res<crate::building::collection::Collection>,
+    render: Res<crate::building::placement::BlockRenderAssets>,
     mut commands: Commands,
     mut stack: ResMut<PlacedBlocks>,
     placed_query: Query<Entity, With<PlacedBlock>>,
     ghost_query: Query<Entity, With<BlueprintGhost>>,
 ) {
+    let mut start_requested = false;
+    let mut theme_switch: Option<usize> = None;
+    let mut save_requested = false;
+    let mut share_requested = false;
+    let mut json_requested = false;
+    let mut import_requested: Option<std::path::PathBuf> = None;
+
     let Ok(ctx) = contexts.ctx_mut() else {
         return;
     };
@@ -87,8 +98,6 @@ fn block_panel_ui(
             .max_rect(ctx.viewport_rect()),
     );
 
-    let mut start_requested = false;
-    let mut theme_switch: Option<usize> = None;
     egui::Panel::left("block_panel")
         .default_size(210.0)
         .resizable(true)
@@ -101,6 +110,7 @@ fn block_panel_ui(
                 ui.selectable_value(&mut *tab, PanelTab::Blocks, "积木");
                 ui.selectable_value(&mut *tab, PanelTab::Codex, "图鉴");
                 ui.selectable_value(&mut *tab, PanelTab::Achievements, "成就");
+                ui.selectable_value(&mut *tab, PanelTab::Archive, "存档");
             });
             ui.separator();
 
@@ -256,10 +266,63 @@ fn block_panel_ui(
                         ui.separator();
                     }
                 }
+                PanelTab::Archive => {
+                    // 存档与分享（B-23）
+                    ui.label(format!("格式版本 v{SAVE_VERSION}，.ptw"));
+                    ui.separator();
+                    ui.horizontal(|ui| {
+                        if ui.button("💾 保存 (F5)").clicked() {
+                            save_requested = true;
+                        }
+                        if ui.button("📤 分享导出 (F7)").clicked() {
+                            share_requested = true;
+                        }
+                        if ui.button("📄 JSON 导出 (F6)").clicked() {
+                            json_requested = true;
+                        }
+                    });
+                    ui.separator();
+                    ui.label("存档列表（点击加载）：");
+                    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("saves");
+                    let files = latest_ptw(&dir).map(|_| {
+                        std::fs::read_dir(&dir)
+                            .map(|rd| {
+                                let mut v: Vec<_> = rd
+                                    .filter_map(Result::ok)
+                                    .map(|e| e.path())
+                                    .filter(|p| p.extension().is_some_and(|e| e == "ptw"))
+                                    .collect();
+                                v.sort();
+                                v
+                            })
+                            .unwrap_or_default()
+                    }).unwrap_or_default();
+                    for f in &files {
+                        let name = f
+                            .file_name()
+                            .map(|n| n.to_string_lossy().to_string())
+                            .unwrap_or_default();
+                        if ui.button(format!("📂 {name}")).clicked() {
+                            import_requested = Some(f.clone());
+                        }
+                    }
+                    if files.is_empty() {
+                        ui.label("（暂无存档，先按 F5 保存）");
+                    }
+                    ui.separator();
+                    ui.label("自定义路径导入：");
+                    ui.text_edit_singleline(&mut *import_path);
+                    if ui.button("导入 .ptw").clicked() {
+                        let p = import_path.trim().to_string();
+                        if !p.is_empty() {
+                            import_requested = Some(std::path::PathBuf::from(p));
+                        }
+                    }
+                }
             }
         });
 
-    // 面板关闭后应用挑战启动 / 主题切换（需要可变借用）
+    // 面板关闭后应用动作（需要可变借用）
     if let Some(idx) = theme_switch {
         select_blueprint(&mut blueprint, &mut blueprint_library, idx);
         // 切换后销毁旧幽灵蓝图，由对账系统按新蓝图重建
@@ -267,6 +330,58 @@ fn block_panel_ui(
             commands.entity(e).despawn();
         }
         info!("🏯 主题切换：{}", blueprint_library.current_def().name);
+    }
+    if let Some(path) = import_requested {
+        match load_save_from_path(&path) {
+            Ok(save) => {
+                let n = import_save(
+                    &mut commands,
+                    &mut stack,
+                    &library,
+                    &render,
+                    &mut blueprint,
+                    &mut challenge,
+                    &placed_query,
+                    save,
+                );
+                info!("📂 已导入 {}（{n} 个积木）", path.display());
+            }
+            Err(e) => error!("导入失败: {e}"),
+        }
+    }
+    if save_requested || share_requested || json_requested {
+        let mode = if blueprint.active { "blueprint" } else { "free" };
+        let save = crate::save::build_save(&stack, &blueprint, mode);
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("saves");
+        let unix = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_secs())
+            .unwrap_or(0);
+        if save_requested {
+            if let (Ok(bytes), true) = (crate::save::encode_bincode(&save), std::fs::create_dir_all(&dir).is_ok()) {
+                match crate::save::write_atomic(&dir.join("slot1.ptw"), &bytes) {
+                    Ok(()) => info!("💾 已保存（{} 个积木）", save.meta.block_count),
+                    Err(e) => error!("保存失败: {e}"),
+                }
+            }
+        }
+        if share_requested {
+            let path = dir.join(format!("share_{unix}.ptw"));
+            if let Ok(bytes) = crate::save::encode_bincode(&save) {
+                match crate::save::write_atomic(&path, &bytes) {
+                    Ok(()) => info!("📤 分享存档已导出：{}", path.display()),
+                    Err(e) => error!("分享导出失败: {e}"),
+                }
+            }
+        }
+        if json_requested {
+            if let Ok(json) = serde_json::to_string_pretty(&save) {
+                match std::fs::write(dir.join("export.json"), json) {
+                    Ok(()) => info!("📄 已导出 saves/export.json"),
+                    Err(e) => error!("JSON 导出失败: {e}"),
+                }
+            }
+        }
     }
     if start_requested {
         start_challenge(

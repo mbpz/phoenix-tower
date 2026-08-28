@@ -111,7 +111,8 @@ fn update_hint(
         "左键:放置  左拖:旋转  右拖:平移  滚轮:缩放\n\
          撤销:Backspace/Ctrl+Z  重做:Ctrl+Y（20 步）\n\
          1-9:选积木  Q/E:切换  R:旋转90°  X:拆除  M:蓝图/自由  T:昼夜\n\
-         G:重力测试  C:挑战  F2:截图  F5:保存  F6:导出JSON  F9:读取\n\
+         G:重力测试  C:挑战  F2:截图  F5:保存  F6:JSON\n\
+         F7:分享导出  F8:导入最新  F9:读取slot\n\
          {mode}\n\
          当前积木: {name} [{cur} / {total}]（{layer}） 旋转 {rot}°\n\
          {challenge_line}\n\

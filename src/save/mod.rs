@@ -59,7 +59,49 @@ pub struct SavePlugin;
 
 impl Plugin for SavePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, handle_save_load);
+        app.add_systems(Update, (handle_save_load, env_load_system));
+    }
+}
+
+/// PHOENIX_LOAD=<path> 启动约 1 秒后导入指定存档（自动化验证/回归用）。
+fn env_load_system(
+    mut frames: Local<u32>,
+    mut done: Local<bool>,
+    mut commands: Commands,
+    mut stack: ResMut<PlacedBlocks>,
+    library: Res<BlockLibrary>,
+    render: Res<BlockRenderAssets>,
+    mut blueprint: ResMut<Blueprint>,
+    mut challenge: ResMut<Challenge>,
+    placed_query: Query<Entity, With<PlacedBlock>>,
+) {
+    if *done {
+        return;
+    }
+    *frames += 1;
+    if *frames < 60 {
+        return;
+    }
+    *done = true;
+    let Ok(path) = std::env::var("PHOENIX_LOAD") else {
+        return;
+    };
+    let path = PathBuf::from(path);
+    match load_save_from_path(&path) {
+        Ok(save) => {
+            let loaded = import_save(
+                &mut commands,
+                &mut stack,
+                &library,
+                &render,
+                &mut blueprint,
+                &mut challenge,
+                &placed_query,
+                save,
+            );
+            info!("🧪 PHOENIX_LOAD 导入完成：{}（{loaded} 个积木）", path.display());
+        }
+        Err(e) => error!("🧪 PHOENIX_LOAD 导入失败: {e}"),
     }
 }
 
@@ -213,28 +255,110 @@ fn handle_save_load(
     }
 
     if keys.just_pressed(KeyCode::F9) {
-        let result = std::fs::read(dir.join(SLOT_FILENAME))
-            .map_err(|e| format!("读取存档失败: {e}"))
-            .and_then(|bytes| decode_bincode(&bytes))
-            .and_then(migrate);
-        match result {
+        match load_save_from_path(&dir.join(SLOT_FILENAME)) {
             Ok(save) => {
-                for entity in placed_query.iter() {
-                    commands.entity(entity).despawn();
-                }
-                let loaded = apply_save(&mut commands, &mut stack, &library, &render, &save);
-                // 读档后重置挑战（避免配额与世界不一致）
-                challenge.state = ChallengeState::Idle;
-                challenge.rewards.clear();
-                challenge.stars = 0;
-                if blueprint.active {
-                    refresh_completion(&stack, &library, &mut blueprint);
-                }
-                info!("📂 已加载存档（{} 个积木）", loaded);
+                let loaded = import_save(
+                    &mut commands,
+                    &mut stack,
+                    &library,
+                    &render,
+                    &mut blueprint,
+                    &mut challenge,
+                    &placed_query,
+                    save,
+                );
+                info!("📂 已加载存档（{loaded} 个积木）");
             }
             Err(e) => error!("加载失败: {e}"),
         }
     }
+
+    // F7：导出分享副本（时间戳命名，便于分发）
+    if keys.just_pressed(KeyCode::F7) {
+        let save = build_save(&stack, &blueprint, mode);
+        let unix = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|d| d.as_secs())
+            .unwrap_or(0);
+        let path = dir.join(format!("share_{unix}.ptw"));
+        match encode_bincode(&save).and_then(|bytes| {
+            std::fs::create_dir_all(&dir).map_err(|e| format!("创建存档目录失败: {e}"))?;
+            write_atomic(&path, &bytes)
+        }) {
+            Ok(()) => info!("📤 分享存档已导出：{}", path.display()),
+            Err(e) => error!("分享导出失败: {e}"),
+        }
+    }
+
+    // F8：导入 saves/ 下最新的 .ptw（分享导入快捷方式）
+    if keys.just_pressed(KeyCode::F8) {
+        let latest = latest_ptw(&dir);
+        match latest {
+            Some(path) => match load_save_from_path(&path) {
+                Ok(save) => {
+                    let loaded = import_save(
+                        &mut commands,
+                        &mut stack,
+                        &library,
+                        &render,
+                        &mut blueprint,
+                        &mut challenge,
+                        &placed_query,
+                        save,
+                    );
+                    info!("📂 已导入分享存档 {}（{loaded} 个积木）", path.display());
+                }
+                Err(e) => error!("导入失败: {e}"),
+            },
+            None => info!("saves/ 下没有可导入的 .ptw 存档"),
+        }
+    }
+}
+
+/// 读取并迁移存档文件（纯 IO+解析，可测试）。
+pub fn load_save_from_path(path: &Path) -> Result<SaveFile, String> {
+    std::fs::read(path)
+        .map_err(|e| format!("读取存档失败: {e}"))
+        .and_then(|bytes| decode_bincode(&bytes))
+        .and_then(migrate)
+}
+
+/// saves/ 下最新的 .ptw 文件路径（分享导入）。
+pub fn latest_ptw(dir: &Path) -> Option<PathBuf> {
+    let mut files: Vec<_> = std::fs::read_dir(dir)
+        .ok()?
+        .filter_map(Result::ok)
+        .map(|e| e.path())
+        .filter(|p| p.extension().is_some_and(|e| e == "ptw"))
+        .collect();
+    files.sort_by_key(|p| std::fs::metadata(p).and_then(|m| m.modified()).ok());
+    files.pop()
+}
+
+/// 导入存档到世界（F9 / F8 / 面板 / PHOENIX_LOAD 共用）：
+/// 清空现有积木 → 重建 → 重置挑战状态 → 刷新完成度。
+pub fn import_save(
+    commands: &mut Commands,
+    stack: &mut PlacedBlocks,
+    library: &BlockLibrary,
+    render: &BlockRenderAssets,
+    blueprint: &mut Blueprint,
+    challenge: &mut Challenge,
+    placed_query: &Query<Entity, With<PlacedBlock>>,
+    save: SaveFile,
+) -> usize {
+    for entity in placed_query.iter() {
+        commands.entity(entity).despawn();
+    }
+    let loaded = apply_save(commands, stack, library, render, &save);
+    // 导入后重置挑战（避免配额与世界不一致）
+    challenge.state = ChallengeState::Idle;
+    challenge.rewards.clear();
+    challenge.stars = 0;
+    if blueprint.active {
+        refresh_completion(stack, library, blueprint);
+    }
+    loaded
 }
 
 #[cfg(test)]
@@ -289,5 +413,47 @@ mod tests {
         let mut save = build_save(&stack, &bp, "free");
         save.version = SAVE_VERSION + 99;
         assert!(migrate(save).is_err(), "未来版本应拒绝加载");
+    }
+
+    #[test]
+    fn load_save_from_path_roundtrip() {
+        let (stack, bp, _lib) = setup();
+        let save = build_save(&stack, &bp, "free");
+        let path = std::env::temp_dir().join("pt_share_test.ptw");
+        std::fs::write(&path, encode_bincode(&save).unwrap()).unwrap();
+        let loaded = load_save_from_path(&path).unwrap();
+        assert_eq!(loaded, save, "路径导入应还原存档");
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn load_save_missing_file_errors() {
+        let path = std::env::temp_dir().join("pt_does_not_exist_12345.ptw");
+        assert!(load_save_from_path(&path).is_err());
+    }
+
+    #[test]
+    fn write_verify_import_file() {
+        // 生成验证文件供 PHOENIX_LOAD 冒烟测试（saves/ 已 gitignore）
+        let (mut stack, bp, lib) = setup();
+        let taiji = lib.by_id["taiji"];
+        let def = &lib.defs[taiji];
+        let anchor = IVec3::new(0, 0, 0);
+        let cells = footprint_cells(anchor, def, 0);
+        stack.records.push(PlacedRecord {
+            entity: Entity::PLACEHOLDER,
+            def_id: "taiji".to_string(),
+            anchor,
+            rot: 0,
+            cells,
+        });
+        let save = build_save(&stack, &bp, "free");
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("saves");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            dir.join("verify_import.ptw"),
+            encode_bincode(&save).unwrap(),
+        )
+        .unwrap();
     }
 }
