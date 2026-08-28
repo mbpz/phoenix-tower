@@ -1,0 +1,11 @@
+(
+    id: "shizhuang",
+    name: "石桩",
+    category: structure,
+    layer: "柱",
+    order: 21,
+    size: (1, 1, 1),
+    color: (0.40, 0.42, 0.45, 1.0),
+    snap: grid,
+    description: "江畔系缆石桩，见证舟楫往来。",
+)

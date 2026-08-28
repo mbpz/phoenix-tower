@@ -1,0 +1,11 @@
+(
+    id: "menban",
+    name: "门板",
+    category: decoration,
+    layer: "装饰",
+    order: 27,
+    size: (1, 2, 1),
+    color: (0.69, 0.15, 0.15, 1.0),
+    snap: grid,
+    description: "朱红门板，威严大气。",
+)

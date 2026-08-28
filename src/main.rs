@@ -14,6 +14,7 @@ use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
 
 use building::placement::PlacementPlugin;
+use building::tutorial::TutorialPlugin;
 use camera::orbit_camera::OrbitCameraPlugin;
 use game_state::GameState;
 use save::SavePlugin;
@@ -35,6 +36,7 @@ fn main() {
         .add_plugins((
             OrbitCameraPlugin,
             PlacementPlugin,
+            TutorialPlugin,
             ScenePlugin,
             HudPlugin,
             BlockPanelPlugin,

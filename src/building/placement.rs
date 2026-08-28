@@ -29,6 +29,7 @@ impl Plugin for PlacementPlugin {
                 Update,
                 (
                     toggle_blueprint,
+                    reconcile_blueprint_ghosts,
                     select_block,
                     update_ghost_preview,
                     handle_place_and_undo,
@@ -57,6 +58,8 @@ pub struct BlockRenderAssets {
     pub ghost_bad_material: Handle<StandardMaterial>,
     /// 幽灵蓝图材质：def.id → 半透明
     pub blueprint_materials: HashMap<String, Handle<StandardMaterial>>,
+    /// 幽灵蓝图单位格网格（0.92 立方，略小于格子便于辨认）
+    pub blueprint_unit_mesh: Handle<Mesh>,
 }
 
 /// 已放置积木：撤销历史 + 重做栈 + 占用集合 + 列顶高度（ADR-005 O(1) 查重）。
@@ -142,6 +145,7 @@ fn setup_block_assets(
             ..default()
         }),
         blueprint_materials,
+        blueprint_unit_mesh: meshes.add(Cuboid::new(0.92, 0.92, 0.92)),
     });
 }
 
@@ -253,41 +257,52 @@ fn rebuild_col_top_mut(stack: &mut PlacedBlocks) {
 
 // ---------- 系统 ----------
 
-/// M 键切换蓝图模式，并生成/销毁幽灵蓝图实体。
-fn toggle_blueprint(
-    keys: Res<ButtonInput<KeyCode>>,
-    mut blueprint: ResMut<Blueprint>,
+/// M 键切换蓝图模式（幽灵实体由 reconcile_blueprint_ghosts 对账生成/销毁）。
+fn toggle_blueprint(keys: Res<ButtonInput<KeyCode>>, mut blueprint: ResMut<Blueprint>) {
+    if keys.just_pressed(KeyCode::KeyM) {
+        blueprint.active = !blueprint.active;
+    }
+}
+
+/// 生成幽灵蓝图实体（按积木本色半透明）。
+pub(crate) fn spawn_blueprint_ghosts(
+    commands: &mut Commands,
+    blueprint: &Blueprint,
+    render: &BlockRenderAssets,
+) {
+    for cell in &blueprint.cell_list {
+        let id = &blueprint.expected[cell];
+        let mat = render
+            .blueprint_materials
+            .get(id)
+            .cloned()
+            .unwrap_or_else(|| render.ghost_material.clone());
+        commands.spawn((
+            Mesh3d(render.blueprint_unit_mesh.clone()),
+            MeshMaterial3d(mat),
+            Transform::from_translation(Vec3::new(
+                cell.x as f32 + 0.5,
+                cell.y as f32 + 0.5,
+                cell.z as f32 + 0.5,
+            )),
+            BlueprintGhost,
+            Name::new(format!("BlueprintGhost:{}", id)),
+        ));
+    }
+}
+
+/// 幽灵蓝图对账：蓝图开启且无幽灵 → 生成；关闭且有幽灵 → 销毁。
+/// （M 键切换与教程强制开启共用此路径，保证实体与状态一致）
+fn reconcile_blueprint_ghosts(
     mut commands: Commands,
+    blueprint: Res<Blueprint>,
     existing: Query<Entity, With<BlueprintGhost>>,
     render: Res<BlockRenderAssets>,
-    mut meshes: ResMut<Assets<Mesh>>,
 ) {
-    if !keys.just_pressed(KeyCode::KeyM) {
-        return;
-    }
-    blueprint.active = !blueprint.active;
-    if blueprint.active {
-        let unit = meshes.add(Cuboid::new(0.92, 0.92, 0.92));
-        for cell in &blueprint.cell_list {
-            let id = &blueprint.expected[cell];
-            let mat = render
-                .blueprint_materials
-                .get(id)
-                .cloned()
-                .unwrap_or_else(|| render.ghost_material.clone());
-            commands.spawn((
-                Mesh3d(unit.clone()),
-                MeshMaterial3d(mat),
-                Transform::from_translation(Vec3::new(
-                    cell.x as f32 + 0.5,
-                    cell.y as f32 + 0.5,
-                    cell.z as f32 + 0.5,
-                )),
-                BlueprintGhost,
-                Name::new(format!("BlueprintGhost:{}", id)),
-            ));
-        }
-    } else {
+    let count = existing.iter().count();
+    if blueprint.active && count == 0 {
+        spawn_blueprint_ghosts(&mut commands, &blueprint, &render);
+    } else if !blueprint.active && count > 0 {
         for entity in existing.iter() {
             commands.entity(entity).despawn();
         }

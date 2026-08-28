@@ -1,0 +1,11 @@
+(
+    id: "dengzhu",
+    name: "灯柱",
+    category: decoration,
+    layer: "装饰",
+    order: 28,
+    size: (1, 2, 1),
+    color: (0.85, 0.20, 0.16, 1.0),
+    snap: grid,
+    description: "檐下灯柱，入夜灯火通明。",
+)

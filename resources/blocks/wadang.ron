@@ -1,0 +1,11 @@
+(
+    id: "wadang",
+    name: "瓦当",
+    category: roof,
+    layer: "屋顶",
+    order: 26,
+    size: (1, 1, 1),
+    color: (0.40, 0.42, 0.45, 1.0),
+    snap: grid,
+    description: "瓦当收束屋檐，纹样精美。",
+)

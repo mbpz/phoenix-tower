@@ -1,0 +1,11 @@
+(
+    id: "shidan",
+    name: "石墩",
+    category: base,
+    layer: "台基",
+    order: 18,
+    size: (1, 1, 1),
+    color: (0.40, 0.42, 0.45, 1.0),
+    snap: grid,
+    description: "方形石墩立于台基四角，朴素稳重。",
+)

@@ -1,0 +1,11 @@
+(
+    id: "qiaoshou",
+    name: "翘首",
+    category: roof,
+    layer: "屋顶",
+    order: 25,
+    size: (1, 1, 1),
+    color: (0.78, 0.63, 0.29, 1.0),
+    snap: grid,
+    description: "翘首脊饰灵动上扬，与飞檐呼应。",
+)

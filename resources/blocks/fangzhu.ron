@@ -1,0 +1,11 @@
+(
+    id: "fangzhu",
+    name: "方柱",
+    category: structure,
+    layer: "柱",
+    order: 19,
+    size: (1, 2, 1),
+    color: (0.69, 0.15, 0.15, 1.0),
+    snap: grid,
+    description: "方形短柱，承重构件。",
+)

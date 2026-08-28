@@ -1,0 +1,11 @@
+(
+    id: "hongqiang",
+    name: "红墙",
+    category: structure,
+    layer: "柱",
+    order: 20,
+    size: (3, 1, 1),
+    color: (0.69, 0.15, 0.15, 1.0),
+    snap: grid,
+    description: "朱红墙板围合楼阁空间，气势庄重。",
+)

@@ -1,0 +1,11 @@
+(
+    id: "huaping",
+    name: "花瓶",
+    category: special,
+    layer: "装饰",
+    order: 30,
+    size: (1, 1, 1),
+    color: (0.20, 0.35, 0.60, 1.0),
+    snap: grid,
+    description: "青花瓷瓶点缀案头，清雅脱俗。",
+)

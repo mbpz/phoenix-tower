@@ -8,6 +8,7 @@ use bevy::prelude::*;
 
 use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::Blueprint;
+use crate::building::tutorial::Tutorial;
 
 pub struct HudPlugin;
 
@@ -45,6 +46,7 @@ fn update_hint(
     mut hint: Query<&mut Text, With<HintText>>,
     library: Res<BlockLibrary>,
     blueprint: Res<Blueprint>,
+    tutorial: Res<Tutorial>,
 ) {
     let def = library.current_def();
     let Ok(mut text) = hint.single_mut() else {
@@ -59,13 +61,19 @@ fn update_hint(
     } else {
         "自由模式".to_string()
     };
+    let tutorial_line = if tutorial.active {
+        format!("🎓 {}\n（N 键跳过教程）", tutorial.steps[tutorial.step].label)
+    } else {
+        String::new()
+    };
     text.0 = format!(
         "左键:放置  左拖:旋转  右拖:平移  滚轮:缩放\n\
          撤销:Backspace/Ctrl+Z  重做:Ctrl+Y（20 步）\n\
          1-9:选积木  Q/E:切换  M:蓝图/自由  T:昼夜\n\
          F5:保存  F6:导出JSON  F9:读取  Esc:退出\n\
          {mode}\n\
-         当前积木: {} [{} / {}]（{}）",
+         当前积木: {} [{} / {}]（{}）\n\
+         {tutorial_line}",
         def.name,
         library.current + 1,
         library.defs.len(),

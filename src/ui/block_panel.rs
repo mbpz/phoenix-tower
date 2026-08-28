@@ -9,7 +9,7 @@
 
 use bevy::prelude::*;
 use bevy_egui::egui::{self, Color32, FontData, FontDefinitions, LayerId, RichText, Ui, UiBuilder};
-use bevy_egui::EguiContexts;
+use bevy_egui::{EguiContexts, EguiPrimaryContextPass};
 
 use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::Blueprint;
@@ -18,7 +18,9 @@ pub struct BlockPanelPlugin;
 
 impl Plugin for BlockPanelPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, block_panel_ui);
+        // 必须在 bevy_egui 帧调度（EguiPrimaryContextPass）内绘制：
+        // Update 阶段的 Context 尚未 run()，绘制会 panic（"No fonts available..."）
+        app.add_systems(EguiPrimaryContextPass, block_panel_ui);
     }
 }
 
