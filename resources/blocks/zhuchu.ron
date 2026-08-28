@@ -1,0 +1,11 @@
+(
+    id: "zhuchu",
+    name: "柱础",
+    category: base,
+    layer: "柱",
+    order: 2,
+    size: (1, 1, 1),
+    color: (0.36, 0.40, 0.44, 1.0),
+    snap: grid,
+    description: "柱础承托立柱，防潮隔湿，是中国木构建筑的基石。",
+)

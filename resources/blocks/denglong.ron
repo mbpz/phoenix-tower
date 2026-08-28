@@ -1,0 +1,11 @@
+(
+    id: "denglong",
+    name: "灯笼",
+    category: special,
+    layer: "装饰",
+    order: 15,
+    size: (1, 1, 1),
+    color: (0.85, 0.20, 0.16, 1.0),
+    snap: grid,
+    description: "红灯笼点缀楼阁檐下，喜庆祥和。",
+)

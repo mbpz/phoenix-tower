@@ -422,7 +422,7 @@ dependencies = [
  "downcast-rs 2.0.2",
  "either",
  "petgraph",
- "ron",
+ "ron 0.12.2",
  "serde",
  "smallvec",
  "thiserror 2.0.20",
@@ -518,7 +518,7 @@ dependencies = [
  "futures-lite",
  "futures-util",
  "js-sys",
- "ron",
+ "ron 0.12.2",
  "serde",
  "stackfuture",
  "thiserror 2.0.20",
@@ -1805,7 +1805,7 @@ dependencies = [
  "bevy_transform",
  "bevy_utils",
  "derive_more",
- "ron",
+ "ron 0.12.2",
  "serde",
  "thiserror 2.0.20",
  "uuid",
@@ -4119,6 +4119,8 @@ name = "phoenix-tower"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "ron 0.9.0",
+ "serde",
 ]
 
 [[package]]
@@ -4455,6 +4457,19 @@ dependencies = [
  "num-rational",
  "thiserror 2.0.20",
  "tracing",
+]
+
+[[package]]
+name = "ron"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "63f3aa105dea217ef30d89581b65a4d527a19afc95ef5750be3890e8d3c5b837"
+dependencies = [
+ "base64",
+ "bitflags 2.13.1",
+ "serde",
+ "serde_derive",
+ "unicode-ident",
 ]
 
 [[package]]

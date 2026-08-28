@@ -1,0 +1,11 @@
+(
+    id: "tonghe",
+    name: "铜鹤",
+    category: special,
+    layer: "装饰",
+    order: 14,
+    size: (1, 1, 1),
+    color: (0.49, 0.36, 0.24, 1.0),
+    snap: grid,
+    description: "铜鹤昂首引颈，与黄鹤楼之名相映成趣。",
+)

@@ -1,0 +1,11 @@
+(
+    id: "chuangling",
+    name: "窗棂",
+    category: decoration,
+    layer: "装饰",
+    order: 12,
+    size: (1, 1, 1),
+    color: (0.94, 0.93, 0.89, 1.0),
+    snap: grid,
+    description: "雕花窗棂透光纳景，框出四时风光。",
+)

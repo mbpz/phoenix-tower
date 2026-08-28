@@ -1,0 +1,11 @@
+(
+    id: "langan",
+    name: "回廊栏杆",
+    category: structure,
+    layer: "装饰",
+    order: 7,
+    size: (4, 1, 1),
+    color: (0.69, 0.15, 0.15, 1.0),
+    snap: grid,
+    description: "回廊栏杆环绕楼阁，凭栏远眺，江天一色。",
+)

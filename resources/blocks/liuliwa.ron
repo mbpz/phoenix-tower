@@ -1,0 +1,11 @@
+(
+    id: "liuliwa",
+    name: "琉璃瓦",
+    category: roof,
+    layer: "屋顶",
+    order: 8,
+    size: (2, 1, 2),
+    color: (0.78, 0.63, 0.29, 1.0),
+    snap: grid,
+    description: "黄琉璃瓦在阳光下熠熠生辉，是黄鹤楼最耀眼的一笔。",
+)

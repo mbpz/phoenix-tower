@@ -1,0 +1,11 @@
+(
+    id: "baoding",
+    name: "宝顶",
+    category: roof,
+    layer: "屋顶",
+    order: 10,
+    size: (1, 1, 1),
+    color: (0.78, 0.63, 0.29, 1.0),
+    snap: grid,
+    description: "宝顶收束屋顶，镇楼之器，寓意圆满。",
+)

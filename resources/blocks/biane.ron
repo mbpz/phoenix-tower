@@ -1,0 +1,11 @@
+(
+    id: "biane",
+    name: "匾额",
+    category: decoration,
+    layer: "装饰",
+    order: 13,
+    size: (1, 1, 1),
+    color: (0.55, 0.36, 0.20, 1.0),
+    snap: grid,
+    description: "「黄鹤楼」匾额高悬，气韵天成，点明楼名。",
+)

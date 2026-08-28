@@ -1,0 +1,11 @@
+(
+    id: "louban",
+    name: "楼板",
+    category: structure,
+    layer: "楼板",
+    order: 6,
+    size: (4, 1, 4),
+    color: (0.55, 0.36, 0.20, 1.0),
+    snap: grid,
+    description: "楼板分隔层高，登楼远眺长江之处。",
+)

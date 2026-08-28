@@ -1,0 +1,11 @@
+(
+    id: "liangfang",
+    name: "梁枋",
+    category: structure,
+    layer: "梁",
+    order: 4,
+    size: (4, 1, 1),
+    color: (0.55, 0.36, 0.20, 1.0),
+    snap: grid,
+    description: "梁枋纵横交错，构成楼阁的木构骨架。",
+)

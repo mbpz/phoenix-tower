@@ -9,6 +9,9 @@ license = "MIT"
 # 引擎锁定 0.19 大版本（当前最新稳定 0.19.1）。
 # 升级策略见 docs/adr/ADR-001-engine-versioning.md
 bevy = "0.19"
+# 积木定义数据驱动（B-06）：resources/blocks/*.ron
+serde = { version = "1", features = ["derive"] }
+ron = "0.9"
 
 [profile.dev]
 # 加速开发期迭代：Bevy 编译很重，开启增量优化以加快链接

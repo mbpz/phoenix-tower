@@ -1,0 +1,11 @@
+(
+    id: "dougong",
+    name: "斗拱",
+    category: structure,
+    layer: "梁",
+    order: 5,
+    size: (2, 2, 2),
+    color: (0.55, 0.36, 0.20, 1.0),
+    snap: grid,
+    description: "斗拱层层出挑，承托屋檐，是中国古建的精髓构件。",
+)
