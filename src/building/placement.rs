@@ -136,7 +136,18 @@ fn setup_block_assets(
     let mut blueprint_materials = HashMap::new();
     for def in &library.defs {
         let (w, h, d) = (def.size[0] as f32, def.size[1] as f32, def.size[2] as f32);
-        let mesh = meshes.add(Cuboid::new(w * GRID, h * GRID, d * GRID));
+        // 程序化建筑网格（B-07 形制升级）：按积木 ID 选用对应几何
+        let mesh = meshes.add(match def.id.as_str() {
+            "hongzhu" | "hongzhu4" | "fangzhu" => {
+                crate::building::meshes::column(0.5, h * GRID, 10)
+            }
+            "dengzhu" => crate::building::meshes::column(0.22, h * GRID, 8),
+            "liuliwa" | "chuiwa" => crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.26),
+            "feiyan" | "qiaoshou" => crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.45),
+            "baoding" => crate::building::meshes::spire(0.9),
+            "jizhuanding" => crate::building::meshes::conical_roof(w * GRID, d * GRID, h * GRID, 8),
+            _ => Mesh::from(Cuboid::new(w * GRID, h * GRID, d * GRID)),
+        });
         let mat = materials.add(StandardMaterial {
             base_color: Color::srgba(def.color[0], def.color[1], def.color[2], def.color[3]),
             perceptual_roughness: 0.55,

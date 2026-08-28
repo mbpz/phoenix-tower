@@ -1,0 +1,11 @@
+(
+    id: "jizhuanding",
+    name: "攒尖顶",
+    category: roof,
+    layer: "屋顶",
+    order: 35,
+    size: (4, 4, 4),
+    color: (0.78, 0.63, 0.29, 1.0),
+    snap: grid,
+    description: "攒尖顶：五层飞檐之上收束成圆锥形大屋顶，顶部立宝顶，是黄鹤楼最标志性的轮廓。",
+)

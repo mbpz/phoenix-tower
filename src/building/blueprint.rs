@@ -271,7 +271,7 @@ mod tests {
         // 默认蓝图（order 最小）应为五层收分黄鹤楼——教程依赖其格子布局
         let (bp, _lib) = load_blueprint_library();
         assert_eq!(bp.def.id, "yellow_crane_tower");
-        assert_eq!(bp.expected.len(), 283);
+        assert_eq!(bp.expected.len(), 331);
     }
 
     #[test]
