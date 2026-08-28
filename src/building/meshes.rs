@@ -238,7 +238,7 @@ pub fn spire(height: f32) -> Mesh {
 
 /// 檐板（楼板级）：主体楼板 + 四边出挑檐口 + 四角起翘。
 /// 让每一层的楼板线读作"飞檐"，形成五层重檐的轮廓（黄鹤楼标志）。
-pub fn eave_slab(w: f32, d: f32, thick: f32) -> Mesh {
+pub fn eave_slab(w: f32, d: f32, thick: f32, chamfer: f32) -> Mesh {
     let o = 0.18; // 檐口出挑量
     let u = 0.14; // 四角起翘量
     let mid_y = thick * 0.85; // 檐边（非角）略低于顶面
@@ -246,63 +246,65 @@ pub fn eave_slab(w: f32, d: f32, thick: f32) -> Mesh {
 
     let hw = w / 2.0;
     let hd = d / 2.0;
+    let cw = hw - chamfer; // 切角后的角点半宽
+    let cd = hd - chamfer;
 
-    // 顶点：
-    // 0-3  底面四角 (y=0)
-    // 4-7  顶面四角 (y=thick)
-    // 8-15 檐口环：8 点（四角翘起 + 四边中点略低）
-    let bottom = [
-        [-hw, 0.0, -hd],
-        [hw, 0.0, -hd],
-        [hw, 0.0, hd],
-        [-hw, 0.0, hd],
+    // 八角周界 8 点（顺序：角0,边0,角1,边1,角2,边2,角3,边3）
+    let perim: [[f32; 2]; 8] = [
+        [cw, cd],
+        [hw, 0.0],
+        [cw, -cd],
+        [0.0, -hd],
+        [-cw, -cd],
+        [-hw, 0.0],
+        [-cw, cd],
+        [0.0, hd],
     ];
-    let top = [
-        [-hw, thick, -hd],
-        [hw, thick, -hd],
-        [hw, thick, hd],
-        [-hw, thick, hd],
-    ];
-    // 檐口环（外扩 o）：顺序 = 角0,边0,角1,边1,角2,边2,角3,边3
-    let lip: [[f32; 3]; 8] = [
-        [-hw - o, corner_y, -hd - o],
-        [0.0, mid_y, -hd - o],
-        [hw + o, corner_y, -hd - o],
-        [hw + o, mid_y, 0.0],
-        [hw + o, corner_y, hd + o],
-        [0.0, mid_y, hd + o],
-        [-hw - o, corner_y, hd + o],
-        [-hw - o, mid_y, 0.0],
-    ];
-
     let mut positions: Vec<[f32; 3]> = Vec::new();
     let mut normals: Vec<[f32; 3]> = Vec::new();
     let mut uvs: Vec<[f32; 2]> = Vec::new();
     let mut indices: Vec<u32> = Vec::new();
 
-    for p in bottom.iter().chain(top.iter()).chain(lip.iter()) {
-        positions.push(*p);
+    // 环 0：底面（y=0）
+    for p in &perim {
+        positions.push([p[0], 0.0, p[1]]);
+        normals.push([0.0, -1.0, 0.0]);
+        uvs.push([0.0, 0.0]);
+    }
+    // 环 1：顶面（y=thick）
+    for p in &perim {
+        positions.push([p[0], thick, p[1]]);
+        normals.push([0.0, 1.0, 0.0]);
+        uvs.push([0.0, 0.0]);
+    }
+    // 环 2：檐口（外扩 o；角点起翘、边点略低）
+    for (i, p) in perim.iter().enumerate() {
+        let sx = p[0].signum() * (p[0].abs() + o);
+        let sz = p[1].signum() * (p[1].abs() + o);
+        let y = if i % 2 == 0 { corner_y } else { mid_y };
+        positions.push([sx, y, sz]);
         normals.push([0.0, 1.0, 0.0]);
         uvs.push([0.0, 0.0]);
     }
 
-    // 侧面：底面→顶面
-    for i in 0..4 {
+    // 侧面：底面(环0) → 顶面(环1)
+    for i in 0..8 {
         let a = i;
-        let b = (i + 1) % 4;
-        indices.extend_from_slice(&[a, b, 4 + b, 4 + b, 4 + a, a]);
+        let b = (i + 1) % 8;
+        indices.extend_from_slice(&[a, b, 8 + b, 8 + b, 8 + a, a]);
     }
-    // 檐口：顶面角 → 檐口环（8 段）
-    // 顶面角 i (4+i) 对应檐口环角 (2i)；边 (2i+1)
-    for i in 0..4 {
-        let t = 4 + i; // 顶面角
-        let l0 = 2 * i; // 檐口角
-        let l1 = (2 * i + 1) % 8; // 檐口边
-        let l2 = (2 * i + 2) % 8; // 下一檐口角
-        indices.extend_from_slice(&[t, 8 + l0, 8 + l1, t, 8 + l1, 8 + l2]);
+    // 檐口：顶面(环1) → 檐口(环2)
+    for i in 0..8 {
+        let a = 8 + i;
+        let b = 8 + (i + 1) % 8;
+        let c = 16 + i;
+        let d = 16 + (i + 1) % 8;
+        indices.extend_from_slice(&[a, b, d, d, c, a]);
     }
-    // 底面
-    indices.extend_from_slice(&[0, 2, 1, 0, 3, 2]);
+    // 底面封底（环 0 扇形）
+    for i in 1..7 {
+        indices.extend_from_slice(&[0, i, i + 1]);
+    }
 
     finish(new_mesh(), positions, normals, uvs, indices)
 }
@@ -332,7 +334,7 @@ mod tests {
 
     #[test]
     fn eave_slab_has_upturned_corners() {
-        let mesh = eave_slab(4.0, 4.0, 0.5);
+        let mesh = eave_slab(4.0, 4.0, 0.5, 0.9);
         assert!(mesh.count_vertices() > 0);
         let tris = mesh.triangles().map(|it| it.count()).unwrap_or(0);
         assert!(tris > 0);
