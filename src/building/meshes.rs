@@ -105,8 +105,8 @@ pub fn conical_roof(base_w: f32, base_d: f32, height: f32, segments: usize) -> M
     let mut indices: Vec<u32> = Vec::new();
 
     // 基座八角（檐口外挑 10%）
-    let rx = base_w * 0.5 * 1.1;
-    let rz = base_d * 0.5 * 1.1;
+    let rx = base_w * 0.5 * 1.18;
+    let rz = base_d * 0.5 * 1.18;
     // 中间收腰环（内凹曲线感）：半径收至 55%，高度 45%
     let mid_y = height * 0.45;
     let mid_rx = rx * 0.55;
@@ -192,6 +192,127 @@ pub fn sloped_tile(w: f32, d: f32, pitch: f32) -> Mesh {
 }
 
 /// 宝顶：小型多棱尖塔（收束攒尖顶）。
+
+/// 斗拱：三层交替 45° 出挑的承托构件（中式木构精髓）。
+pub fn dougong_bracket() -> Mesh {
+    // 三层：逐层加宽 + 交替旋转
+    let layers: [(f32, f32, f32); 3] = [
+        (0.8, 0.35, 0.0),  // 底层
+        (1.0, 0.30, 45.0), // 中层（45° 交错）
+        (1.25, 0.30, 0.0), // 顶层出挑
+    ];
+    let mut positions: Vec<[f32; 3]> = Vec::new();
+    let mut normals: Vec<[f32; 3]> = Vec::new();
+    let mut uvs: Vec<[f32; 2]> = Vec::new();
+    let mut indices: Vec<u32> = Vec::new();
+    let mut y = 0.0f32;
+    for (size, h, rot) in layers {
+        let rad = rot.to_radians();
+        let (c, sn) = (rad.cos(), rad.sin());
+        let half = size / 2.0;
+        let corners: [[f32; 3]; 8] = [
+            [-half, y, -half],
+            [half, y, -half],
+            [half, y, half],
+            [-half, y, half],
+            [-half, y + h, -half],
+            [half, y + h, -half],
+            [half, y + h, half],
+            [-half, y + h, half],
+        ];
+        let base = positions.len() as u32;
+        for p in corners {
+            // 绕 Y 轴旋转
+            let x = p[0] * c - p[2] * sn;
+            let z = p[0] * sn + p[2] * c;
+            positions.push([x, p[1], z]);
+            normals.push([0.0, 1.0, 0.0]);
+            uvs.push([0.0, 0.0]);
+        }
+        // 12 三角面
+        indices.extend_from_slice(&[
+            base,
+            base + 1,
+            base + 2,
+            base,
+            base + 2,
+            base + 3, // 底
+            base + 4,
+            base + 6,
+            base + 5,
+            base + 4,
+            base + 7,
+            base + 6, // 顶
+            base,
+            base + 4,
+            base + 5,
+            base,
+            base + 5,
+            base + 1,
+            base + 1,
+            base + 5,
+            base + 6,
+            base + 1,
+            base + 6,
+            base + 2,
+            base + 2,
+            base + 6,
+            base + 7,
+            base + 2,
+            base + 7,
+            base + 3,
+            base + 3,
+            base + 7,
+            base + 4,
+            base + 3,
+            base + 4,
+            base,
+        ]);
+        y += h;
+    }
+    finish(new_mesh(), positions, normals, uvs, indices)
+}
+
+/// 琉璃瓦勾缝纹理：32×32 RGBA8，金色瓦面 + 深色勾缝 + 轻微噪声。
+pub fn tile_texture(seed: u32) -> bevy::image::Image {
+    use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
+    let size = 32u32;
+    let mut data = Vec::with_capacity((size * size * 4) as usize);
+    let mut rng = seed as u64;
+    let mut next = || {
+        rng = rng
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
+        (rng >> 33) as u32
+    };
+    for y in 0..size {
+        for x in 0..size {
+            // 瓦行间隔：每 8 行一条勾缝（深色）；竖缝每 8 列
+            let grout = (x % 8 == 7) || (y % 8 == 7);
+            if grout {
+                data.extend_from_slice(&[58, 44, 20, 255]); // 深勾缝
+            } else {
+                let n = (next() % 24) as i32 - 12; // 轻微明暗噪声
+                let r = (200 + n).clamp(0, 255) as u8;
+                let g = (160 + n).clamp(0, 255) as u8;
+                let b = (84 + n).clamp(0, 255) as u8;
+                data.extend_from_slice(&[r, g, b, 255]); // 金琉璃
+            }
+        }
+    }
+    bevy::image::Image::new(
+        Extent3d {
+            width: size,
+            height: size,
+            depth_or_array_layers: 1,
+        },
+        TextureDimension::D2,
+        data,
+        TextureFormat::Rgba8UnormSrgb,
+        bevy::asset::RenderAssetUsages::default(),
+    )
+}
+
 pub fn spire(height: f32) -> Mesh {
     let mut positions: Vec<[f32; 3]> = Vec::new();
     let mut indices: Vec<u32> = Vec::new();
@@ -239,8 +360,8 @@ pub fn spire(height: f32) -> Mesh {
 /// 檐板（楼板级）：主体楼板 + 四边出挑檐口 + 四角起翘。
 /// 让每一层的楼板线读作"飞檐"，形成五层重檐的轮廓（黄鹤楼标志）。
 pub fn eave_slab(w: f32, d: f32, thick: f32, chamfer: f32) -> Mesh {
-    let o = 0.18; // 檐口出挑量
-    let u = 0.14; // 四角起翘量
+    let o = 0.32; // 檐口出挑量（五层飞檐剪影）
+    let u = 0.24; // 四角起翘量
     let mid_y = thick * 0.85; // 檐边（非角）略低于顶面
     let corner_y = thick + u; // 四角翘起
 

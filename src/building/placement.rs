@@ -131,7 +131,10 @@ fn setup_block_assets(
     library: Res<BlockLibrary>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    mut images: ResMut<Assets<bevy::image::Image>>,
 ) {
+    // 琉璃瓦勾缝纹理（B-07 形制：金色瓦面 + 勾缝 + 噪声）
+    let tile = images.add(crate::building::meshes::tile_texture(20260828));
     let mut per_def = HashMap::new();
     let mut blueprint_materials = HashMap::new();
     for def in &library.defs {
@@ -144,6 +147,7 @@ fn setup_block_assets(
             "dengzhu" => crate::building::meshes::column(0.22, h * GRID, 8),
             "liuliwa" | "chuiwa" => crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.26),
             "feiyan" | "qiaoshou" => crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.45),
+            "dougong" => crate::building::meshes::dougong_bracket(),
             "louban" | "louban5" => {
                 crate::building::meshes::eave_slab(w * GRID, d * GRID, 0.5, 0.9)
             }
@@ -152,9 +156,14 @@ fn setup_block_assets(
             "jizhuanding" => crate::building::meshes::conical_roof(w * GRID, d * GRID, h * GRID, 8),
             _ => Mesh::from(Cuboid::new(w * GRID, h * GRID, d * GRID)),
         });
+        let is_roof = matches!(
+            def.id.as_str(),
+            "liuliwa" | "chuiwa" | "feiyan" | "qiaoshou" | "jizhuanding" | "baoding"
+        );
         let mat = materials.add(StandardMaterial {
             base_color: Color::srgba(def.color[0], def.color[1], def.color[2], def.color[3]),
-            perceptual_roughness: 0.55,
+            base_color_texture: if is_roof { Some(tile.clone()) } else { None },
+            perceptual_roughness: if is_roof { 0.35 } else { 0.55 },
             ..default()
         });
         per_def.insert(def.id.clone(), (mesh, mat));
