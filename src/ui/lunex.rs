@@ -20,6 +20,9 @@ use bevy::picking::pointer::PointerId;
 use bevy_rich_text3d::{LoadFonts, Text3d, Text3dStyling};
 
 use crate::building::block_defs::BlockLibrary;
+use crate::building::blueprint::{
+    select_blueprint, Blueprint, BlueprintGhost, BlueprintLibrary,
+};
 
 pub struct LunexUiPlugin;
 
@@ -36,6 +39,7 @@ impl Plugin for LunexUiPlugin {
             .push(subset);
         app.init_resource::<LunexTheme>()
             .init_resource::<PaletteScroll>()
+            .init_resource::<ThemeMenuOpen>()
             .add_plugins(UiLunexPlugins)
             .add_systems(
                 Startup,
@@ -46,6 +50,9 @@ impl Plugin for LunexUiPlugin {
                 (
                     palette_scroll_system,
                     palette_sync_selection,
+                    b2_progress_sync,
+                    b2_theme_menu_sync,
+                    b2_theme_name_sync,
                     ui_probe_diagnostic,
                 ),
             );
@@ -115,6 +122,8 @@ fn spawn_palette_nodes(
     ui: &mut ChildSpawnerCommands,
     asset_server: &AssetServer,
     library: &BlockLibrary,
+    blueprint: &Blueprint,
+    blueprint_library: &BlueprintLibrary,
     materials: &mut Assets<ColorMaterial>,
     theme: &LunexTheme,
 ) {
@@ -151,6 +160,166 @@ fn spawn_palette_nodes(
                 .pack(),
             Pickable::IGNORE,
         ));
+
+        // B2 蓝图模式区：完成度进度条 + 主题下拉
+        panel
+            .spawn((
+                Name::new("Blueprint Section"),
+                UiLayout::window()
+                    .pos((Rl(50.0), Rh(11.5)))
+                    .size((Rl(94.0), Rh(19.0)))
+                    .anchor(Anchor::TOP_CENTER)
+                    .pack(),
+                Pickable::IGNORE,
+            ))
+            .with_children(|sec| {
+                // 「蓝图」标签
+                sec.spawn((
+                    Name::new("Blueprint Label"),
+                    Text2d::new("蓝图"),
+                    TextFont {
+                        font: font.clone(),
+                        font_size: FontSize::Px(20.0),
+                        ..default()
+                    },
+                    UiTextSize::from(Rh(26.0)),
+                    UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                    UiLayout::window()
+                        .pos((Rl(4.0), Rh(5.0)))
+                        .anchor(Anchor::TOP_LEFT)
+                        .pack(),
+                    Pickable::IGNORE,
+                ));
+                // 进度条底 + 填充
+                let bar_material =
+                    materials.add(ColorMaterial::from(Color::srgba(0.02, 0.03, 0.05, 0.9)));
+                let fill_material = materials.add(ColorMaterial::from(theme.accent));
+                sec.spawn((
+                    Name::new("Progress Bar"),
+                    UiLayout::window()
+                        .pos((Rl(4.0), Rh(42.0)))
+                        .size((Rl(72.0), Rh(24.0)))
+                        .anchor(Anchor::CENTER_LEFT)
+                        .pack(),
+                    UiMeshPlane2d,
+                    MeshMaterial2d(bar_material.clone()),
+                    Pickable::IGNORE,
+                ))
+                .with_children(|bar| {
+                    let pct = (blueprint.completion.clamp(0.0, 1.0) * 100.0).round();
+                    bar.spawn((
+                        Name::new("Progress Fill"),
+                        UiLayout::window()
+                            .pos((Rl(1.5), Rh(50.0)))
+                            .size((Rl(pct), Rl(82.0)))
+                            .anchor(Anchor::CENTER_LEFT)
+                            .pack(),
+                        UiMeshPlane2d,
+                        MeshMaterial2d(fill_material.clone()),
+                        Pickable::IGNORE,
+                        ProgressFill,
+                    ));
+                });
+                // 完成度文本
+                sec.spawn((
+                    Name::new("Progress Text"),
+                    Text2d::new(format!("{:.0}%", blueprint.completion.clamp(0.0, 1.0) * 100.0)),
+                    TextFont {
+                        font: font.clone(),
+                        font_size: FontSize::Px(16.0),
+                        ..default()
+                    },
+                    UiTextSize::from(Rh(20.0)),
+                    UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                    UiLayout::window()
+                        .pos((Rl(79.0), Rh(42.0)))
+                        .anchor(Anchor::CENTER_LEFT)
+                        .pack(),
+                    Pickable::IGNORE,
+                    ProgressText,
+                ));
+                // 主题按钮（全宽；点击开合下拉）
+                let btn_material = materials.add(ColorMaterial::from(theme.row_base));
+                sec.spawn((
+                    Name::new("Theme Button"),
+                    UiLayout::window()
+                        .pos((Rl(50.0), Rh(82.0)))
+                        .size((Rl(92.0), Rh(30.0)))
+                        .anchor(Anchor::CENTER)
+                        .pack(),
+                    UiColor::new(vec![
+                        (UiBase::id(), theme.row_base),
+                        (UiHover::id(), theme.row_hover),
+                    ]),
+                    UiHover::new().instant(true),
+                    UiMeshPlane2d,
+                    MeshMaterial2d(btn_material),
+                    Pickable::default(),
+                ))
+                .observe(hover_set::<Pointer<Over>, true>)
+                .observe(hover_set::<Pointer<Out>, false>)
+                .observe(theme_button_click)
+                .with_children(|btn| {
+                    btn.spawn((
+                        Name::new("Theme Button Text"),
+                        Text2d::new(blueprint_library.current_def().name.clone()),
+                        TextFont {
+                            font: font.clone(),
+                            font_size: FontSize::Px(15.0),
+                            ..default()
+                        },
+                        UiTextSize::from(Rh(50.0)),
+                        UiColor::new(vec![(UiBase::id(), theme.accent)]),
+                        UiLayout::window().full().pack(),
+                        Pickable::IGNORE,
+                        ThemeButtonText,
+                    ));
+                });
+                // 下拉列表（默认隐藏；按钮开合）。Ab 像素尺寸保证可点击高度；
+                // 行 y 超出 section 底部即覆盖到滚动列表上（lunex 不裁剪）。
+                for (i, def) in blueprint_library.defs.iter().enumerate() {
+                    let y = 124.0 + i as f32 * 31.0;
+                    let row_material = materials.add(ColorMaterial::from(theme.row_base));
+                    sec.spawn((
+                        Name::new(format!("theme_row_{}", def.id)),
+                        UiLayout::window()
+                            .pos((Rl(50.0), Ab(y)))
+                            .size((Rl(92.0), Ab(27.0)))
+                            .anchor(Anchor::TOP_CENTER)
+                            .pack(),
+                        UiColor::new(vec![
+                            (UiBase::id(), theme.row_base),
+                            (UiHover::id(), theme.row_hover),
+                        ]),
+                        UiHover::new().instant(true),
+                        UiMeshPlane2d,
+                        MeshMaterial2d(row_material),
+                        Visibility::Hidden,
+                        ThemeMenuRow(i),
+                    ))
+                    .observe(hover_set::<Pointer<Over>, true>)
+                    .observe(hover_set::<Pointer<Out>, false>)
+                    .observe(theme_menu_row_click)
+                    .with_children(|row| {
+                        row.spawn((
+                            Name::new("theme_row_text"),
+                            Text2d::new(def.name.clone()),
+                            TextFont {
+                                font: font.clone(),
+                                font_size: FontSize::Px(15.0),
+                                ..default()
+                            },
+                            UiTextSize::from(Rh(52.0)),
+                            UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                            UiLayout::window()
+                                .pos((Rl(8.0), Rl(50.0)))
+                                .anchor(Anchor::CENTER_LEFT)
+                                .pack(),
+                            Pickable::IGNORE,
+                        ));
+                    });
+                }
+            });
 
         // 滚动列表窗口
         panel
@@ -298,6 +467,118 @@ fn palette_scroll_system(
     }
 }
 
+// ======================================================================
+// B2：蓝图模式区（完成度进度条 + 主题下拉）
+// ======================================================================
+
+/// 进度条填充（宽度 = 完成度 %）
+#[derive(Component)]
+pub struct ProgressFill;
+
+/// 「42%」完成度文本
+#[derive(Component)]
+pub struct ProgressText;
+
+/// 主题按钮文本（当前主题名）
+#[derive(Component)]
+pub struct ThemeButtonText;
+
+/// 主题下拉行（存主题索引）
+#[derive(Component)]
+pub struct ThemeMenuRow(pub usize);
+
+/// 主题下拉开合状态
+#[derive(Resource, Default)]
+pub struct ThemeMenuOpen(pub bool);
+
+/// 完成度变化 → 进度条填充宽度 + 文本
+fn b2_progress_sync(
+    blueprint: Res<Blueprint>,
+    mut fills: Query<&mut UiLayout, With<ProgressFill>>,
+    mut texts: Query<&mut Text2d, With<ProgressText>>,
+) {
+    if !blueprint.is_changed() {
+        return;
+    }
+    let pct = (blueprint.completion.clamp(0.0, 1.0) * 100.0).round();
+    for mut fill in &mut fills {
+        if let Some(bevy_lunex::UiLayoutType::Window(w)) =
+            fill.layouts.get_mut(&UiBase::id())
+        {
+            w.size = (Rl(pct), Rl(82.0)).into();
+        }
+    }
+    for mut t in &mut texts {
+        t.0 = format!("{pct:.0}%");
+    }
+}
+
+/// 主题按钮点击 → 开合下拉
+fn theme_button_click(
+    trigger: On<Pointer<Click>>,
+    mut menu: ResMut<ThemeMenuOpen>,
+) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    menu.0 = !menu.0;
+}
+
+/// 下拉开合状态 → 行可见性
+fn b2_theme_menu_sync(
+    menu: Res<ThemeMenuOpen>,
+    mut rows: Query<&mut Visibility, With<ThemeMenuRow>>,
+) {
+    if !menu.is_changed() {
+        return;
+    }
+    for mut v in &mut rows {
+        *v = if menu.0 {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
+    }
+}
+
+/// 下拉行点击 → 切换主题（与 egui 面板/教程共用 select_blueprint 流程）
+fn theme_menu_row_click(
+    trigger: On<Pointer<Click>>,
+    rows: Query<&ThemeMenuRow>,
+    mut blueprint: ResMut<Blueprint>,
+    mut library: ResMut<BlueprintLibrary>,
+    mut menu: ResMut<ThemeMenuOpen>,
+    mut commands: Commands,
+    ghosts: Query<Entity, With<BlueprintGhost>>,
+) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    let Ok(row) = rows.get(trigger.event_target()) else {
+        return;
+    };
+    select_blueprint(&mut blueprint, &mut library, row.0);
+    // 切换后销毁旧幽灵蓝图，由对账系统按新蓝图重建（与 block_panel 一致）
+    for e in &ghosts {
+        commands.entity(e).despawn();
+    }
+    menu.0 = false;
+    info!("🏯 主题切换：{}", library.current_def().name);
+}
+
+/// 主题变化（下拉/其他入口）→ 按钮文本
+fn b2_theme_name_sync(
+    library: Res<BlueprintLibrary>,
+    mut texts: Query<&mut Text2d, With<ThemeButtonText>>,
+) {
+    if !library.is_changed() {
+        return;
+    }
+    for mut t in &mut texts {
+        t.0 = library.current_def().name.clone();
+    }
+}
+
 /// 冒烟诊断：打印 lunex 布局、2D 文本排布、3D 文本网格的实际状态。
 fn ui_probe_diagnostic(
     time: Res<Time>,
@@ -318,6 +599,9 @@ fn ui_probe_diagnostic(
         With<Text3dProbe>,
     >,
     palette: Query<(&PaletteRow, &UiSelected, &Visibility)>,
+    theme_texts: Query<&Text2d, With<ThemeButtonText>>,
+    progress_texts: Query<&Text2d, With<ProgressText>>,
+    menu_rows: Query<(&ThemeMenuRow, &Visibility)>,
     renderer: Option<Res<bevy_rich_text3d::TextRenderer>>,
 ) {
     if std::env::var("PHOENIX_UI_PROBE").is_err() || *done || time.elapsed_secs() < 4.0 {
@@ -360,6 +644,14 @@ fn ui_probe_diagnostic(
             rows.iter().find(|(_, s, _)| *s > 0.5).map(|(i, _, _)| *i)
         );
     }
+    for t in &theme_texts {
+        info!("🧪 theme button: \"{}\"", t.0);
+    }
+    for t in &progress_texts {
+        info!("🧪 progress text: \"{}\"", t.0);
+    }
+    let open = menu_rows.iter().filter(|(_, v)| *v != Visibility::Hidden).count();
+    info!("🧪 theme menu rows visible: {open}");
 }
 
 /// 2D UI 相机：叠加在 3D 主相机之上（order 更高）、透明清屏，
@@ -391,6 +683,8 @@ fn spawn_hud_root(
     mut materials: ResMut<Assets<ColorMaterial>>,
     theme: Res<LunexTheme>,
     library: Res<BlockLibrary>,
+    blueprint: Res<Blueprint>,
+    blueprint_library: Res<BlueprintLibrary>,
 ) {
     let font = FontSource::Handle(asset_server.load("fonts/NotoSansSC-subset.otf"));
     // lunex 只重建 Mesh2d 几何，材质需自行提供（UiColor 系统负责着色）
@@ -434,7 +728,15 @@ fn spawn_hud_root(
 
             // B1 积木面板（默认关闭；与 egui 面板并存阶段用 env 打开验证）
             if std::env::var("PHOENIX_LUNEX_PALETTE").is_ok() {
-                spawn_palette_nodes(ui, &asset_server, &library, &mut materials, &theme);
+                spawn_palette_nodes(
+                    ui,
+                    &asset_server,
+                    &library,
+                    &blueprint,
+                    &blueprint_library,
+                    &mut materials,
+                    &theme,
+                );
             }
         });
 }
