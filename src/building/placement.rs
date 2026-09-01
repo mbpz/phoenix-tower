@@ -7,6 +7,7 @@
 //!   期望完全一致才允许放置（幽灵红/绿反馈），完成度实时计算（ADR-005）；
 //! - 撤销栈保留（Phase 1 完整版替换为 Command 模式 ≥20 步）。
 
+use bevy::camera::visibility::RenderLayers;
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use std::collections::{HashMap, HashSet};
@@ -645,6 +646,10 @@ fn reconcile_plaque_text(
                     TextColor(Color::srgb(0.95, 0.85, 0.4)),
                     TextLayout::justify(bevy::text::Justify::Center),
                     Transform::from_xyz(0.0, 0.0, 0.06),
+                    // 2D 文本只能由 Camera2d 绘制；主相机为 Camera3d 本就不渲染它。
+                    // 加入 lunex UI 相机（layer 0）后，把它放到 layer 1 避免在世界坐标
+                    // 下被 2D 相机以屏幕坐标误画（匾额文字由 C1 用 lunex UiRoot3d 重做）
+                    RenderLayers::layer(1),
                     PlaqueText,
                 ));
             });
@@ -673,6 +678,8 @@ fn handle_place_and_undo(
     mut blueprint: ResMut<Blueprint>,
     mut challenge: ResMut<Challenge>,
     remove: Res<RemoveMode>,
+    hover_map: Res<bevy::picking::hover::HoverMap>,
+    ui_nodes: Query<Entity, With<bevy_lunex::UiLayout>>,
 ) {
     let modifier = keys.pressed(KeyCode::ControlLeft)
         || keys.pressed(KeyCode::ControlRight)
@@ -758,6 +765,15 @@ fn handle_place_and_undo(
             _ => true,
         };
         if !dragged && !click.placed_this_press {
+            // A3：指针悬停在 Lunex UI 节点上时，点击不落到 3D 场景
+            // （HoverMap 在 PreUpdate 更新，本系统运行于 Update，读到的即本帧状态）
+            let over_ui = hover_map
+                .get(&bevy::picking::pointer::PointerId::Mouse)
+                .is_some_and(|hits| hits.keys().any(|e| ui_nodes.contains(*e)));
+            if over_ui {
+                click.pressed_at = None;
+                return;
+            }
             if let Some(col) = cursor_column(&windows, &cameras) {
                 // 拆除模式：移除光标列最顶部的积木
                 if remove.active {

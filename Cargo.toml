@@ -9,7 +9,9 @@ license = "MIT"
 # 引擎锁定 0.19 大版本（当前最新稳定 0.19.1）。
 # 升级策略见 docs/adr/ADR-001-engine-versioning.md
 # wav 特性：B-19 音频使用程序化生成的 WAV 音效（默认 audio 特性仅含 vorbis）
-bevy = { version = "0.19", features = ["wav"] }
+# picking 特性：Bevy-Lunex 0.7 交互基于 bevy_picking（Pointer 事件/观察者），
+#   且 DefaultPlugins 仅在启用该特性时注册 DefaultPickingPlugins（docs/UI_LUNEX_MIGRATION.md A3）
+bevy = { version = "0.19", features = ["wav", "picking"] }
 # 积木定义数据驱动（B-06）：resources/blocks/*.ron
 serde = { version = "1", features = ["derive"] }
 ron = "0.9"
@@ -20,6 +22,10 @@ serde_json = "1"
 bevy_egui = "0.42"
 # 物理（B-17）：结构稳定性挑战变体（ADR-002）
 avian3d = "0.7"
+# UI 重构（B-25 后续）：Bevy-Lunex retained 布局引擎（替代 bevy_egui，见 docs/UI_LUNEX_MIGRATION.md）
+bevy_lunex = "0.7"
+# lunex text3d 特性依赖；直接引用以便注入 CJK 子集字体（A2 验证 / C1 匾额）
+bevy_rich_text3d = "0.7"
 
 [profile.dev]
 # 加速开发期迭代：Bevy 编译很重，开启增量优化以加快链接

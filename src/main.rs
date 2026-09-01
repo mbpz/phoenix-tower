@@ -37,6 +37,7 @@ use stability::StabilityPlugin;
 use stress::StressPlugin;
 use ui::block_panel::BlockPanelPlugin;
 use ui::hud::HudPlugin;
+use ui::lunex::LunexUiPlugin;
 
 fn main() {
     // 资产根目录显式锚定到项目根（Bevy 默认以可执行文件目录为基准，
@@ -60,6 +61,7 @@ fn main() {
             ScenePlugin,
             HudPlugin,
             BlockPanelPlugin,
+            LunexUiPlugin,
             SavePlugin,
             ScreenshotPlugin,
             StabilityPlugin,
