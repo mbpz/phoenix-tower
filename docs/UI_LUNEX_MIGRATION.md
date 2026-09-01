@@ -30,10 +30,20 @@ Lunex 为保留模式、ECS 组件驱动、走 Bevy 自身渲染管线——上�
   观察者、`Pickable`、lunex 自带 2D picking 后端）。已实现「UI 悬停 → 3D 放置拦截」：
   `placement::handle_place_and_undo` 读取 `HoverMap`（PreUpdate 更新），指针落在任一
   `With<UiLayout>` 实体上时跳过放置/拆除（A3 门控；与轨道相机拖拽的完整共存回归见 D2）
-- [ ] **A4** UI 架构骨架：Lunex 根实体 + 主题 + 层级（HUD 层 / 面板层），按 Bevypunk 的状态驱动模式
+- [x] **A4** UI 架构骨架：`LunexTheme` 资源（banner/panel/行/文字/强调色，杜绝魔法数字）+
+  层级约定（HUD 层 / 面板层，重叠时用 UiDepth）；持久 UI 根（本作单屏游戏，
+  不引入 Bevypunk 的 OnEnter/OnExit 场景切换，GameState 资源已覆盖状态需求）
 
 ### B. 面板逐 Tab 迁移（保留 egui 并行，feature 切换）
-- [ ] **B1** 积木面板（35 种列表 / 选择高亮 / 点击选中）→ lunex 滚动列表
+- [x] **B1** 积木面板（35 种列表 / 选择高亮 / 点击选中）→ lunex 滚动列表
+  - 左侧面板（`PHOENIX_LUNEX_PALETTE=1` 启用，与 egui 面板并存阶段默认关）
+  - 35 行：色块 + 中文名；悬停高亮（UiHover）+ 选中高亮（UiSelected 状态，
+    非 prelude 导出，需 `bevy_lunex::UiSelected` 显式导入）
+  - 点击选中：`.observe(On<Pointer<Click>>)` 直接写 `BlockLibrary.current`
+    （与键盘 1-9/Q/E 同源）；选中同步系统监听 `Res<BlockLibrary>.is_changed()`
+  - 滚轮滚动：仅指针悬停于行上时生效；窗口外的行置 `Visibility::Hidden`
+    （lunex 不裁剪子节点，越界行必须显式隐藏；首次运行即应用初始窗口）
+  - 冒烟验证：35 行全部产出几何+材质；初始可见 14 行；教程选中目标行高亮正确
 - [ ] **B2** 蓝图模式区：完成度进度条 + 蓝图主题下拉
 - [ ] **B3** 挑战区：挑战选择下拉 + 状态/倒计时/材料 + 开始/重试按钮
 - [ ] **B4** 存档 Tab：文件列表 / 加载 / 保存 / 分享 / JSON / 路径输入

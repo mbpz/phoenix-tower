@@ -9,12 +9,17 @@
 //! 交互（A3）：lunex 0.7 基于 bevy_picking（`Pointer<Click/Over/Out>` 观察者、
 //! `Pickable`）。本阶段先验证渲染，交互在 A3 落地。
 
+use bevy::input::mouse::AccumulatedMouseScroll;
 use bevy::pbr::{MeshMaterial3d, StandardMaterial};
 use bevy::picking::Pickable;
 use bevy::prelude::*;
 use bevy::text::TextLayoutInfo;
 use bevy_lunex::prelude::*;
+use bevy_lunex::UiSelected;
+use bevy::picking::pointer::PointerId;
 use bevy_rich_text3d::{LoadFonts, Text3d, Text3dStyling};
+
+use crate::building::block_defs::BlockLibrary;
 
 pub struct LunexUiPlugin;
 
@@ -29,16 +34,267 @@ impl Plugin for LunexUiPlugin {
             .resource_mut::<LoadFonts>()
             .font_paths
             .push(subset);
-        app.add_plugins(UiLunexPlugins).add_systems(
-            Startup,
-            (spawn_ui_camera, spawn_hud_root, spawn_text3d_probe),
-        );
-        // 启动后输出一次 UI 管线诊断（A1/A2 冒烟验证；PHOENIX_UI_PROBE=1 开启）。
-        // 无图形权限环境无法截图 2D 层，用组件状态证明布局/文本/网格已产出。
-        // 2026-09 验证结果：root dimension 由相机视口注入（1280×720）；
-        // UiMeshPlane2d 横幅 mesh+material 产出；Text2d 中文排布 372×53；
-        // Text3d 中文网格产出 dim=7.59×0.9（CJK 子集字体经 LoadFonts 注入）。
-        app.add_systems(Update, ui_probe_diagnostic);
+        app.init_resource::<LunexTheme>()
+            .init_resource::<PaletteScroll>()
+            .add_plugins(UiLunexPlugins)
+            .add_systems(
+                Startup,
+                (spawn_ui_camera, spawn_hud_root, spawn_text3d_probe),
+            )
+            .add_systems(
+                Update,
+                (
+                    palette_scroll_system,
+                    palette_sync_selection,
+                    ui_probe_diagnostic,
+                ),
+            );
+    }
+}
+
+// ======================================================================
+// A4：UI 主题与层级
+// ----------------------------------------------------------------------
+// 层级约定（lunex 用 UiDepth 表达，默认 0 即互不遮挡时无需显式设置）：
+//   - HUD 层：顶部标题横幅 + 未来世界空间提示（深色半透明底）
+//   - 面板层：左侧积木面板（B1+）
+// 后续 B 阶段所有颜色统一走 LunexTheme，杜绝魔法数字。
+// ======================================================================
+
+/// Lunex UI 主题：深蓝灰底 + 金色点缀（与 3D 场景灯笼/匾额金色呼应）
+#[derive(Resource)]
+pub struct LunexTheme {
+    pub banner_bg: Color,
+    pub panel_bg: Color,
+    pub row_base: Color,
+    pub row_hover: Color,
+    pub row_selected: Color,
+    pub text_main: Color,
+    pub accent: Color,
+}
+
+impl Default for LunexTheme {
+    fn default() -> Self {
+        Self {
+            banner_bg: Color::srgba(0.09, 0.13, 0.19, 0.82),
+            panel_bg: Color::srgba(0.055, 0.085, 0.14, 0.92),
+            row_base: Color::srgba(0.09, 0.13, 0.20, 0.90),
+            row_hover: Color::srgba(0.16, 0.22, 0.32, 0.95),
+            row_selected: Color::srgba(0.44, 0.35, 0.16, 0.95),
+            text_main: Color::srgb(0.94, 0.91, 0.84),
+            accent: Color::srgb(0.95, 0.85, 0.40),
+        }
+    }
+}
+
+// ======================================================================
+// B1：积木面板（lunex 版）
+// ----------------------------------------------------------------------
+// 默认不生成（egui 面板并行保留）。`PHOENIX_LUNEX_PALETTE=1` 启用，
+// 与 egui 面板暂时重叠属预期（B 阶段完成前两者共存）。
+// 滚动：行按「行单位」偏移定位，滚轮滚动（仅指针悬停于行上时），
+// 窗口外的行置 Visibility::Hidden（同时自动退出 picking）。
+// ======================================================================
+
+/// 面板内可见行数（窗口高度按此均分）
+const PALETTE_VISIBLE: usize = 14;
+/// 单行高度 = 100% / 可见行数
+const ROW_H_PCT: f32 = 100.0 / PALETTE_VISIBLE as f32;
+
+/// 积木面板行标记（存积木索引）
+#[derive(Component)]
+pub struct PaletteRow(pub usize);
+
+/// 面板滚动偏移（行单位，0 = 顶部）
+#[derive(Resource, Default)]
+pub struct PaletteScroll(pub f32);
+
+/// 生成积木面板（B1）：标题 + 滚轮滚动列表 + 点击选中 + 选中高亮。
+/// 挂在 Lunex HUD Root 之下（由 spawn_hud_root 调用，env 门控）。
+fn spawn_palette_nodes(
+    ui: &mut ChildSpawnerCommands,
+    asset_server: &AssetServer,
+    library: &BlockLibrary,
+    materials: &mut Assets<ColorMaterial>,
+    theme: &LunexTheme,
+) {
+    let font = FontSource::Handle(asset_server.load("fonts/NotoSansSC-subset.otf"));
+    let panel_material = materials.add(ColorMaterial::from(theme.panel_bg));
+
+    // 左侧面板容器
+    ui.spawn((
+        Name::new("Block Palette"),
+        UiLayout::window()
+            .pos((Rl(1.4), Rh(50.0)))
+            .size((Rl(21.0), Rh(96.0)))
+            .anchor(Anchor::CENTER_LEFT)
+            .pack(),
+        UiMeshPlane2d,
+        MeshMaterial2d(panel_material.clone()),
+        Pickable::default(),
+    ))
+    .with_children(|panel| {
+        // 标题
+        panel.spawn((
+            Name::new("Palette Title"),
+            Text2d::new("积木"),
+            TextFont {
+                font: font.clone(),
+                font_size: FontSize::Px(26.0),
+                ..default()
+            },
+            UiTextSize::from(Rh(4.5)),
+            UiColor::new(vec![(UiBase::id(), theme.accent)]),
+            UiLayout::window()
+                .pos((Rl(50.0), Rh(3.2)))
+                .anchor(Anchor::TOP_CENTER)
+                .pack(),
+            Pickable::IGNORE,
+        ));
+
+        // 滚动列表窗口
+        panel
+            .spawn((
+                Name::new("Palette Scroll"),
+                UiLayout::window()
+                    .pos((Rl(50.0), Rh(52.0)))
+                    .size((Rl(96.0), Rh(92.0)))
+                    .anchor(Anchor::CENTER)
+                    .pack(),
+                Pickable::IGNORE,
+            ))
+            .with_children(|list| {
+                for (i, def) in library.defs.iter().enumerate() {
+                    let y = i as f32 * ROW_H_PCT + ROW_H_PCT / 2.0;
+                    let row_material =
+                        materials.add(ColorMaterial::from(Color::srgba(def.color[0], def.color[1], def.color[2], def.color[3])));
+                    let swatch_material =
+                        materials.add(ColorMaterial::from(Color::srgba(def.color[0], def.color[1], def.color[2], def.color[3])));
+                    list.spawn((
+                        Name::new(format!("row_{:02}_{}", i, def.id)),
+                        UiLayout::window()
+                            .pos((Rl(50.0), Rl(y)))
+                            .size((Rl(97.0), Rl(ROW_H_PCT * 0.92)))
+                            .anchor(Anchor::CENTER)
+                            .pack(),
+                        UiColor::new(vec![
+                            (UiBase::id(), theme.row_base),
+                            (UiHover::id(), theme.row_hover),
+                            (UiSelected::id(), theme.row_selected),
+                        ]),
+                        UiHover::new().instant(true),
+                        UiSelected(0.0),
+                        UiMeshPlane2d,
+                        MeshMaterial2d(row_material),
+                        PaletteRow(i),
+                    ))
+                    .observe(hover_set::<Pointer<Over>, true>)
+                    .observe(hover_set::<Pointer<Out>, false>)
+                    .observe(palette_row_click)
+                    .with_children(|row| {
+                        // 色块
+                        row.spawn((
+                            Name::new("swatch"),
+                            UiLayout::window()
+                                .pos((Rl(8.0), Rl(50.0)))
+                                .size((Rl(9.0), Rl(62.0)))
+                                .anchor(Anchor::CENTER_LEFT)
+                                .pack(),
+                            UiMeshPlane2d,
+                            MeshMaterial2d(swatch_material),
+                            Pickable::IGNORE,
+                        ));
+                        // 名称
+                        row.spawn((
+                            Name::new("name"),
+                            Text2d::new(def.name.clone()),
+                            TextFont {
+                                font: font.clone(),
+                                font_size: FontSize::Px(20.0),
+                                ..default()
+                            },
+                            UiTextSize::from(Rh(52.0)),
+                            UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                            UiLayout::window()
+                                .pos((Rl(19.0), Rl(50.0)))
+                                .anchor(Anchor::CENTER_LEFT)
+                                .pack(),
+                            Pickable::IGNORE,
+                        ));
+                    });
+                }
+            });
+    });
+}
+
+/// 点击行 → 选中积木（B1 交互；与键盘 1-9/Q/E 共用 BlockLibrary.current）
+fn palette_row_click(
+    trigger: On<Pointer<Click>>,
+    mut library: ResMut<BlockLibrary>,
+    rows: Query<&PaletteRow>,
+) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    let Ok(row) = rows.get(trigger.event_target()) else {
+        return;
+    };
+    library.current = row.0;
+}
+
+/// 选中高亮同步：BlockLibrary.current 变化 → 更新各行的 UiSelected
+fn palette_sync_selection(library: Res<BlockLibrary>, mut rows: Query<(&PaletteRow, &mut UiSelected)>) {
+    if !library.is_changed() {
+        return;
+    }
+    for (row, mut sel) in &mut rows {
+        let target = (row.0 == library.current) as u8 as f32;
+        if (sel.0 - target).abs() > f32::EPSILON {
+            sel.0 = target;
+        }
+    }
+}
+
+/// 滚轮滚动（B1）：仅指针悬停于某行时生效；更新行位置与可见性。
+/// 首次运行（offset 初始 0）也会应用一次——隐藏窗口外的行，避免越界绘制
+/// （lunex 不裁剪子节点，越界行必须显式 Hidden）。
+#[allow(clippy::type_complexity)]
+fn palette_scroll_system(
+    mut scroll: ResMut<PaletteScroll>,
+    mouse_scroll: Res<AccumulatedMouseScroll>,
+    hover_map: Res<bevy::picking::hover::HoverMap>,
+    library: Res<BlockLibrary>,
+    mut rows: Query<(Entity, &PaletteRow, &mut UiLayout, &mut Visibility)>,
+    mut last_applied: Local<Option<f32>>,
+) {
+    let delta = mouse_scroll.delta.y;
+    if delta != 0.0 {
+        let over_palette = hover_map
+            .get(&PointerId::Mouse)
+            .is_some_and(|hits| hits.keys().any(|e| rows.iter().any(|(ent, ..)| ent == *e)));
+        if over_palette {
+            let max = (library.defs.len() as f32 - PALETTE_VISIBLE as f32).max(0.0);
+            // 滚轮向上（delta.y > 0）→ 列表上移（offset 减小）；方向与平台一致
+            scroll.0 = (scroll.0 - delta * 0.3).clamp(0.0, max);
+        }
+    }
+    if *last_applied == Some(scroll.0) {
+        return;
+    }
+    *last_applied = Some(scroll.0);
+    let offset = scroll.0;
+    for (_, row, mut layout, mut vis) in &mut rows {
+        let y = (row.0 as f32 - offset) * ROW_H_PCT + ROW_H_PCT / 2.0;
+        if let Some(bevy_lunex::UiLayoutType::Window(w)) =
+            layout.layouts.get_mut(&UiBase::id())
+        {
+            w.pos = (Rl(50.0), Rl(y)).into();
+        }
+        *vis = if y < 0.0 || y > 100.0 {
+            Visibility::Hidden
+        } else {
+            Visibility::Visible
+        };
     }
 }
 
@@ -61,6 +317,7 @@ fn ui_probe_diagnostic(
         ),
         With<Text3dProbe>,
     >,
+    palette: Query<(&PaletteRow, &UiSelected, &Visibility)>,
     renderer: Option<Res<bevy_rich_text3d::TextRenderer>>,
 ) {
     if std::env::var("PHOENIX_UI_PROBE").is_err() || *done || time.elapsed_secs() < 4.0 {
@@ -76,7 +333,7 @@ fn ui_probe_diagnostic(
     }
     for (e, mesh, mat) in &banners {
         info!(
-            "🧪 lunex banner {e:?}: mesh2d={} material2d={}",
+            "🧪 lunex plane {e:?}: mesh2d={} material2d={}",
             mesh.is_some(),
             mat.is_some()
         );
@@ -90,6 +347,17 @@ fn ui_probe_diagnostic(
             tf.translation,
             mesh.is_some(),
             dim.map(|d| d.dimension)
+        );
+    }
+    if !palette.is_empty() {
+        let mut rows: Vec<_> = palette.iter().map(|(r, s, v)| (r.0, s.0, *v)).collect();
+        rows.sort_by_key(|(i, ..)| *i);
+        let visible = rows.iter().filter(|(_, _, v)| *v != Visibility::Hidden).count();
+        info!(
+            "🧪 palette rows: {} total / {} visible; selected = {:?}",
+            rows.len(),
+            visible,
+            rows.iter().find(|(_, s, _)| *s > 0.5).map(|(i, _, _)| *i)
         );
     }
 }
@@ -115,16 +383,18 @@ fn spawn_ui_camera(mut commands: Commands) {
     ));
 }
 
-/// 最小界面：顶部标题横幅（验证布局 + CJK 文本 + 渲染管线）。
+/// 最小界面：顶部标题横幅 +（env 门控）B1 积木面板。
 /// 后续 B 阶段逐 Tab 迁移时，egui 面板仍并行保留（feature 切换）。
 fn spawn_hud_root(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    theme: Res<LunexTheme>,
+    library: Res<BlockLibrary>,
 ) {
     let font = FontSource::Handle(asset_server.load("fonts/NotoSansSC-subset.otf"));
     // lunex 只重建 Mesh2d 几何，材质需自行提供（UiColor 系统负责着色）
-    let banner_material = materials.add(ColorMaterial::from(Color::BLACK));
+    let banner_material = materials.add(ColorMaterial::from(theme.banner_bg));
 
     commands
         .spawn((
@@ -141,7 +411,7 @@ fn spawn_hud_root(
                     .size((Rl(36.0), Rh(6.5)))
                     .anchor(Anchor::TOP_CENTER)
                     .pack(),
-                UiColor::new(vec![(UiBase::id(), Color::srgba(0.09, 0.13, 0.19, 0.82))]),
+                UiColor::new(vec![(UiBase::id(), theme.banner_bg)]),
                 UiMeshPlane2d,
                 MeshMaterial2d(banner_material.clone()),
             ))
@@ -155,12 +425,17 @@ fn spawn_hud_root(
                         ..default()
                     },
                     UiTextSize::from(Rh(55.0)),
-                    UiColor::new(vec![(UiBase::id(), Color::srgb(0.95, 0.90, 0.75))]),
+                    UiColor::new(vec![(UiBase::id(), theme.accent)]),
                     UiLayout::window().full().pack(),
                     // 纯展示文本，不参与点击
                     Pickable::IGNORE,
                 ));
             });
+
+            // B1 积木面板（默认关闭；与 egui 面板并存阶段用 env 打开验证）
+            if std::env::var("PHOENIX_LUNEX_PALETTE").is_ok() {
+                spawn_palette_nodes(ui, &asset_server, &library, &mut materials, &theme);
+            }
         });
 }
 
