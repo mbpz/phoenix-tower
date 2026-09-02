@@ -25,6 +25,7 @@ use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::{
     select_blueprint, Blueprint, BlueprintGhost, BlueprintLibrary,
 };
+use crate::building::collection::Collection;
 use crate::building::challenge::{
     select_challenge, start_challenge, Challenge, ChallengeLibrary, ChallengeState,
 };
@@ -54,6 +55,8 @@ impl Plugin for LunexUiPlugin {
             .init_resource::<ChallengeMenuOpen>()
             .init_resource::<LunexTab>()
             .init_resource::<PathInput>()
+            .init_resource::<CodexScroll>()
+            .init_resource::<CodexSelected>()
             .add_plugins(UiLunexPlugins)
             .add_systems(
                 Startup,
@@ -70,10 +73,19 @@ impl Plugin for LunexUiPlugin {
                     b3_challenge_sync,
                     b3_challenge_menu_sync,
                     b3_challenge_name_sync,
+                ),
+            )
+            .add_systems(
+                Update,
+                (
                     lunex_tab_sync,
                     save_list_system,
                     path_input_system,
+                    codex_scroll_system,
+                    b5_codex_detail_sync,
+                    b5_codex_status_sync,
                     ui_probe_diagnostic,
+                    ui_probe_tabs,
                 ),
             );
     }
@@ -97,6 +109,7 @@ pub struct LunexTheme {
     pub row_hover: Color,
     pub row_selected: Color,
     pub text_main: Color,
+    pub text_dim: Color,
     pub accent: Color,
 }
 
@@ -109,6 +122,7 @@ impl Default for LunexTheme {
             row_hover: Color::srgba(0.16, 0.22, 0.32, 0.95),
             row_selected: Color::srgba(0.44, 0.35, 0.16, 0.95),
             text_main: Color::srgb(0.94, 0.91, 0.84),
+            text_dim: Color::srgb(0.58, 0.55, 0.48),
             accent: Color::srgb(0.95, 0.85, 0.40),
         }
     }
@@ -146,6 +160,7 @@ fn spawn_palette_nodes(
     blueprint_library: &BlueprintLibrary,
     challenge: &Challenge,
     challenge_library: &ChallengeLibrary,
+    collection: &Collection,
     materials: &mut Assets<ColorMaterial>,
     theme: &LunexTheme,
 ) {
@@ -926,6 +941,122 @@ fn spawn_palette_nodes(
                     ));
                 });
             });
+
+        // 图鉴 Tab 内容（默认隐藏）
+        panel
+            .spawn((
+                Name::new("Codex Tab"),
+                UiLayout::window()
+                    .pos((Rl(50.0), Rh(10.5)))
+                    .size((Rl(96.0), Rh(84.0)))
+                    .anchor(Anchor::TOP_CENTER)
+                    .pack(),
+                Pickable::IGNORE,
+                Visibility::Hidden,
+                TabCodexRoot,
+            ))
+            .with_children(|cd| {
+                // 标题
+                cd.spawn((
+                    Name::new("Codex Title"),
+                    Text2d::new("积木图鉴"),
+                    TextFont {
+                        font: font.clone(),
+                        font_size: FontSize::Px(20.0),
+                        ..default()
+                    },
+                    UiTextSize::from(Rh(3.0)),
+                    UiColor::new(vec![(UiBase::id(), theme.accent)]),
+                    UiLayout::window()
+                        .pos((Rl(4.0), Rh(2.0)))
+                        .anchor(Anchor::TOP_LEFT)
+                        .pack(),
+                    Pickable::IGNORE,
+                ));
+                // 详情区（名称 + 文化描述）
+                let detail_mat = materials.add(ColorMaterial::from(theme.row_base));
+                cd.spawn((
+                    Name::new("Codex Detail"),
+                    UiLayout::window()
+                        .pos((Rl(50.0), Rh(13.0)))
+                        .size((Rl(94.0), Rh(26.0)))
+                        .anchor(Anchor::TOP_CENTER)
+                        .pack(),
+                    UiMeshPlane2d,
+                    MeshMaterial2d(detail_mat),
+                    Pickable::IGNORE,
+                ))
+                .with_children(|d| {
+                    d.spawn((
+                        Name::new("Codex Detail Text"),
+                        Text2d::new("点击条目查看文化描述"),
+                        TextFont {
+                            font: font.clone(),
+                            font_size: FontSize::Px(15.0),
+                            ..default()
+                        },
+                        UiTextSize::from(Rh(3.4)),
+                        UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                        UiLayout::window()
+                            .pos((Rl(4.0), Rh(4.0)))
+                            .anchor(Anchor::TOP_LEFT)
+                            .pack(),
+                        Pickable::IGNORE,
+                        CodexDetailText,
+                    ));
+                });
+                // 条目列表窗口
+                cd.spawn((
+                    Name::new("Codex List"),
+                    UiLayout::window()
+                        .pos((Rl(50.0), Rh(62.0)))
+                        .size((Rl(96.0), Rh(68.0)))
+                        .anchor(Anchor::CENTER)
+                        .pack(),
+                    Pickable::IGNORE,
+                ))
+                .with_children(|list| {
+                    for (i, def) in library.defs.iter().enumerate() {
+                        let y = i as f32 * ROW_H_PCT + ROW_H_PCT / 2.0;
+                        let row_mat = materials.add(ColorMaterial::from(theme.row_base));
+                        let unlocked = collection.codex.contains(&def.id);
+                        let label = if unlocked {
+                            format!("{}  ✓", def.name)
+                        } else {
+                            format!("{}  🔒", def.name)
+                        };
+                        list.spawn((
+                            Name::new(format!("codex_row_{:02}_{}", i, def.id)),
+                            UiLayout::window()
+                                .pos((Rl(50.0), Rl(y)))
+                                .size((Rl(97.0), Rl(ROW_H_PCT * 0.92)))
+                                .anchor(Anchor::CENTER)
+                                .pack(),
+                            UiColor::new(vec![
+                                (
+                                    UiBase::id(),
+                                    if unlocked { theme.text_main } else { theme.text_dim },
+                                ),
+                                (UiHover::id(), theme.text_main),
+                            ]),
+                            UiHover::new().instant(true),
+                            UiMeshPlane2d,
+                            MeshMaterial2d(row_mat),
+                            Text2d::new(label),
+                            TextFont {
+                                font: font.clone(),
+                                font_size: FontSize::Px(18.0),
+                                ..default()
+                            },
+                            UiTextSize::from(Rh(52.0)),
+                            CodexRow(i),
+                        ))
+                        .observe(hover_set::<Pointer<Over>, true>)
+                        .observe(hover_set::<Pointer<Out>, false>)
+                        .observe(codex_row_click);
+                    }
+                });
+            });
     });
 }
 
@@ -1113,6 +1244,145 @@ fn b2_theme_name_sync(
 }
 
 // ======================================================================
+// B5：图鉴 Tab（35 条目解锁状态 + 文化描述）
+// ======================================================================
+
+/// 图鉴内容根标记
+#[derive(Component)]
+pub struct TabCodexRoot;
+
+/// 图鉴行（存积木索引）
+#[derive(Component)]
+pub struct CodexRow(pub usize);
+
+/// 图鉴滚动偏移（行单位）
+#[derive(Resource, Default)]
+pub struct CodexScroll(pub f32);
+
+/// 图鉴选中条目
+#[derive(Resource, Default)]
+pub struct CodexSelected(pub Option<usize>);
+
+/// 图鉴详情文本（名称 + 文化描述）
+#[derive(Component)]
+pub struct CodexDetailText;
+
+/// 图鉴行点击 → 选中
+fn codex_row_click(
+    trigger: On<Pointer<Click>>,
+    rows: Query<&CodexRow>,
+    mut selected: ResMut<CodexSelected>,
+) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    let Ok(row) = rows.get(trigger.event_target()) else {
+        return;
+    };
+    selected.0 = Some(row.0);
+}
+
+/// 图鉴详情同步：选中变化 → 详情文本
+fn b5_codex_detail_sync(
+    selected: Res<CodexSelected>,
+    collection: Res<Collection>,
+    library: Res<BlockLibrary>,
+    mut texts: Query<&mut Text2d, With<CodexDetailText>>,
+) {
+    if !selected.is_changed() {
+        return;
+    }
+    let txt = match selected.0 {
+        Some(i) if i < library.defs.len() => {
+            let def = &library.defs[i];
+            let unlocked = collection.codex.contains(&def.id);
+            format!(
+                "{}  {}\n\n{}",
+                def.name,
+                if unlocked { "✓ 已解锁" } else { "🔒 未解锁" },
+                def.description
+            )
+        }
+        _ => "点击条目查看文化描述".to_string(),
+    };
+    for mut t in &mut texts {
+        t.0 = txt.clone();
+    }
+}
+
+/// 图鉴列表滚动（同积木面板模式：悬停于行上滚轮生效；窗口外行隐藏）
+#[allow(clippy::type_complexity)]
+fn codex_scroll_system(
+    mut scroll: ResMut<CodexScroll>,
+    mouse_scroll: Res<AccumulatedMouseScroll>,
+    hover_map: Res<bevy::picking::hover::HoverMap>,
+    library: Res<BlockLibrary>,
+    mut rows: Query<(Entity, &CodexRow, &mut UiLayout, &mut Visibility)>,
+    mut last_applied: Local<Option<f32>>,
+) {
+    let delta = mouse_scroll.delta.y;
+    if delta != 0.0 {
+        let over = hover_map
+            .get(&PointerId::Mouse)
+            .is_some_and(|hits| hits.keys().any(|e| rows.iter().any(|(ent, ..)| ent == *e)));
+        if over {
+            let max = (library.defs.len() as f32 - PALETTE_VISIBLE as f32).max(0.0);
+            scroll.0 = (scroll.0 - delta * 0.3).clamp(0.0, max);
+        }
+    }
+    if *last_applied == Some(scroll.0) {
+        return;
+    }
+    *last_applied = Some(scroll.0);
+    let offset = scroll.0;
+    for (_, row, mut layout, mut vis) in &mut rows {
+        let y = (row.0 as f32 - offset) * ROW_H_PCT + ROW_H_PCT / 2.0;
+        if let Some(bevy_lunex::UiLayoutType::Window(w)) =
+            layout.layouts.get_mut(&UiBase::id())
+        {
+            w.pos = (Rl(50.0), Rl(y)).into();
+        }
+        *vis = if y < 0.0 || y > 100.0 {
+            Visibility::Hidden
+        } else {
+            Visibility::Visible
+        };
+    }
+}
+
+/// 图鉴行解锁状态同步：Collection 变化 → 行名/状态文本与颜色
+fn b5_codex_status_sync(
+    collection: Res<Collection>,
+    library: Res<BlockLibrary>,
+    theme: Res<LunexTheme>,
+    mut rows: Query<(&CodexRow, &mut Text2d, &mut UiColor)>,
+) {
+    if !collection.is_changed() {
+        return;
+    }
+    for (row, mut t, mut color) in &mut rows {
+        if row.0 >= library.defs.len() {
+            continue;
+        }
+        let def = &library.defs[row.0];
+        let unlocked = collection.codex.contains(&def.id);
+        t.0 = if unlocked {
+            format!("{}  ✓", def.name)
+        } else {
+            format!("{}  🔒", def.name)
+        };
+        *color = UiColor::new(vec![(
+            UiBase::id(),
+            if unlocked {
+                theme.text_main
+            } else {
+                theme.text_dim
+            },
+        )]);
+    }
+}
+
+// ======================================================================
 // A4/B4：面板 Tab 架构（积木 / 图鉴 / 成就 / 存档）+ 存档 Tab
 // ======================================================================
 
@@ -1164,22 +1434,29 @@ fn tab_button_click(
 /// Tab 切换 → 各内容根可见性 + Tab 按钮高亮（UiSelected）
 fn lunex_tab_sync(
     tab: Res<LunexTab>,
-    mut blocks: Query<&mut Visibility, With<TabBlocksRoot>>,
-    mut saves: Query<&mut Visibility, (With<TabSavesRoot>, Without<TabBlocksRoot>)>,
+    mut contents: Query<
+        (
+            &mut Visibility,
+            Option<&TabBlocksRoot>,
+            Option<&TabSavesRoot>,
+            Option<&TabCodexRoot>,
+        ),
+        Or<(
+            With<TabBlocksRoot>,
+            With<TabSavesRoot>,
+            With<TabCodexRoot>,
+        )>,
+    >,
     mut buttons: Query<(&TabButton, &mut UiSelected)>,
 ) {
     if !tab.is_changed() {
         return;
     }
-    for mut v in &mut blocks {
-        *v = if tab.0 == LunexTabId::Blocks {
-            Visibility::Visible
-        } else {
-            Visibility::Hidden
-        };
-    }
-    for mut v in &mut saves {
-        *v = if tab.0 == LunexTabId::Saves {
+    for (mut v, blocks, saves, codex) in &mut contents {
+        let visible = (blocks.is_some() && tab.0 == LunexTabId::Blocks)
+            || (saves.is_some() && tab.0 == LunexTabId::Saves)
+            || (codex.is_some() && tab.0 == LunexTabId::Codex);
+        *v = if visible {
             Visibility::Visible
         } else {
             Visibility::Hidden
@@ -1592,8 +1869,6 @@ fn ui_probe_diagnostic(
     challenge_status: Query<&Text2d, With<ChallengeStatusText>>,
     challenge_buttons: Query<&Text2d, With<ChallengeButtonText>>,
     challenge_names: Query<&Text2d, With<ChallengeNameText>>,
-    tabs: Query<(&TabButton, &UiSelected)>,
-    saves_vis: Query<&Visibility, With<TabSavesRoot>>,
     renderer: Option<Res<bevy_rich_text3d::TextRenderer>>,
 ) {
     if std::env::var("PHOENIX_UI_PROBE").is_err() || *done || time.elapsed_secs() < 4.0 {
@@ -1653,13 +1928,44 @@ fn ui_probe_diagnostic(
     for t in &challenge_buttons {
         info!("🧪 challenge button: \"{}\"", t.0);
     }
+}
+
+fn ui_probe_tabs(
+    time: Res<Time>,
+    mut done: Local<bool>,
+    tabs: Query<(&TabButton, &UiSelected)>,
+    saves_vis: Query<&Visibility, With<TabSavesRoot>>,
+    codex_rows: Query<(&CodexRow, &Visibility)>,
+    codex_detail: Query<&Text2d, With<CodexDetailText>>,
+    codex_vis: Query<&Visibility, With<TabCodexRoot>>,
+) {
+    if std::env::var("PHOENIX_UI_PROBE").is_err() || *done || time.elapsed_secs() < 4.0 {
+        return;
+    }
+    *done = true;
     let mut tabs: Vec<_> = tabs.iter().map(|(b, s)| (format!("{:?}", b.0), s.0)).collect();
     tabs.sort_by(|a, b| a.0.cmp(&b.0));
     info!("🧪 tabs: {:?}", tabs);
     for v in &saves_vis {
         info!("🧪 saves tab visible: {}", *v != Visibility::Hidden);
     }
+    if !codex_rows.is_empty() {
+        let vis = codex_rows
+            .iter()
+            .filter(|(_, v)| *v != Visibility::Hidden)
+            .count();
+        info!("🧪 codex rows: {} total / {vis} visible", codex_rows.iter().count());
+        let first: Vec<_> = codex_rows.iter().take(3).map(|(r, v)| (r.0, *v)).collect();
+        info!("🧪 codex first rows: {:?}", first);
+    }
+    for t in &codex_detail {
+        info!("🧪 codex detail: \"{}\"", t.0);
+    }
+    for v in &codex_vis {
+        info!("🧪 codex tab visible: {}", *v != Visibility::Hidden);
+    }
 }
+
 
 /// 2D UI 相机：叠加在 3D 主相机之上（order 更高）、透明清屏，
 /// 作为 lunex 布局的尺寸来源（`UiSourceCamera::<0>`）。
@@ -1694,6 +2000,7 @@ fn spawn_hud_root(
     blueprint_library: Res<BlueprintLibrary>,
     challenge: Res<Challenge>,
     challenge_library: Res<ChallengeLibrary>,
+    collection: Res<Collection>,
 ) {
     let font = FontSource::Handle(asset_server.load("fonts/NotoSansSC-subset.otf"));
     // lunex 只重建 Mesh2d 几何，材质需自行提供（UiColor 系统负责着色）
@@ -1745,6 +2052,7 @@ fn spawn_hud_root(
                     &blueprint_library,
                     &challenge,
                     &challenge_library,
+                    &collection,
                     &mut materials,
                     &theme,
                 );

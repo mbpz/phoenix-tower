@@ -65,7 +65,12 @@ Lunex 为保留模式、ECS 组件驱动、走 Bevy 自身渲染管线——上�
     退格/Esc/Enter，聚焦态高亮；路径导入走 `load_save_from_path` + `import_save`
   - 文件列表每 1 秒刷新（仅存档 Tab 激活时），显示名称/积木数/时间
   - 冒烟验证：4 个 Tab 渲染且 Blocks 高亮；存档内容默认隐藏；无 panic
-- [ ] **B5** 图鉴 Tab（35 条目解锁状态 + 文化描述）
+- [x] **B5** 图鉴 Tab（35 条目解锁状态 + 文化描述）
+  - 35 行（解锁 ✓ / 未解锁 🔒，暗色区分）+ 滚轮滚动（同积木面板模式）
+  - 点击行 → 详情区显示名称/解锁状态/文化描述（`CodexSelected` 资源 + 同步系统）
+  - 解锁状态随 `Collection` 变化刷新（行文本 + UiColor 整体替换，字段私有不可改）
+  - 修复：`lunex_tab_sync` 无过滤会隐藏**所有** Visibility 实体（含列表行）——
+    加 `Or<(With<TabBlocksRoot>, With<TabSavesRoot>, With<TabCodexRoot>)>` 只动内容根
 - [ ] **B6** 成就 Tab（5 项状态）
 - [ ] **B7** 知识卡片（PRD §3.3 智能提示）
 - [ ] **B8** 蓝图透明度滑杆 + 其余小控件
