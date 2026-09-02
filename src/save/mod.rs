@@ -108,7 +108,7 @@ fn env_load_system(
     }
 }
 
-fn saves_dir() -> PathBuf {
+pub fn saves_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("saves")
 }
 
@@ -226,103 +226,51 @@ fn handle_save_load(
     mut challenge: ResMut<Challenge>,
     placed_query: Query<Entity, With<PlacedBlock>>,
 ) {
-    let dir = saves_dir();
-    let mode = if blueprint.active {
-        "blueprint"
-    } else {
-        "free"
-    };
-
     if keys.just_pressed(KeyCode::F5) {
-        let save = build_save(&stack, &blueprint, mode);
-        match encode_bincode(&save).and_then(|bytes| {
-            std::fs::create_dir_all(&dir).map_err(|e| format!("创建存档目录失败: {e}"))?;
-            write_atomic(&dir.join(SLOT_FILENAME), &bytes)
-        }) {
-            Ok(()) => info!(
-                "💾 已保存 {} 个积木 → saves/{}",
-                save.meta.block_count, SLOT_FILENAME
-            ),
-            Err(e) => error!("保存失败: {e}"),
+        if let Err(e) = save_slot(&stack, &blueprint) {
+            error!("保存失败: {e}");
         }
     }
 
     if keys.just_pressed(KeyCode::F6) {
-        let save = build_save(&stack, &blueprint, mode);
-        match serde_json::to_string_pretty(&save) {
-            Ok(json) => {
-                if let Err(e) = std::fs::write(dir.join("export.json"), json) {
-                    error!("JSON 导出失败: {e}");
-                } else {
-                    info!("📤 已导出 saves/export.json");
-                }
-            }
-            Err(e) => error!("JSON 序列化失败: {e}"),
+        if let Err(e) = export_json(&stack, &blueprint) {
+            error!("JSON 导出失败: {e}");
         }
     }
 
     if keys.just_pressed(KeyCode::F9) {
-        let slot = dir.join(SLOT_FILENAME);
-        if !slot.exists() {
-            info!("💾 暂无存档（先按 F5 保存）");
-            return;
-        }
-        match load_save_from_path(&slot) {
-            Ok(save) => {
-                let loaded = import_save(
-                    &mut commands,
-                    &mut stack,
-                    &library,
-                    &render,
-                    &mut blueprint,
-                    &mut challenge,
-                    &placed_query,
-                    save,
-                );
-                info!("📂 已加载存档（{loaded} 个积木）");
-            }
-            Err(e) => error!("加载失败: {e}"),
+        if let Err(e) = load_slot(
+            &mut commands,
+            &mut stack,
+            &library,
+            &render,
+            &mut blueprint,
+            &mut challenge,
+            &placed_query,
+        ) {
+            info!("💾 {e}");
         }
     }
 
     // F7：导出分享副本（时间戳命名，便于分发）
     if keys.just_pressed(KeyCode::F7) {
-        let save = build_save(&stack, &blueprint, mode);
-        let unix = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map(|d| d.as_secs())
-            .unwrap_or(0);
-        let path = dir.join(format!("share_{unix}.ptw"));
-        match encode_bincode(&save).and_then(|bytes| {
-            std::fs::create_dir_all(&dir).map_err(|e| format!("创建存档目录失败: {e}"))?;
-            write_atomic(&path, &bytes)
-        }) {
-            Ok(()) => info!("📤 分享存档已导出：{}", path.display()),
-            Err(e) => error!("分享导出失败: {e}"),
+        if let Err(e) = share_export(&stack, &blueprint) {
+            error!("分享导出失败: {e}");
         }
     }
 
     // F8：导入 saves/ 下最新的 .ptw（分享导入快捷方式）
     if keys.just_pressed(KeyCode::F8) {
-        let latest = latest_ptw(&dir);
-        match latest {
-            Some(path) => match load_save_from_path(&path) {
-                Ok(save) => {
-                    let loaded = import_save(
-                        &mut commands,
-                        &mut stack,
-                        &library,
-                        &render,
-                        &mut blueprint,
-                        &mut challenge,
-                        &placed_query,
-                        save,
-                    );
-                    info!("📂 已导入分享存档 {}（{loaded} 个积木）", path.display());
-                }
-                Err(e) => error!("导入失败: {e}"),
-            },
-            None => info!("saves/ 下没有可导入的 .ptw 存档"),
+        if let Err(e) = import_latest(
+            &mut commands,
+            &mut stack,
+            &library,
+            &render,
+            &mut blueprint,
+            &mut challenge,
+            &placed_query,
+        ) {
+            info!("📂 {e}");
         }
     }
 }
@@ -371,6 +319,148 @@ pub fn import_save(
         refresh_completion(stack, library, blueprint);
     }
     loaded
+}
+
+// ======================================================================
+// UI 可复用动作（快捷键 F5-F9 与 lunex 存档面板共用，逻辑单一来源）
+// ======================================================================
+
+/// 保存到默认槽位（F5 / lunex 面板「保存」）
+pub fn save_slot(stack: &PlacedBlocks, blueprint: &Blueprint) -> Result<(), String> {
+    let dir = saves_dir();
+    let mode = if blueprint.active { "blueprint" } else { "free" };
+    let save = build_save(stack, blueprint, mode);
+    encode_bincode(&save).and_then(|bytes| {
+        std::fs::create_dir_all(&dir).map_err(|e| format!("创建存档目录失败: {e}"))?;
+        write_atomic(&dir.join(SLOT_FILENAME), &bytes)
+    })?;
+    info!("💾 已保存 {} 个积木 → saves/{}", save.meta.block_count, SLOT_FILENAME);
+    Ok(())
+}
+
+/// 导出 JSON（F6 / lunex 面板「JSON」）
+pub fn export_json(stack: &PlacedBlocks, blueprint: &Blueprint) -> Result<(), String> {
+    let dir = saves_dir();
+    let mode = if blueprint.active { "blueprint" } else { "free" };
+    let save = build_save(stack, blueprint, mode);
+    let json = serde_json::to_string_pretty(&save).map_err(|e| format!("JSON 序列化失败: {e}"))?;
+    std::fs::create_dir_all(&dir).map_err(|e| format!("创建存档目录失败: {e}"))?;
+    std::fs::write(dir.join("export.json"), json).map_err(|e| format!("JSON 导出失败: {e}"))?;
+    info!("📤 已导出 saves/export.json");
+    Ok(())
+}
+
+/// 导出分享副本（F7 / lunex 面板「分享」；时间戳命名便于分发）
+pub fn share_export(stack: &PlacedBlocks, blueprint: &Blueprint) -> Result<(), String> {
+    let dir = saves_dir();
+    let mode = if blueprint.active { "blueprint" } else { "free" };
+    let save = build_save(stack, blueprint, mode);
+    let unix = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let path = dir.join(format!("share_{unix}.ptw"));
+    encode_bincode(&save).and_then(|bytes| {
+        std::fs::create_dir_all(&dir).map_err(|e| format!("创建存档目录失败: {e}"))?;
+        write_atomic(&path, &bytes)
+    })?;
+    info!("📤 分享存档已导出：{}", path.display());
+    Ok(())
+}
+
+/// 读取默认槽位（F9 / lunex 面板「加载」）；无存档时返回提示文本
+pub fn load_slot(
+    commands: &mut Commands,
+    stack: &mut PlacedBlocks,
+    library: &BlockLibrary,
+    render: &BlockRenderAssets,
+    blueprint: &mut Blueprint,
+    challenge: &mut Challenge,
+    placed_query: &Query<Entity, With<PlacedBlock>>,
+) -> Result<usize, String> {
+    let slot = saves_dir().join(SLOT_FILENAME);
+    if !slot.exists() {
+        return Err("💾 暂无存档（先保存）".to_string());
+    }
+    let save = load_save_from_path(&slot)?;
+    let loaded = import_save(
+        commands,
+        stack,
+        library,
+        render,
+        blueprint,
+        challenge,
+        placed_query,
+        save,
+    );
+    info!("📂 已加载存档（{loaded} 个积木）");
+    Ok(loaded)
+}
+
+/// 导入 saves/ 下最新的 .ptw（F8 / lunex 面板「导入最新」）
+pub fn import_latest(
+    commands: &mut Commands,
+    stack: &mut PlacedBlocks,
+    library: &BlockLibrary,
+    render: &BlockRenderAssets,
+    blueprint: &mut Blueprint,
+    challenge: &mut Challenge,
+    placed_query: &Query<Entity, With<PlacedBlock>>,
+) -> Result<usize, String> {
+    let dir = saves_dir();
+    let Some(path) = latest_ptw(&dir) else {
+        return Err("saves/ 下没有可导入的 .ptw 存档".to_string());
+    };
+    let save = load_save_from_path(&path)?;
+    let loaded = import_save(
+        commands,
+        stack,
+        library,
+        render,
+        blueprint,
+        challenge,
+        placed_query,
+        save,
+    );
+    info!("📂 已导入分享存档 {}（{loaded} 个积木）", path.display());
+    Ok(loaded)
+}
+
+/// saves/ 下的 .ptw 文件列表（名称 / 积木数 / 修改时间），供存档面板展示。
+pub fn save_file_list(dir: &Path) -> Vec<(String, u32, String)> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    for e in entries.filter_map(Result::ok) {
+        let path = e.path();
+        if path.extension().is_none_or(|x| x != "ptw") {
+            continue;
+        }
+        let name = path
+            .file_name()
+            .map(|n| n.to_string_lossy().into_owned())
+            .unwrap_or_default();
+        let blocks = load_save_from_path(&path)
+            .ok()
+            .map(|s| s.meta.block_count)
+            .unwrap_or(0);
+        let mtime = std::fs::metadata(&path)
+            .and_then(|m| m.modified())
+            .ok()
+            .map(|t| {
+                let secs = t
+                    .duration_since(UNIX_EPOCH)
+                    .map(|d| d.as_secs())
+                    .unwrap_or(0);
+                let (h, m) = ((secs / 3600) % 24, (secs / 60) % 60);
+                format!("{h:02}:{m:02}")
+            })
+            .unwrap_or_else(|| "--:--".to_string());
+        out.push((name, blocks, mtime));
+    }
+    out.sort();
+    out
 }
 
 #[cfg(test)]

@@ -9,6 +9,8 @@
 //! 交互（A3）：lunex 0.7 基于 bevy_picking（`Pointer<Click/Over/Out>` 观察者、
 //! `Pickable`）。本阶段先验证渲染，交互在 A3 落地。
 
+use bevy::input::keyboard::{Key, KeyboardInput};
+use bevy::input::ButtonState;
 use bevy::input::mouse::AccumulatedMouseScroll;
 use bevy::pbr::{MeshMaterial3d, StandardMaterial};
 use bevy::picking::Pickable;
@@ -26,7 +28,12 @@ use crate::building::blueprint::{
 use crate::building::challenge::{
     select_challenge, start_challenge, Challenge, ChallengeLibrary, ChallengeState,
 };
-use crate::building::placement::{PlacedBlock, PlacedBlocks};
+use crate::building::placement::{BlockRenderAssets, PlacedBlock, PlacedBlocks};
+use crate::save::{
+    export_json, import_latest, import_save, load_save_from_path, load_slot, save_file_list,
+    save_slot, saves_dir, share_export,
+};
+use std::path::Path;
 
 pub struct LunexUiPlugin;
 
@@ -45,6 +52,8 @@ impl Plugin for LunexUiPlugin {
             .init_resource::<PaletteScroll>()
             .init_resource::<ThemeMenuOpen>()
             .init_resource::<ChallengeMenuOpen>()
+            .init_resource::<LunexTab>()
+            .init_resource::<PathInput>()
             .add_plugins(UiLunexPlugins)
             .add_systems(
                 Startup,
@@ -61,6 +70,9 @@ impl Plugin for LunexUiPlugin {
                     b3_challenge_sync,
                     b3_challenge_menu_sync,
                     b3_challenge_name_sync,
+                    lunex_tab_sync,
+                    save_list_system,
+                    path_input_system,
                     ui_probe_diagnostic,
                 ),
             );
@@ -112,7 +124,7 @@ impl Default for LunexTheme {
 // ======================================================================
 
 /// 面板内可见行数（窗口高度按此均分）
-const PALETTE_VISIBLE: usize = 12;
+const PALETTE_VISIBLE: usize = 10;
 /// 单行高度 = 100% / 可见行数
 const ROW_H_PCT: f32 = 100.0 / PALETTE_VISIBLE as f32;
 
@@ -153,6 +165,56 @@ fn spawn_palette_nodes(
         Pickable::default(),
     ))
     .with_children(|panel| {
+        // Tab 栏：积木 / 图鉴 / 成就 / 存档
+        for (i, (tab, label)) in [
+            (LunexTabId::Blocks, "积木"),
+            (LunexTabId::Codex, "图鉴"),
+            (LunexTabId::Achievements, "成就"),
+            (LunexTabId::Saves, "存档"),
+        ]
+        .iter()
+        .enumerate()
+        {
+            let x = 12.75 + i as f32 * 25.0;
+            let tab_material = materials.add(ColorMaterial::from(theme.row_base));
+            panel.spawn((
+                Name::new(format!("tab_{:?}", tab)),
+                UiLayout::window()
+                    .pos((Rl(x), Rh(3.0)))
+                    .size((Rl(23.5), Rh(6.5)))
+                    .anchor(Anchor::TOP_CENTER)
+                    .pack(),
+                UiColor::new(vec![
+                    (UiBase::id(), theme.row_base),
+                    (UiHover::id(), theme.row_hover),
+                    (UiSelected::id(), theme.row_selected),
+                ]),
+                UiHover::new().instant(true),
+                UiSelected(0.0),
+                UiMeshPlane2d,
+                MeshMaterial2d(tab_material),
+                TabButton(*tab),
+            ))
+            .observe(hover_set::<Pointer<Over>, true>)
+            .observe(hover_set::<Pointer<Out>, false>)
+            .observe(tab_button_click)
+            .with_children(|b| {
+                b.spawn((
+                    Name::new("tab_label"),
+                    Text2d::new(label.to_string()),
+                    TextFont {
+                        font: font.clone(),
+                        font_size: FontSize::Px(18.0),
+                        ..default()
+                    },
+                    UiTextSize::from(Rh(50.0)),
+                    UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                    UiLayout::window().full().pack(),
+                    Pickable::IGNORE,
+                ));
+            });
+        }
+
         // 标题
         panel.spawn((
             Name::new("Palette Title"),
@@ -165,10 +227,11 @@ fn spawn_palette_nodes(
             UiTextSize::from(Rh(4.5)),
             UiColor::new(vec![(UiBase::id(), theme.accent)]),
             UiLayout::window()
-                .pos((Rl(50.0), Rh(3.2)))
+                .pos((Rl(50.0), Rh(10.5)))
                 .anchor(Anchor::TOP_CENTER)
                 .pack(),
             Pickable::IGNORE,
+            TabBlocksRoot,
         ));
 
         // B2 蓝图模式区：完成度进度条 + 主题下拉
@@ -176,11 +239,12 @@ fn spawn_palette_nodes(
             .spawn((
                 Name::new("Blueprint Section"),
                 UiLayout::window()
-                    .pos((Rl(50.0), Rh(11.5)))
+                    .pos((Rl(50.0), Rh(14.0)))
                     .size((Rl(94.0), Rh(19.0)))
                     .anchor(Anchor::TOP_CENTER)
                     .pack(),
                 Pickable::IGNORE,
+                TabBlocksRoot,
             ))
             .with_children(|sec| {
                 // 「蓝图」标签
@@ -336,11 +400,12 @@ fn spawn_palette_nodes(
             .spawn((
                 Name::new("Challenge Section"),
                 UiLayout::window()
-                    .pos((Rl(50.0), Rh(44.0)))
+                    .pos((Rl(50.0), Rh(36.0)))
                     .size((Rl(94.0), Rh(18.0)))
                     .anchor(Anchor::TOP_CENTER)
                     .pack(),
                 Pickable::IGNORE,
+                TabBlocksRoot,
             ))
             .with_children(|sec| {
                 // 挑战选择下拉按钮
@@ -492,11 +557,12 @@ fn spawn_palette_nodes(
             .spawn((
                 Name::new("Palette Scroll"),
                 UiLayout::window()
-                    .pos((Rl(50.0), Rh(63.0)))
-                    .size((Rl(96.0), Rh(50.0)))
+                    .pos((Rl(50.0), Rh(75.0)))
+                    .size((Rl(96.0), Rh(42.0)))
                     .anchor(Anchor::CENTER)
                     .pack(),
                 Pickable::IGNORE,
+                TabBlocksRoot,
             ))
             .with_children(|list| {
                 for (i, def) in library.defs.iter().enumerate() {
@@ -558,6 +624,307 @@ fn spawn_palette_nodes(
                         ));
                     });
                 }
+            });
+
+        // 存档 Tab 内容（默认隐藏；Tab 切换显示）
+        panel
+            .spawn((
+                Name::new("Saves Tab"),
+                UiLayout::window()
+                    .pos((Rl(50.0), Rh(10.5)))
+                    .size((Rl(96.0), Rh(84.0)))
+                    .anchor(Anchor::TOP_CENTER)
+                    .pack(),
+                Pickable::IGNORE,
+                Visibility::Hidden,
+                TabSavesRoot,
+            ))
+            .with_children(|sv| {
+                // 行 1：保存 / JSON / 分享（观察者签名各异，逐个生成）
+                let save_mat = materials.add(ColorMaterial::from(theme.row_base));
+                sv.spawn((
+                    Name::new("save_btn"),
+                    UiLayout::window()
+                        .pos((Rl(16.5), Rh(10.0)))
+                        .size((Rl(30.0), Rh(8.0)))
+                        .anchor(Anchor::CENTER)
+                        .pack(),
+                    UiColor::new(vec![
+                        (UiBase::id(), theme.row_base),
+                        (UiHover::id(), theme.row_hover),
+                    ]),
+                    UiHover::new().instant(true),
+                    UiMeshPlane2d,
+                    MeshMaterial2d(save_mat),
+                    Pickable::default(),
+                ))
+                .observe(hover_set::<Pointer<Over>, true>)
+                .observe(hover_set::<Pointer<Out>, false>)
+                .observe(save_button_click)
+                .with_children(|b| {
+                    b.spawn((
+                        Name::new("btn_text"),
+                        Text2d::new("保存"),
+                        TextFont {
+                            font: font.clone(),
+                            font_size: FontSize::Px(16.0),
+                            ..default()
+                        },
+                        UiTextSize::from(Rh(48.0)),
+                        UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                        UiLayout::window().full().pack(),
+                        Pickable::IGNORE,
+                    ));
+                });
+                let json_mat = materials.add(ColorMaterial::from(theme.row_base));
+                sv.spawn((
+                    Name::new("json_btn"),
+                    UiLayout::window()
+                        .pos((Rl(50.0), Rh(10.0)))
+                        .size((Rl(30.0), Rh(8.0)))
+                        .anchor(Anchor::CENTER)
+                        .pack(),
+                    UiColor::new(vec![
+                        (UiBase::id(), theme.row_base),
+                        (UiHover::id(), theme.row_hover),
+                    ]),
+                    UiHover::new().instant(true),
+                    UiMeshPlane2d,
+                    MeshMaterial2d(json_mat),
+                    Pickable::default(),
+                ))
+                .observe(hover_set::<Pointer<Over>, true>)
+                .observe(hover_set::<Pointer<Out>, false>)
+                .observe(json_button_click)
+                .with_children(|b| {
+                    b.spawn((
+                        Name::new("btn_text"),
+                        Text2d::new("JSON"),
+                        TextFont {
+                            font: font.clone(),
+                            font_size: FontSize::Px(16.0),
+                            ..default()
+                        },
+                        UiTextSize::from(Rh(48.0)),
+                        UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                        UiLayout::window().full().pack(),
+                        Pickable::IGNORE,
+                    ));
+                });
+                let share_mat = materials.add(ColorMaterial::from(theme.row_base));
+                sv.spawn((
+                    Name::new("share_btn"),
+                    UiLayout::window()
+                        .pos((Rl(83.5), Rh(10.0)))
+                        .size((Rl(30.0), Rh(8.0)))
+                        .anchor(Anchor::CENTER)
+                        .pack(),
+                    UiColor::new(vec![
+                        (UiBase::id(), theme.row_base),
+                        (UiHover::id(), theme.row_hover),
+                    ]),
+                    UiHover::new().instant(true),
+                    UiMeshPlane2d,
+                    MeshMaterial2d(share_mat),
+                    Pickable::default(),
+                ))
+                .observe(hover_set::<Pointer<Over>, true>)
+                .observe(hover_set::<Pointer<Out>, false>)
+                .observe(share_button_click)
+                .with_children(|b| {
+                    b.spawn((
+                        Name::new("btn_text"),
+                        Text2d::new("分享"),
+                        TextFont {
+                            font: font.clone(),
+                            font_size: FontSize::Px(16.0),
+                            ..default()
+                        },
+                        UiTextSize::from(Rh(48.0)),
+                        UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                        UiLayout::window().full().pack(),
+                        Pickable::IGNORE,
+                    ));
+                });
+                // 行 2：加载槽位 / 导入最新
+                let load_mat = materials.add(ColorMaterial::from(theme.row_base));
+                sv.spawn((
+                    Name::new("load_slot_btn"),
+                    UiLayout::window()
+                        .pos((Rl(25.0), Rh(24.0)))
+                        .size((Rl(46.0), Rh(8.0)))
+                        .anchor(Anchor::CENTER)
+                        .pack(),
+                    UiColor::new(vec![
+                        (UiBase::id(), theme.row_base),
+                        (UiHover::id(), theme.row_hover),
+                    ]),
+                    UiHover::new().instant(true),
+                    UiMeshPlane2d,
+                    MeshMaterial2d(load_mat),
+                    Pickable::default(),
+                ))
+                .observe(hover_set::<Pointer<Over>, true>)
+                .observe(hover_set::<Pointer<Out>, false>)
+                .observe(load_slot_button_click)
+                .with_children(|b| {
+                    b.spawn((
+                        Name::new("btn_text"),
+                        Text2d::new("加载槽位"),
+                        TextFont {
+                            font: font.clone(),
+                            font_size: FontSize::Px(16.0),
+                            ..default()
+                        },
+                        UiTextSize::from(Rh(48.0)),
+                        UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                        UiLayout::window().full().pack(),
+                        Pickable::IGNORE,
+                    ));
+                });
+                let il_mat = materials.add(ColorMaterial::from(theme.row_base));
+                sv.spawn((
+                    Name::new("import_latest_btn"),
+                    UiLayout::window()
+                        .pos((Rl(75.0), Rh(24.0)))
+                        .size((Rl(46.0), Rh(8.0)))
+                        .anchor(Anchor::CENTER)
+                        .pack(),
+                    UiColor::new(vec![
+                        (UiBase::id(), theme.row_base),
+                        (UiHover::id(), theme.row_hover),
+                    ]),
+                    UiHover::new().instant(true),
+                    UiMeshPlane2d,
+                    MeshMaterial2d(il_mat),
+                    Pickable::default(),
+                ))
+                .observe(hover_set::<Pointer<Over>, true>)
+                .observe(hover_set::<Pointer<Out>, false>)
+                .observe(import_latest_button_click)
+                .with_children(|b| {
+                    b.spawn((
+                        Name::new("btn_text"),
+                        Text2d::new("导入最新"),
+                        TextFont {
+                            font: font.clone(),
+                            font_size: FontSize::Px(16.0),
+                            ..default()
+                        },
+                        UiTextSize::from(Rh(48.0)),
+                        UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                        UiLayout::window().full().pack(),
+                        Pickable::IGNORE,
+                    ));
+                });
+                // 文件列表标签 + 多行列表
+                sv.spawn((
+                    Name::new("Save List Label"),
+                    Text2d::new("存档文件"),
+                    TextFont {
+                        font: font.clone(),
+                        font_size: FontSize::Px(17.0),
+                        ..default()
+                    },
+                    UiTextSize::from(Rh(2.8)),
+                    UiColor::new(vec![(UiBase::id(), theme.accent)]),
+                    UiLayout::window()
+                        .pos((Rl(4.0), Rh(36.0)))
+                        .anchor(Anchor::TOP_LEFT)
+                        .pack(),
+                    Pickable::IGNORE,
+                ));
+                sv.spawn((
+                    Name::new("Save List Text"),
+                    Text2d::new("（暂无存档）"),
+                    TextFont {
+                        font: font.clone(),
+                        font_size: FontSize::Px(15.0),
+                        ..default()
+                    },
+                    UiTextSize::from(Rh(2.6)),
+                    UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                    UiLayout::window()
+                        .pos((Rl(4.0), Rh(41.0)))
+                        .anchor(Anchor::TOP_LEFT)
+                        .pack(),
+                    Pickable::IGNORE,
+                    SaveListText,
+                ));
+                // 路径导入行：输入框 + 导入按钮
+                let box_mat = materials.add(ColorMaterial::from(theme.row_base));
+                sv.spawn((
+                    Name::new("Path Input Box"),
+                    UiLayout::window()
+                        .pos((Rl(30.0), Rh(88.0)))
+                        .size((Rl(58.0), Rh(7.0)))
+                        .anchor(Anchor::CENTER)
+                        .pack(),
+                    UiColor::new(vec![
+                        (UiBase::id(), theme.row_base),
+                        (UiSelected::id(), theme.row_selected),
+                    ]),
+                    UiSelected(0.0),
+                    UiMeshPlane2d,
+                    MeshMaterial2d(box_mat),
+                    Pickable::default(),
+                    PathInputBox,
+                ))
+                .observe(path_box_click)
+                .with_children(|b| {
+                    b.spawn((
+                        Name::new("Path Input Text"),
+                        Text2d::new("输入路径…"),
+                        TextFont {
+                            font: font.clone(),
+                            font_size: FontSize::Px(15.0),
+                            ..default()
+                        },
+                        UiTextSize::from(Rh(46.0)),
+                        UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                        UiLayout::window()
+                            .pos((Rl(6.0), Rl(50.0)))
+                            .anchor(Anchor::CENTER_LEFT)
+                            .pack(),
+                        Pickable::IGNORE,
+                        PathInputText,
+                    ));
+                });
+                let imp_mat = materials.add(ColorMaterial::from(theme.row_base));
+                sv.spawn((
+                    Name::new("Path Import Button"),
+                    UiLayout::window()
+                        .pos((Rl(72.0), Rh(88.0)))
+                        .size((Rl(30.0), Rh(7.0)))
+                        .anchor(Anchor::CENTER)
+                        .pack(),
+                    UiColor::new(vec![
+                        (UiBase::id(), theme.row_base),
+                        (UiHover::id(), theme.row_hover),
+                    ]),
+                    UiHover::new().instant(true),
+                    UiMeshPlane2d,
+                    MeshMaterial2d(imp_mat),
+                    Pickable::default(),
+                ))
+                .observe(hover_set::<Pointer<Over>, true>)
+                .observe(hover_set::<Pointer<Out>, false>)
+                .observe(path_import_click)
+                .with_children(|b| {
+                    b.spawn((
+                        Name::new("path_import_text"),
+                        Text2d::new("导入"),
+                        TextFont {
+                            font: font.clone(),
+                            font_size: FontSize::Px(16.0),
+                            ..default()
+                        },
+                        UiTextSize::from(Rh(48.0)),
+                        UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                        UiLayout::window().full().pack(),
+                        Pickable::IGNORE,
+                    ));
+                });
             });
     });
 }
@@ -746,6 +1113,314 @@ fn b2_theme_name_sync(
 }
 
 // ======================================================================
+// A4/B4：面板 Tab 架构（积木 / 图鉴 / 成就 / 存档）+ 存档 Tab
+// ======================================================================
+
+/// 面板 Tab
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum LunexTabId {
+    Blocks,
+    Codex,
+    Achievements,
+    Saves,
+}
+
+/// 当前面板 Tab
+#[derive(Resource)]
+pub struct LunexTab(pub LunexTabId);
+impl Default for LunexTab {
+    fn default() -> Self {
+        Self(LunexTabId::Blocks)
+    }
+}
+
+/// Tab 按钮（存目标 Tab）
+#[derive(Component)]
+pub struct TabButton(pub LunexTabId);
+
+/// 积木 Tab 内容根标记（标题/B2/B3/列表 4 个实体共用）
+#[derive(Component)]
+pub struct TabBlocksRoot;
+
+/// 存档 Tab 内容根标记
+#[derive(Component)]
+pub struct TabSavesRoot;
+
+/// Tab 点击 → 切换
+fn tab_button_click(
+    trigger: On<Pointer<Click>>,
+    mut tab: ResMut<LunexTab>,
+    buttons: Query<&TabButton>,
+) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    let Ok(btn) = buttons.get(trigger.event_target()) else {
+        return;
+    };
+    tab.0 = btn.0;
+}
+
+/// Tab 切换 → 各内容根可见性 + Tab 按钮高亮（UiSelected）
+fn lunex_tab_sync(
+    tab: Res<LunexTab>,
+    mut blocks: Query<&mut Visibility, With<TabBlocksRoot>>,
+    mut saves: Query<&mut Visibility, (With<TabSavesRoot>, Without<TabBlocksRoot>)>,
+    mut buttons: Query<(&TabButton, &mut UiSelected)>,
+) {
+    if !tab.is_changed() {
+        return;
+    }
+    for mut v in &mut blocks {
+        *v = if tab.0 == LunexTabId::Blocks {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
+    }
+    for mut v in &mut saves {
+        *v = if tab.0 == LunexTabId::Saves {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
+    }
+    for (btn, mut sel) in &mut buttons {
+        let target = (btn.0 == tab.0) as u8 as f32;
+        if (sel.0 - target).abs() > f32::EPSILON {
+            sel.0 = target;
+        }
+    }
+}
+
+// ---- 存档 Tab ----
+
+/// 存档文件列表文本（多行）
+#[derive(Component)]
+pub struct SaveListText;
+
+/// 路径输入框（可点击聚焦）
+#[derive(Component)]
+pub struct PathInputBox;
+
+/// 路径输入框文本
+#[derive(Component)]
+pub struct PathInputText;
+
+/// 自定义路径导入输入状态
+#[derive(Resource, Default)]
+pub struct PathInput {
+    pub value: String,
+    pub focused: bool,
+}
+
+/// 存档列表：每 1 秒刷新（仅存档 Tab 激活时）
+fn save_list_system(
+    time: Res<Time>,
+    tab: Res<LunexTab>,
+    mut last: Local<f32>,
+    mut texts: Query<&mut Text2d, With<SaveListText>>,
+) {
+    if tab.0 != LunexTabId::Saves {
+        return;
+    }
+    if time.elapsed_secs() - *last < 1.0 {
+        return;
+    }
+    *last = time.elapsed_secs();
+    let entries = save_file_list(&saves_dir());
+    let txt = if entries.is_empty() {
+        "（暂无存档）".to_string()
+    } else {
+        entries
+            .iter()
+            .map(|(n, b, t)| format!("{n} · {b} 块 · {t}"))
+            .collect::<Vec<_>>()
+            .join("\n")
+    };
+    for mut t in &mut texts {
+        t.0 = txt.clone();
+    }
+}
+
+/// 路径输入：聚焦时接收键盘（字符/退格/Esc/Enter）
+fn path_input_system(
+    mut input: ResMut<PathInput>,
+    mut keys: MessageReader<KeyboardInput>,
+    mut texts: Query<&mut Text2d, With<PathInputText>>,
+    mut boxes: Query<&mut UiSelected, With<PathInputBox>>,
+) {
+    if input.focused {
+        for msg in keys.read() {
+            if msg.state != ButtonState::Pressed {
+                continue;
+            }
+            match &msg.logical_key {
+                Key::Character(c) => input.value.push_str(c),
+                Key::Backspace => {
+                    input.value.pop();
+                }
+                Key::Escape => input.focused = false,
+                Key::Enter => input.focused = false,
+                _ => {}
+            }
+        }
+    }
+    for mut t in &mut texts {
+        t.0 = if input.value.is_empty() {
+            "输入路径…".to_string()
+        } else {
+            input.value.clone()
+        };
+    }
+    for mut s in &mut boxes {
+        s.0 = if input.focused { 1.0 } else { 0.0 };
+    }
+}
+
+/// 路径输入框点击 → 聚焦
+fn path_box_click(trigger: On<Pointer<Click>>, mut input: ResMut<PathInput>) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    input.focused = true;
+}
+
+/// 导入自定义路径存档
+fn path_import_click(
+    trigger: On<Pointer<Click>>,
+    input: Res<PathInput>,
+    mut commands: Commands,
+    mut stack: ResMut<PlacedBlocks>,
+    library: Res<BlockLibrary>,
+    render: Res<BlockRenderAssets>,
+    mut blueprint: ResMut<Blueprint>,
+    mut challenge: ResMut<Challenge>,
+    placed: Query<Entity, With<PlacedBlock>>,
+) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    let path_str = input.value.trim();
+    if path_str.is_empty() {
+        info!("💾 请先输入存档路径");
+        return;
+    }
+    match load_save_from_path(Path::new(path_str)) {
+        Ok(save) => {
+            let loaded = import_save(
+                &mut commands,
+                &mut stack,
+                &library,
+                &render,
+                &mut blueprint,
+                &mut challenge,
+                &placed,
+                save,
+            );
+            info!("📂 已导入 {path_str}（{loaded} 个积木）");
+        }
+        Err(e) => error!("导入失败: {e}"),
+    }
+}
+
+/// 保存按钮（F5 同流程）
+fn save_button_click(
+    trigger: On<Pointer<Click>>,
+    stack: Res<PlacedBlocks>,
+    blueprint: Res<Blueprint>,
+) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    if let Err(e) = save_slot(&stack, &blueprint) {
+        error!("保存失败: {e}");
+    }
+}
+
+/// JSON 导出按钮（F6 同流程）
+fn json_button_click(
+    trigger: On<Pointer<Click>>,
+    stack: Res<PlacedBlocks>,
+    blueprint: Res<Blueprint>,
+) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    if let Err(e) = export_json(&stack, &blueprint) {
+        error!("JSON 导出失败: {e}");
+    }
+}
+
+/// 分享按钮（F7 同流程）
+fn share_button_click(
+    trigger: On<Pointer<Click>>,
+    stack: Res<PlacedBlocks>,
+    blueprint: Res<Blueprint>,
+) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    if let Err(e) = share_export(&stack, &blueprint) {
+        error!("分享导出失败: {e}");
+    }
+}
+
+/// 加载槽位按钮（F9 同流程）
+fn load_slot_button_click(
+    trigger: On<Pointer<Click>>,
+    mut commands: Commands,
+    mut stack: ResMut<PlacedBlocks>,
+    library: Res<BlockLibrary>,
+    render: Res<BlockRenderAssets>,
+    mut blueprint: ResMut<Blueprint>,
+    mut challenge: ResMut<Challenge>,
+    placed: Query<Entity, With<PlacedBlock>>,
+) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    if let Err(e) = load_slot(
+        &mut commands,
+        &mut stack,
+        &library,
+        &render,
+        &mut blueprint,
+        &mut challenge,
+        &placed,
+    ) {
+        info!("💾 {e}");
+    }
+}
+
+/// 导入最新分享按钮（F8 同流程）
+fn import_latest_button_click(
+    trigger: On<Pointer<Click>>,
+    mut commands: Commands,
+    mut stack: ResMut<PlacedBlocks>,
+    library: Res<BlockLibrary>,
+    render: Res<BlockRenderAssets>,
+    mut blueprint: ResMut<Blueprint>,
+    mut challenge: ResMut<Challenge>,
+    placed: Query<Entity, With<PlacedBlock>>,
+) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    if let Err(e) = import_latest(
+        &mut commands,
+        &mut stack,
+        &library,
+        &render,
+        &mut blueprint,
+        &mut challenge,
+        &placed,
+    ) {
+        info!("📂 {e}");
+    }
+}
+
+// ======================================================================
 // B3：挑战区（选择下拉 + 状态/倒计时/材料 + 开始/重试）
 // ======================================================================
 
@@ -917,6 +1592,8 @@ fn ui_probe_diagnostic(
     challenge_status: Query<&Text2d, With<ChallengeStatusText>>,
     challenge_buttons: Query<&Text2d, With<ChallengeButtonText>>,
     challenge_names: Query<&Text2d, With<ChallengeNameText>>,
+    tabs: Query<(&TabButton, &UiSelected)>,
+    saves_vis: Query<&Visibility, With<TabSavesRoot>>,
     renderer: Option<Res<bevy_rich_text3d::TextRenderer>>,
 ) {
     if std::env::var("PHOENIX_UI_PROBE").is_err() || *done || time.elapsed_secs() < 4.0 {
@@ -975,6 +1652,12 @@ fn ui_probe_diagnostic(
     }
     for t in &challenge_buttons {
         info!("🧪 challenge button: \"{}\"", t.0);
+    }
+    let mut tabs: Vec<_> = tabs.iter().map(|(b, s)| (format!("{:?}", b.0), s.0)).collect();
+    tabs.sort_by(|a, b| a.0.cmp(&b.0));
+    info!("🧪 tabs: {:?}", tabs);
+    for v in &saves_vis {
+        info!("🧪 saves tab visible: {}", *v != Visibility::Hidden);
     }
 }
 

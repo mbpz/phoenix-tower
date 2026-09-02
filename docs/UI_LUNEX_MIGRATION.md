@@ -56,7 +56,15 @@ Lunex 为保留模式、ECS 组件驱动、走 Bevy 自身渲染管线——上�
     双 `Query<&mut Text2d>` 需 ParamSet 规避 B0001 冲突）
   - 开始/重试按钮：非 Active 时点击 → `start_challenge`（清空世界，与 C 键同一流程）
   - 冒烟验证：名称/状态（未开始）/按钮（开始）正确；无 panic
-- [ ] **B4** 存档 Tab：文件列表 / 加载 / 保存 / 分享 / JSON / 路径输入
+- [x] **B4** 存档 Tab：文件列表 / 加载 / 保存 / 分享 / JSON / 路径输入
+  - **Tab 架构**（A4 落地）：`LunexTab` 资源 + `TabButton`/`TabBlocksRoot`/`TabSavesRoot`
+    标记；`lunex_tab_sync` 切换内容可见性 + 按钮高亮（UiSelected）
+  - 存档动作提取为 save/mod.rs 公共函数（save_slot/export_json/share_export/
+    load_slot/import_latest/save_file_list），F5-F9 快捷键与面板按钮共用单一来源
+  - 自建文本输入框（lunex 无内置）：`MessageReader<KeyboardInput>` 接收字符/
+    退格/Esc/Enter，聚焦态高亮；路径导入走 `load_save_from_path` + `import_save`
+  - 文件列表每 1 秒刷新（仅存档 Tab 激活时），显示名称/积木数/时间
+  - 冒烟验证：4 个 Tab 渲染且 Blocks 高亮；存档内容默认隐藏；无 panic
 - [ ] **B5** 图鉴 Tab（35 条目解锁状态 + 文化描述）
 - [ ] **B6** 成就 Tab（5 项状态）
 - [ ] **B7** 知识卡片（PRD §3.3 智能提示）
