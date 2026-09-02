@@ -2290,6 +2290,7 @@ fn ui_probe_tabs(
     kcard_names: Query<&Text2d, With<KnowledgeCardName>>,
     op_fills: Query<&UiLayout, With<OpacityFill>>,
     plaques: Query<(Entity, Option<&Mesh3d>), With<PlaqueText>>,
+    diagnostics: Res<bevy::diagnostic::DiagnosticsStore>,
 ) {
     if std::env::var("PHOENIX_UI_PROBE").is_err() || *done || time.elapsed_secs() < 4.0 {
         return;
@@ -2348,6 +2349,11 @@ fn ui_probe_tabs(
     for (e, m) in &plaques {
         info!("🧪 plaque text3d {e:?}: mesh={}", m.is_some());
     }
+    let fps = diagnostics
+        .get(&bevy::diagnostic::FrameTimeDiagnosticsPlugin::FPS)
+        .and_then(|d| d.value())
+        .unwrap_or(0.0);
+    info!("🧪 fps with lunex panel: {fps:.0}");
 }
 
 

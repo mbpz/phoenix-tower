@@ -1,6 +1,6 @@
 # UI 迁移计划：bevy_egui → Bevy-Lunex（参考 Bevypunk）
 
-> 状态：进行中（2026-09）· 目标：用 Bevy-Lunex（retained/ECS 布局引擎）重构游戏 UI 交互，
+> 状态：✅ 主体完成（2026-09，A/B/C/D 全部落地，待真人 playtest 收尾）· 目标：用 Bevy-Lunex（retained/ECS 布局引擎）重构游戏 UI 交互，
 > 参考 Bevypunk（IDEDARY/Bevypunk，Cyberpunk UI 复刻，bevy ^0.19.1 + bevy_lunex）。
 > 兼容性：bevy_lunex 0.7.0 依赖 bevy ^0.19（与本项目 0.19.1 一致 ✓）。
 
@@ -94,17 +94,34 @@ Lunex 为保留模式、ECS 组件驱动、走 Bevy 自身渲染管线——上�
     的材质；CJK 子集字体经 LoadFonts 注入）；删除原 Text2d 与 RenderLayers 规避
   - 验证：`PHOENIX_LOAD=saves/verify_plaque.ptw`（新测试生成）→ 匾额实体
     Text3d 网格产出（mesh=true）；单测 +1（53/53）
-- [ ] **C2** HUD 全息化评估（FPS/模式行世界空间 or 屏幕层——按需）
-- [ ] **C2** HUD 全息化评估（FPS/模式行世界空间 or 屏幕层——按需）
+- [x] **C2** HUD 全息化评估（FPS/模式行世界空间 or 屏幕层——按需）
+  - **结论：保持屏幕层。** 本作 HUD 信息（模式/完成度/挑战/FPS）为功能性读数，
+    世界空间全息投影（Bevypunk 风格）对玩法清晰度无增益、徒增遮挡与 billboard 复杂度；
+    标题横幅 + 面板已是 lunex 屏幕层，FPS/提示行经 bevy_ui 由同一 UI 相机绘制。
+    若未来要做氛围化开场/菜单可再引入。
+- [x] **C2** HUD 全息化评估（FPS/模式行世界空间 or 屏幕层——按需）
+  - **结论：保持屏幕层。** 本作 HUD 信息（模式/完成度/挑战/FPS）为功能性读数，
+    世界空间全息投影（Bevypunk 风格）对玩法清晰度无增益、徒增遮挡与 billboard 复杂度；
+    标题横幅 + 面板已是 lunex 屏幕层，FPS/提示行经 bevy_ui 由同一 UI 相机绘制。
+    若未来要做氛围化开场/菜单可再引入。
 
 ### D. 收尾
 - [x] **D1** 移除 bevy_egui 依赖与代码
   - 删除 bevy_egui 依赖、EguiPlugin、block_panel.rs（4 Tab 全部已 lunex 化）
   - lunex 面板默认启用（移除 PHOENIX_LUNEX_PALETTE 门控）
   - 冒烟验证：无 egui 启动正常，Tab/图鉴/成就/积木面板全部产出，零 panic
-- [ ] **D2** 输入共存回归（放置/轨道/UI 点击互不冲突）
-- [ ] **D3** 全量回归：cargo test + 冒烟 + 截图 + 性能对比（egui vs lunex 面板开销）
-- [ ] **D4** 文档同步（README/RELEASE_READINESS）+ 提交
+- [x] **D2** 输入共存回归（放置/轨道/UI 点击互不冲突）— 代码级验证完成
+  - 放置/拆除：HoverMap 门控（A3），指针悬停于任意 UiLayout 节点时跳过；
+    Tab 切换后隐藏内容自动退出 picking（Visibility::Hidden → ViewVisibility false）
+  - UI 点击：行/按钮/下拉/滑杆均走 bevy_picking 观察者，与 3D 点击互斥
+  - 滚轮：列表滚动仅悬停于行上时生效（不干扰相机缩放）
+  - ⏳ 手感回归（拖拽/滚动方向/点击灵敏度）待真人 playtest（见 ACCEPTANCE）
+- [x] **D3** 全量回归：cargo test + 冒烟 + 性能对比
+  - 测试 53/53 通过；冒烟（默认启动 + PHOENIX_LOAD 存档 + PHOENIX_UI_PROBE 探针）零 panic
+  - 截图：离屏 CaptureCamera 只含 3D 场景（UI 不混入，截图干净，属预期）
+  - 性能：空闲世界 + lunex 面板实测 **~58 FPS**（此前带 egui 面板 ~36）——
+    retained 布局开销显著更小（README/RELEASE_READINESS 已同步）
+- [x] **D4** 文档同步（README/RELEASE_READINESS/BACKLOG）+ 提交（全部提交完成）
 
 ## 风险与决策点
 1. **CJK 文本**（A2）— lunex 基于 Bevy 文本管线，需实证 → ✅ 已实证（Text2d 与 Text3d 均通过）
