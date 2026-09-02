@@ -29,7 +29,7 @@ use crate::building::collection::{achievement_defs, Collection, KnowledgeHints};
 use crate::building::challenge::{
     select_challenge, start_challenge, Challenge, ChallengeLibrary, ChallengeState,
 };
-use crate::building::placement::{BlockRenderAssets, PlacedBlock, PlacedBlocks};
+use crate::building::placement::{BlockRenderAssets, BlueprintAlpha, PlacedBlock, PlacedBlocks};
 use crate::save::{
     export_json, import_latest, import_save, load_save_from_path, load_slot, save_file_list,
     save_slot, saves_dir, share_export,
@@ -57,6 +57,7 @@ impl Plugin for LunexUiPlugin {
             .init_resource::<PathInput>()
             .init_resource::<CodexScroll>()
             .init_resource::<CodexSelected>()
+            .init_resource::<OpacityDragging>()
             .add_plugins(UiLunexPlugins)
             .add_systems(
                 Startup,
@@ -86,6 +87,8 @@ impl Plugin for LunexUiPlugin {
                     b5_codex_status_sync,
                     b6_achievement_sync,
                     b7_knowledge_sync,
+                    b8_opacity_sync,
+                    b8_opacity_apply,
                     ui_probe_diagnostic,
                     ui_probe_tabs,
                 ),
@@ -257,7 +260,7 @@ fn spawn_palette_nodes(
                 Name::new("Blueprint Section"),
                 UiLayout::window()
                     .pos((Rl(50.0), Rh(14.0)))
-                    .size((Rl(94.0), Rh(19.0)))
+                    .size((Rl(94.0), Rh(21.0)))
                     .anchor(Anchor::TOP_CENTER)
                     .pack(),
                 Pickable::IGNORE,
@@ -410,6 +413,68 @@ fn spawn_palette_nodes(
                         ));
                     });
                 }
+                // B8 蓝图透明度滑杆
+                sec.spawn((
+                    Name::new("Opacity Label"),
+                    Text2d::new("透明度"),
+                    TextFont {
+                        font: font.clone(),
+                        font_size: FontSize::Px(15.0),
+                        ..default()
+                    },
+                    UiTextSize::from(Rh(3.6)),
+                    UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                    UiLayout::window()
+                        .pos((Rl(4.0), Rh(91.0)))
+                        .anchor(Anchor::CENTER_LEFT)
+                        .pack(),
+                    Pickable::IGNORE,
+                ));
+                let track_mat = materials.add(ColorMaterial::from(Color::srgba(0.02, 0.03, 0.05, 0.9)));
+                let fill_mat = materials.add(ColorMaterial::from(theme.accent));
+                let knob_mat = materials.add(ColorMaterial::from(theme.text_main));
+                let init_frac = ((BlueprintAlpha::default().value - 0.1) / 0.7).clamp(0.0, 1.0);
+                sec.spawn((
+                    Name::new("Opacity Slider Track"),
+                    UiLayout::window()
+                        .pos((Rl(42.0), Rh(91.0)))
+                        .size((Rl(52.0), Rh(5.0)))
+                        .anchor(Anchor::CENTER_LEFT)
+                        .pack(),
+                    UiMeshPlane2d,
+                    MeshMaterial2d(track_mat),
+                    Pickable::default(),
+                    OpacitySlider,
+                ))
+                .observe(opacity_press)
+                .observe(opacity_move)
+                .observe(opacity_release)
+                .with_children(|track| {
+                    track.spawn((
+                        Name::new("Opacity Fill"),
+                        UiLayout::window()
+                            .pos((Rl(1.0), Rh(50.0)))
+                            .size((Rl(init_frac * 98.0), Rl(70.0)))
+                            .anchor(Anchor::CENTER_LEFT)
+                            .pack(),
+                        UiMeshPlane2d,
+                        MeshMaterial2d(fill_mat.clone()),
+                        Pickable::IGNORE,
+                        OpacityFill,
+                    ));
+                    track.spawn((
+                        Name::new("Opacity Knob"),
+                        UiLayout::window()
+                            .pos((Rl(init_frac * 100.0), Rl(50.0)))
+                            .size((Rl(3.0), Rh(150.0)))
+                            .anchor(Anchor::CENTER)
+                            .pack(),
+                        UiMeshPlane2d,
+                        MeshMaterial2d(knob_mat),
+                        Pickable::IGNORE,
+                        OpacityKnob,
+                    ));
+                });
             });
 
         // B3 挑战区：选择下拉 + 状态/倒计时/材料 + 开始/重试按钮
@@ -417,8 +482,8 @@ fn spawn_palette_nodes(
             .spawn((
                 Name::new("Challenge Section"),
                 UiLayout::window()
-                    .pos((Rl(50.0), Rh(36.0)))
-                    .size((Rl(94.0), Rh(18.0)))
+                    .pos((Rl(50.0), Rh(37.0)))
+                    .size((Rl(94.0), Rh(17.0)))
                     .anchor(Anchor::TOP_CENTER)
                     .pack(),
                 Pickable::IGNORE,
@@ -575,7 +640,7 @@ fn spawn_palette_nodes(
                 Name::new("Palette Scroll"),
                 UiLayout::window()
                     .pos((Rl(50.0), Rh(75.0)))
-                    .size((Rl(96.0), Rh(42.0)))
+                    .size((Rl(96.0), Rh(40.0)))
                     .anchor(Anchor::CENTER)
                     .pack(),
                 Pickable::IGNORE,
@@ -1403,6 +1468,125 @@ fn b7_knowledge_sync(
 }
 
 // ======================================================================
+// B8：蓝图透明度滑杆（幽灵蓝图 alpha 0.1..0.8）
+// ======================================================================
+
+/// 滑杆轨道
+#[derive(Component)]
+pub struct OpacitySlider;
+
+/// 滑杆填充
+#[derive(Component)]
+pub struct OpacityFill;
+
+/// 滑杆滑块
+#[derive(Component)]
+pub struct OpacityKnob;
+
+/// 滑杆拖拽状态（按下 → Move 更新 → 释放清除）
+#[derive(Resource, Default)]
+pub struct OpacityDragging(pub bool);
+
+/// 依命中世界 x 计算 alpha（0.1..0.8）
+fn opacity_from_hit(
+    hit_x: f32,
+    tracks: &Query<(&GlobalTransform, &Dimension), With<OpacitySlider>>,
+    target: Entity,
+    alpha: &mut BlueprintAlpha,
+) {
+    let Ok((tf, dim)) = tracks.get(target) else {
+        return;
+    };
+    let min = tf.translation().x - dim.x / 2.0;
+    let frac = ((hit_x - min) / dim.x).clamp(0.0, 1.0);
+    alpha.value = 0.1 + frac * 0.7;
+}
+
+/// 按下：定位 + 进入拖拽
+fn opacity_press(
+    trigger: On<Pointer<Press>>,
+    mut alpha: ResMut<BlueprintAlpha>,
+    mut dragging: ResMut<OpacityDragging>,
+    tracks: Query<(&GlobalTransform, &Dimension), With<OpacitySlider>>,
+) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    opacity_from_hit(
+        trigger.event().hit.position.unwrap_or(Vec3::ZERO).x,
+        &tracks,
+        trigger.event_target(),
+        &mut alpha,
+    );
+    dragging.0 = true;
+}
+
+/// 拖拽中移动：持续更新
+fn opacity_move(
+    trigger: On<Pointer<Move>>,
+    mut alpha: ResMut<BlueprintAlpha>,
+    dragging: Res<OpacityDragging>,
+    tracks: Query<(&GlobalTransform, &Dimension), With<OpacitySlider>>,
+) {
+    if !dragging.0 {
+        return;
+    }
+    opacity_from_hit(
+        trigger.event().hit.position.unwrap_or(Vec3::ZERO).x,
+        &tracks,
+        trigger.event_target(),
+        &mut alpha,
+    );
+}
+
+/// 释放：退出拖拽
+fn opacity_release(trigger: On<Pointer<Release>>, mut dragging: ResMut<OpacityDragging>) {
+    if trigger.event().button != PointerButton::Primary {
+        return;
+    }
+    dragging.0 = false;
+}
+
+/// alpha 变化 → 填充宽度 + 滑块位置
+fn b8_opacity_sync(
+    alpha: Res<BlueprintAlpha>,
+    mut nodes: Query<(&mut UiLayout, Option<&OpacityFill>, Option<&OpacityKnob>)>,
+) {
+    if !alpha.is_changed() {
+        return;
+    }
+    let frac = ((alpha.value - 0.1) / 0.7).clamp(0.0, 1.0);
+    for (mut layout, fill, knob) in &mut nodes {
+        let Some(bevy_lunex::UiLayoutType::Window(w)) = layout.layouts.get_mut(&UiBase::id())
+        else {
+            continue;
+        };
+        if fill.is_some() {
+            w.size = (Rl(frac * 100.0), Rl(80.0)).into();
+        }
+        if knob.is_some() {
+            w.pos = (Rl(frac * 100.0), Rl(50.0)).into();
+        }
+    }
+}
+
+/// alpha 变化 → 幽灵蓝图材质透明度（与 egui 面板同一效果）
+fn b8_opacity_apply(
+    alpha: Res<BlueprintAlpha>,
+    render: Res<BlockRenderAssets>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    if !alpha.is_changed() {
+        return;
+    }
+    for handle in render.blueprint_materials.values() {
+        if let Some(mut mat) = materials.get_mut(handle) {
+            mat.base_color.set_alpha(alpha.value);
+        }
+    }
+}
+
+// ======================================================================
 // B5：图鉴 Tab（35 条目解锁状态 + 文化描述）
 // ======================================================================
 
@@ -2104,6 +2288,7 @@ fn ui_probe_tabs(
     ach_texts: Query<(&AchievementNameText, &Text2d)>,
     kcard_vis: Query<&Visibility, With<KnowledgeCardRoot>>,
     kcard_names: Query<&Text2d, With<KnowledgeCardName>>,
+    op_fills: Query<&UiLayout, With<OpacityFill>>,
 ) {
     if std::env::var("PHOENIX_UI_PROBE").is_err() || *done || time.elapsed_secs() < 4.0 {
         return;
@@ -2148,6 +2333,16 @@ fn ui_probe_tabs(
         if !t.0.is_empty() {
             info!("🧪 knowledge card: \"{}\"", t.0);
         }
+    }
+    for f in &op_fills {
+        let w = f
+            .layouts
+            .get(&UiBase::id())
+            .and_then(|l| match l {
+                bevy_lunex::UiLayoutType::Window(w) => Some(w.size),
+                _ => None,
+            });
+        info!("🧪 opacity fill size: {:?}", w);
     }
 }
 
