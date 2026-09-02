@@ -562,4 +562,29 @@ mod tests {
         )
         .unwrap();
     }
+
+    #[test]
+    fn write_verify_plaque_file() {
+        // C1 冒烟用：含匾额（biane）的存档，供 PHOENIX_LOAD 验证 Text3d 匾额文字
+        let (mut stack, bp, lib) = setup();
+        let biane = lib.by_id["biane"];
+        let def = &lib.defs[biane];
+        let anchor = IVec3::new(0, 0, 0);
+        let cells = footprint_cells(anchor, def, 0);
+        stack.records.push(PlacedRecord {
+            entity: Entity::PLACEHOLDER,
+            def_id: "biane".to_string(),
+            anchor,
+            rot: 0,
+            cells,
+        });
+        let save = build_save(&stack, &bp, "free");
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("saves");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            dir.join("verify_plaque.ptw"),
+            encode_bincode(&save).unwrap(),
+        )
+        .unwrap();
+    }
 }

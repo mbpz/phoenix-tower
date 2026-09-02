@@ -29,7 +29,7 @@ use crate::building::collection::{achievement_defs, Collection, KnowledgeHints};
 use crate::building::challenge::{
     select_challenge, start_challenge, Challenge, ChallengeLibrary, ChallengeState,
 };
-use crate::building::placement::{BlockRenderAssets, BlueprintAlpha, PlacedBlock, PlacedBlocks};
+use crate::building::placement::{BlockRenderAssets, BlueprintAlpha, PlacedBlock, PlacedBlocks, PlaqueText};
 use crate::save::{
     export_json, import_latest, import_save, load_save_from_path, load_slot, save_file_list,
     save_slot, saves_dir, share_export,
@@ -2289,6 +2289,7 @@ fn ui_probe_tabs(
     kcard_vis: Query<&Visibility, With<KnowledgeCardRoot>>,
     kcard_names: Query<&Text2d, With<KnowledgeCardName>>,
     op_fills: Query<&UiLayout, With<OpacityFill>>,
+    plaques: Query<(Entity, Option<&Mesh3d>), With<PlaqueText>>,
 ) {
     if std::env::var("PHOENIX_UI_PROBE").is_err() || *done || time.elapsed_secs() < 4.0 {
         return;
@@ -2343,6 +2344,9 @@ fn ui_probe_tabs(
                 _ => None,
             });
         info!("🧪 opacity fill size: {:?}", w);
+    }
+    for (e, m) in &plaques {
+        info!("🧪 plaque text3d {e:?}: mesh={}", m.is_some());
     }
 }
 

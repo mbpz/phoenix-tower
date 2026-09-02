@@ -89,7 +89,12 @@ Lunex 为保留模式、ECS 组件驱动、走 Bevy 自身渲染管线——上�
 > 进入 C 阶段（世界空间 UI）。
 
 ### C. 世界空间 UI（Lunex 差异化价值）
-- [ ] **C1** 匾额「黄鹤楼」/ 灯笼等世界空间文字/标牌改造（替代 Text2d 直挂）
+- [x] **C1** 匾额「黄鹤楼」世界空间文字（Text2d 直挂 → bevy_rich_text3d Text3d）
+  - `reconcile_plaque_text`：放置匾额时挂 Text3d（Mesh3d + 引用 TextAtlas::DEFAULT_IMAGE
+    的材质；CJK 子集字体经 LoadFonts 注入）；删除原 Text2d 与 RenderLayers 规避
+  - 验证：`PHOENIX_LOAD=saves/verify_plaque.ptw`（新测试生成）→ 匾额实体
+    Text3d 网格产出（mesh=true）；单测 +1（53/53）
+- [ ] **C2** HUD 全息化评估（FPS/模式行世界空间 or 屏幕层——按需）
 - [ ] **C2** HUD 全息化评估（FPS/模式行世界空间 or 屏幕层——按需）
 
 ### D. 收尾

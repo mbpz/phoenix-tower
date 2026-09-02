@@ -7,9 +7,10 @@
 //!   期望完全一致才允许放置（幽灵红/绿反馈），完成度实时计算（ADR-005）；
 //! - 撤销栈保留（Phase 1 完整版替换为 Command 模式 ≥20 步）。
 
-use bevy::camera::visibility::RenderLayers;
+use bevy::pbr::{MeshMaterial3d, StandardMaterial};
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
+use bevy_rich_text3d::{Text3d, Text3dStyling, TextAlign, TextAnchor, TextAtlas};
 use std::collections::{HashMap, HashSet};
 
 use super::block_defs::{load_block_library, BlockDef, BlockLibrary};
@@ -609,8 +610,8 @@ pub struct PlaqueText;
 /// 匾额题字对账：已放置的匾额自动挂 Text3d「黄鹤楼」（CJK 字体）。
 fn reconcile_plaque_text(
     mut commands: Commands,
-    mut font: Local<Option<Handle<bevy::text::Font>>>,
-    asset_server: Res<AssetServer>,
+    mut material: Local<Option<Handle<StandardMaterial>>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     stack: Res<PlacedBlocks>,
     mut last_revision: Local<u64>,
     blocks: Query<
@@ -627,29 +628,34 @@ fn reconcile_plaque_text(
         return;
     }
     *last_revision = stack.revision;
-    if font.is_none() {
-        *font = Some(asset_server.load("fonts/NotoSansSC-subset.otf"));
+    if material.is_none() {
+        *material = Some(materials.add(StandardMaterial {
+            base_color_texture: Some(TextAtlas::DEFAULT_IMAGE.clone()),
+            alpha_mode: AlphaMode::Blend,
+            ..default()
+        }));
     }
-    let Some(font) = font.as_ref() else {
+    let Some(material) = material.as_ref() else {
         return;
     };
     for (entity, id) in &blocks {
         if id.0 == "biane" {
             commands.entity(entity).with_children(|parent| {
+                // C1：世界空间匾额文字（bevy_rich_text3d / cosmic-text，CJK 子集字体
+                // 经 LoadFonts 注入；A2 已验证）。Text3d 须自带 Mesh3d + 材质。
                 parent.spawn((
-                    Text2d::new("黄鹤楼"),
-                    TextFont {
-                        font: FontSource::Handle(font.clone()),
-                        font_size: FontSize::Px(0.9),
+                    Text3d::new("黄鹤楼"),
+                    Text3dStyling {
+                        size: 0.55,
+                        font: "Noto Sans CJK SC".into(),
+                        color: bevy::color::Srgba::new(0.95, 0.85, 0.40, 1.0),
+                        align: TextAlign::Center,
+                        anchor: TextAnchor::CENTER,
                         ..default()
                     },
-                    TextColor(Color::srgb(0.95, 0.85, 0.4)),
-                    TextLayout::justify(bevy::text::Justify::Center),
-                    Transform::from_xyz(0.0, 0.0, 0.06),
-                    // 2D 文本只能由 Camera2d 绘制；主相机为 Camera3d 本就不渲染它。
-                    // 加入 lunex UI 相机（layer 0）后，把它放到 layer 1 避免在世界坐标
-                    // 下被 2D 相机以屏幕坐标误画（匾额文字由 C1 用 lunex UiRoot3d 重做）
-                    RenderLayers::layer(1),
+                    Mesh3d::default(),
+                    MeshMaterial3d(material.clone()),
+                    Transform::from_xyz(0.0, 0.0, 0.05),
                     PlaqueText,
                 ));
             });
