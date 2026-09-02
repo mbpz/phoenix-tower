@@ -68,7 +68,7 @@
 | ID | 类型 | 依赖 | 任务 | 验收标准 |
 |----|------|------|------|----------|
 | B-27 | AFK | B-12, B-14 | **成功指标埋点与仪表盘**：教程完成率 / 蓝图完成率 / 会话时长（新老玩家分档）/ 作品保存率 / 分享率 | 埋点随 Phase 1 上线；周报自动汇总 |
-| B-28 | AFK | B-10 | **UI 重构：bevy_egui → Bevy-Lunex**（保留模式 retained UI，替代 egui 立即模式；参考 Bevypunk 架构；计划见 docs/UI_LUNEX_MIGRATION.md）（✅ A1 集成+最小界面渲染（Camera2d+UiSourceCamera+标题横幅，组件探针验证）、A2 CJK 中文验证（Text2d 排布 372×53 / Text3d 网格 7.59×0.9，LoadFonts 注入子集字体）、A3 交互门控（HoverMap+UiLayout 拦截 3D 放置）、A4 主题骨架（LunexTheme+层级约定）、B1 积木面板（35 行滚动列表/悬停+选中高亮/点击选中/窗口外行隐藏，PHOENIX_LUNEX_PALETTE=1 启用）、B2 蓝图区（完成度进度条 + 主题下拉）、B3 挑战区（选择下拉 + 状态/倒计时/材料 + 开始/重试）、B4 存档 Tab（Tab 架构 + 保存/JSON/分享/加载/导入/路径输入/文件列表）、B5 图鉴 Tab（35 条目解锁状态 + 文化描述 + 滚动）、B6 成就 Tab（5 卡解锁状态）；⏳ B7-B8 迁移（egui 并行保留）→ C1 匾额 Text3d → D 收尾） | lunex 渲染中文；egui 移除后交互/性能无回退 |
+| B-28 | AFK | B-10 | **UI 重构：bevy_egui → Bevy-Lunex**（保留模式 retained UI，替代 egui 立即模式；参考 Bevypunk 架构；计划见 docs/UI_LUNEX_MIGRATION.md）（✅ A1 集成+最小界面渲染（Camera2d+UiSourceCamera+标题横幅，组件探针验证）、A2 CJK 中文验证（Text2d 排布 372×53 / Text3d 网格 7.59×0.9，LoadFonts 注入子集字体）、A3 交互门控（HoverMap+UiLayout 拦截 3D 放置）、A4 主题骨架（LunexTheme+层级约定）、B1 积木面板（35 行滚动列表/悬停+选中高亮/点击选中/窗口外行隐藏，PHOENIX_LUNEX_PALETTE=1 启用）、B2 蓝图区（完成度进度条 + 主题下拉）、B3 挑战区（选择下拉 + 状态/倒计时/材料 + 开始/重试）、B4 存档 Tab（Tab 架构 + 保存/JSON/分享/加载/导入/路径输入/文件列表）、B5 图鉴 Tab（35 条目解锁状态 + 文化描述 + 滚动）、B6 成就 Tab（5 卡解锁状态）、B7 知识卡片（toast，停顿提示）；⏳ B8 滑杆迁移（egui 并行保留）→ C1 匾额 Text3d → D 收尾） | lunex 渲染中文；egui 移除后交互/性能无回退 |
 
 ---
 

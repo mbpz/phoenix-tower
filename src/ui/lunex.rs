@@ -25,7 +25,7 @@ use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::{
     select_blueprint, Blueprint, BlueprintGhost, BlueprintLibrary,
 };
-use crate::building::collection::{achievement_defs, Collection};
+use crate::building::collection::{achievement_defs, Collection, KnowledgeHints};
 use crate::building::challenge::{
     select_challenge, start_challenge, Challenge, ChallengeLibrary, ChallengeState,
 };
@@ -85,6 +85,7 @@ impl Plugin for LunexUiPlugin {
                     b5_codex_detail_sync,
                     b5_codex_status_sync,
                     b6_achievement_sync,
+                    b7_knowledge_sync,
                     ui_probe_diagnostic,
                     ui_probe_tabs,
                 ),
@@ -1357,6 +1358,51 @@ fn b6_achievement_sync(
 }
 
 // ======================================================================
+// B7：知识卡片（PRD §3.3 智能提示；toast 展示，蓝图模式停顿触发）
+// ======================================================================
+
+/// 知识卡片容器
+#[derive(Component)]
+pub struct KnowledgeCardRoot;
+
+/// 卡片标题文本
+#[derive(Component)]
+pub struct KnowledgeCardName;
+
+/// 卡片描述文本
+#[derive(Component)]
+pub struct KnowledgeCardDesc;
+
+/// 知识卡片同步：KnowledgeHints.card 变化 → 显隐 + 文本
+fn b7_knowledge_sync(
+    hints: Res<KnowledgeHints>,
+    mut cards: Query<&mut Visibility, With<KnowledgeCardRoot>>,
+    mut texts: ParamSet<(
+        Query<&mut Text2d, With<KnowledgeCardName>>,
+        Query<&mut Text2d, With<KnowledgeCardDesc>>,
+    )>,
+) {
+    if !hints.is_changed() {
+        return;
+    }
+    for mut v in &mut cards {
+        *v = if hints.card.is_some() {
+            Visibility::Visible
+        } else {
+            Visibility::Hidden
+        };
+    }
+    if let Some(card) = &hints.card {
+        for mut t in texts.p0() {
+            t.0 = format!("📖 {}", card.name);
+        }
+        for mut t in texts.p1() {
+            t.0 = card.desc.clone();
+        }
+    }
+}
+
+// ======================================================================
 // B5：图鉴 Tab（35 条目解锁状态 + 文化描述）
 // ======================================================================
 
@@ -2056,6 +2102,8 @@ fn ui_probe_tabs(
     codex_vis: Query<&Visibility, With<TabCodexRoot>>,
     ach_vis: Query<&Visibility, With<TabAchievementsRoot>>,
     ach_texts: Query<(&AchievementNameText, &Text2d)>,
+    kcard_vis: Query<&Visibility, With<KnowledgeCardRoot>>,
+    kcard_names: Query<&Text2d, With<KnowledgeCardName>>,
 ) {
     if std::env::var("PHOENIX_UI_PROBE").is_err() || *done || time.elapsed_secs() < 4.0 {
         return;
@@ -2092,6 +2140,14 @@ fn ui_probe_tabs(
     ach.sort_by_key(|(i, _)| *i);
     for (i, t) in ach.iter().take(2) {
         info!("🧪 achievement[{i}]: \"{}\"", t.split('\n').next().unwrap_or(""));
+    }
+    for v in &kcard_vis {
+        info!("🧪 knowledge card visible: {}", *v != Visibility::Hidden);
+    }
+    for t in &kcard_names {
+        if !t.0.is_empty() {
+            info!("🧪 knowledge card: \"{}\"", t.0);
+        }
     }
 }
 
@@ -2159,7 +2215,7 @@ fn spawn_hud_root(
                     Name::new("Title Text"),
                     Text2d::new("黄鹤楼 · 筑梦江城"),
                     TextFont {
-                        font,
+                        font: font.clone(),
                         font_size: FontSize::Px(44.0),
                         ..default()
                     },
@@ -2186,6 +2242,58 @@ fn spawn_hud_root(
                     &theme,
                 );
             }
+
+            // B7 知识卡片（toast；蓝图模式停顿 >12s 触发，8s 后消失）
+            let card_mat = materials.add(ColorMaterial::from(Color::srgba(0.09, 0.13, 0.20, 0.95)));
+            ui.spawn((
+                Name::new("Knowledge Card"),
+                UiLayout::window()
+                    .pos((Rl(50.0), Rh(14.5)))
+                    .size((Rl(44.0), Rh(9.5)))
+                    .anchor(Anchor::TOP_CENTER)
+                    .pack(),
+                UiMeshPlane2d,
+                MeshMaterial2d(card_mat),
+                Pickable::IGNORE,
+                Visibility::Hidden,
+                KnowledgeCardRoot,
+            ))
+            .with_children(|card| {
+                card.spawn((
+                    Name::new("knowledge_name"),
+                    Text2d::new(""),
+                    TextFont {
+                        font: font.clone(),
+                        font_size: FontSize::Px(20.0),
+                        ..default()
+                    },
+                    UiTextSize::from(Rh(26.0)),
+                    UiColor::new(vec![(UiBase::id(), theme.accent)]),
+                    UiLayout::window()
+                        .pos((Rl(3.0), Rh(8.0)))
+                        .anchor(Anchor::TOP_LEFT)
+                        .pack(),
+                    Pickable::IGNORE,
+                    KnowledgeCardName,
+                ));
+                card.spawn((
+                    Name::new("knowledge_desc"),
+                    Text2d::new(""),
+                    TextFont {
+                        font: font.clone(),
+                        font_size: FontSize::Px(15.0),
+                        ..default()
+                    },
+                    UiTextSize::from(Rh(16.0)),
+                    UiColor::new(vec![(UiBase::id(), theme.text_main)]),
+                    UiLayout::window()
+                        .pos((Rl(3.0), Rh(44.0)))
+                        .anchor(Anchor::TOP_LEFT)
+                        .pack(),
+                    Pickable::IGNORE,
+                    KnowledgeCardDesc,
+                ));
+            });
         });
 }
 
