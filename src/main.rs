@@ -20,7 +20,6 @@ mod ui;
 
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::*;
-use bevy_egui::EguiPlugin;
 
 use audio::AudioPlugin;
 use building::challenge::ChallengePlugin;
@@ -35,7 +34,6 @@ use scene::ScenePlugin;
 use screenshot::ScreenshotPlugin;
 use stability::StabilityPlugin;
 use stress::StressPlugin;
-use ui::block_panel::BlockPanelPlugin;
 use ui::hud::HudPlugin;
 use ui::lunex::LunexUiPlugin;
 
@@ -48,7 +46,6 @@ fn main() {
             file_path: asset_root,
             ..default()
         }))
-        .add_plugins(EguiPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .init_state::<GameState>()
         .add_plugins((
@@ -60,7 +57,6 @@ fn main() {
             AudioPlugin,
             ScenePlugin,
             HudPlugin,
-            BlockPanelPlugin,
             LunexUiPlugin,
             SavePlugin,
             ScreenshotPlugin,

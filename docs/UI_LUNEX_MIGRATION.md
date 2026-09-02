@@ -98,7 +98,10 @@ Lunex 为保留模式、ECS 组件驱动、走 Bevy 自身渲染管线——上�
 - [ ] **C2** HUD 全息化评估（FPS/模式行世界空间 or 屏幕层——按需）
 
 ### D. 收尾
-- [ ] **D1** 移除 bevy_egui 依赖与代码（在 B 全部完成后 feature 切换验证）
+- [x] **D1** 移除 bevy_egui 依赖与代码
+  - 删除 bevy_egui 依赖、EguiPlugin、block_panel.rs（4 Tab 全部已 lunex 化）
+  - lunex 面板默认启用（移除 PHOENIX_LUNEX_PALETTE 门控）
+  - 冒烟验证：无 egui 启动正常，Tab/图鉴/成就/积木面板全部产出，零 panic
 - [ ] **D2** 输入共存回归（放置/轨道/UI 点击互不冲突）
 - [ ] **D3** 全量回归：cargo test + 冒烟 + 截图 + 性能对比（egui vs lunex 面板开销）
 - [ ] **D4** 文档同步（README/RELEASE_READINESS）+ 提交

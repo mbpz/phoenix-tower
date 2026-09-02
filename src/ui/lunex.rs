@@ -2426,8 +2426,8 @@ fn spawn_hud_root(
                 ));
             });
 
-            // B1 积木面板（默认关闭；与 egui 面板并存阶段用 env 打开验证）
-            if std::env::var("PHOENIX_LUNEX_PALETTE").is_ok() {
+            // B1-B8 积木面板（D1：egui 已移除，默认启用）
+            {
                 spawn_palette_nodes(
                     ui,
                     &asset_server,
