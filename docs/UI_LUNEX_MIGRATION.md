@@ -71,7 +71,10 @@ Lunex 为保留模式、ECS 组件驱动、走 Bevy 自身渲染管线——上�
   - 解锁状态随 `Collection` 变化刷新（行文本 + UiColor 整体替换，字段私有不可改）
   - 修复：`lunex_tab_sync` 无过滤会隐藏**所有** Visibility 实体（含列表行）——
     加 `Or<(With<TabBlocksRoot>, With<TabSavesRoot>, With<TabCodexRoot>)>` 只动内容根
-- [ ] **B6** 成就 Tab（5 项状态）
+- [x] **B6** 成就 Tab（5 项状态）
+  - 5 张成就卡片（名称/描述/✓ 或 🔒），随 `Collection` 解锁状态刷新
+    （解锁金色、未解锁常规色；UiColor 整体替换）
+  - 冒烟验证：5 卡渲染、初始全锁定（🔒）、Tab 隐藏态正确
 - [ ] **B7** 知识卡片（PRD §3.3 智能提示）
 - [ ] **B8** 蓝图透明度滑杆 + 其余小控件
 

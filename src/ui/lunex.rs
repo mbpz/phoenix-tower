@@ -25,7 +25,7 @@ use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::{
     select_blueprint, Blueprint, BlueprintGhost, BlueprintLibrary,
 };
-use crate::building::collection::Collection;
+use crate::building::collection::{achievement_defs, Collection};
 use crate::building::challenge::{
     select_challenge, start_challenge, Challenge, ChallengeLibrary, ChallengeState,
 };
@@ -84,6 +84,7 @@ impl Plugin for LunexUiPlugin {
                     codex_scroll_system,
                     b5_codex_detail_sync,
                     b5_codex_status_sync,
+                    b6_achievement_sync,
                     ui_probe_diagnostic,
                     ui_probe_tabs,
                 ),
@@ -1057,6 +1058,81 @@ fn spawn_palette_nodes(
                     }
                 });
             });
+
+        // 成就 Tab 内容（默认隐藏）
+        panel
+            .spawn((
+                Name::new("Achievements Tab"),
+                UiLayout::window()
+                    .pos((Rl(50.0), Rh(10.5)))
+                    .size((Rl(96.0), Rh(84.0)))
+                    .anchor(Anchor::TOP_CENTER)
+                    .pack(),
+                Pickable::IGNORE,
+                Visibility::Hidden,
+                TabAchievementsRoot,
+            ))
+            .with_children(|ac| {
+                ac.spawn((
+                    Name::new("Achievements Title"),
+                    Text2d::new("成就"),
+                    TextFont {
+                        font: font.clone(),
+                        font_size: FontSize::Px(20.0),
+                        ..default()
+                    },
+                    UiTextSize::from(Rh(3.0)),
+                    UiColor::new(vec![(UiBase::id(), theme.accent)]),
+                    UiLayout::window()
+                        .pos((Rl(4.0), Rh(2.0)))
+                        .anchor(Anchor::TOP_LEFT)
+                        .pack(),
+                    Pickable::IGNORE,
+                ));
+                for (i, (id, name, desc)) in achievement_defs().iter().enumerate() {
+                    let unlocked = collection.achievements.contains(*id);
+                    let card_mat = materials.add(ColorMaterial::from(theme.row_base));
+                    let y = 10.0 + i as f32 * 17.0;
+                    ac.spawn((
+                        Name::new(format!("ach_{id}")),
+                        UiLayout::window()
+                            .pos((Rl(50.0), Rh(y)))
+                            .size((Rl(94.0), Rh(14.5)))
+                            .anchor(Anchor::TOP_CENTER)
+                            .pack(),
+                        UiMeshPlane2d,
+                        MeshMaterial2d(card_mat),
+                        Pickable::IGNORE,
+                    ))
+                    .with_children(|card| {
+                        card.spawn((
+                            Name::new("ach_text"),
+                            Text2d::new(format!(
+                                "{}  {}\n{}",
+                                name,
+                                if unlocked { "✓" } else { "🔒" },
+                                desc
+                            )),
+                            TextFont {
+                                font: font.clone(),
+                                font_size: FontSize::Px(16.0),
+                                ..default()
+                            },
+                            UiTextSize::from(Rh(3.0)),
+                            UiColor::new(vec![(
+                                UiBase::id(),
+                                if unlocked { theme.accent } else { theme.text_main },
+                            )]),
+                            UiLayout::window()
+                                .pos((Rl(4.0), Rh(2.0)))
+                                .anchor(Anchor::TOP_LEFT)
+                                .pack(),
+                            Pickable::IGNORE,
+                            AchievementNameText(i),
+                        ));
+                    });
+                }
+            });
     });
 }
 
@@ -1240,6 +1316,43 @@ fn b2_theme_name_sync(
     }
     for mut t in &mut texts {
         t.0 = library.current_def().name.clone();
+    }
+}
+
+// ======================================================================
+// B6：成就 Tab（5 项状态）
+// ======================================================================
+
+/// 成就内容根标记
+#[derive(Component)]
+pub struct TabAchievementsRoot;
+
+/// 成就卡片文本（存成就索引 0..5）
+#[derive(Component)]
+pub struct AchievementNameText(pub usize);
+
+/// 成就状态同步：Collection 变化 → 成就卡片高亮 + 文本
+fn b6_achievement_sync(
+    collection: Res<Collection>,
+    theme: Res<LunexTheme>,
+    mut names: Query<(&AchievementNameText, &mut Text2d, &mut UiColor)>,
+) {
+    if !collection.is_changed() {
+        return;
+    }
+    for (row, mut t, mut color) in &mut names {
+        let (id, name, desc) = achievement_defs()[row.0];
+        let unlocked = collection.achievements.contains(id);
+        t.0 = format!(
+            "{}  {}\n{}",
+            name,
+            if unlocked { "✓" } else { "🔒" },
+            desc
+        );
+        *color = UiColor::new(vec![(
+            UiBase::id(),
+            if unlocked { theme.accent } else { theme.text_main },
+        )]);
     }
 }
 
@@ -1440,11 +1553,13 @@ fn lunex_tab_sync(
             Option<&TabBlocksRoot>,
             Option<&TabSavesRoot>,
             Option<&TabCodexRoot>,
+            Option<&TabAchievementsRoot>,
         ),
         Or<(
             With<TabBlocksRoot>,
             With<TabSavesRoot>,
             With<TabCodexRoot>,
+            With<TabAchievementsRoot>,
         )>,
     >,
     mut buttons: Query<(&TabButton, &mut UiSelected)>,
@@ -1452,10 +1567,11 @@ fn lunex_tab_sync(
     if !tab.is_changed() {
         return;
     }
-    for (mut v, blocks, saves, codex) in &mut contents {
+    for (mut v, blocks, saves, codex, achievements) in &mut contents {
         let visible = (blocks.is_some() && tab.0 == LunexTabId::Blocks)
             || (saves.is_some() && tab.0 == LunexTabId::Saves)
-            || (codex.is_some() && tab.0 == LunexTabId::Codex);
+            || (codex.is_some() && tab.0 == LunexTabId::Codex)
+            || (achievements.is_some() && tab.0 == LunexTabId::Achievements);
         *v = if visible {
             Visibility::Visible
         } else {
@@ -1938,6 +2054,8 @@ fn ui_probe_tabs(
     codex_rows: Query<(&CodexRow, &Visibility)>,
     codex_detail: Query<&Text2d, With<CodexDetailText>>,
     codex_vis: Query<&Visibility, With<TabCodexRoot>>,
+    ach_vis: Query<&Visibility, With<TabAchievementsRoot>>,
+    ach_texts: Query<(&AchievementNameText, &Text2d)>,
 ) {
     if std::env::var("PHOENIX_UI_PROBE").is_err() || *done || time.elapsed_secs() < 4.0 {
         return;
@@ -1963,6 +2081,17 @@ fn ui_probe_tabs(
     }
     for v in &codex_vis {
         info!("🧪 codex tab visible: {}", *v != Visibility::Hidden);
+    }
+    for v in &ach_vis {
+        info!("🧪 achievements tab visible: {}", *v != Visibility::Hidden);
+    }
+    let mut ach: Vec<_> = ach_texts
+        .iter()
+        .map(|(r, t)| (r.0, t.0.clone()))
+        .collect();
+    ach.sort_by_key(|(i, _)| *i);
+    for (i, t) in ach.iter().take(2) {
+        info!("🧪 achievement[{i}]: \"{}\"", t.split('\n').next().unwrap_or(""));
     }
 }
 
