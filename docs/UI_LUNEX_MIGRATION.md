@@ -130,7 +130,30 @@ Lunex 为保留模式、ECS 组件驱动、走 Bevy 自身渲染管线——上�
 4. **性能对比**（D3）— retained 模式应优于 egui 每帧重画，实测确认
 5. 迁移期间 egui 并行保留（feature 开关），B 完成后一键切换，风险可控
 
-## A 阶段实现记录（2026-09）
+## 修复记录：B5 图鉴行整屏色块 + 下拉深度（2026-09-03）
+
+**症状**：画面闪烁 / 大片同色覆盖看不清 / UI 互相压叠（图鉴 Tab 隐藏内容泄漏成
+整屏色块）。
+
+**根因 1（整屏色块/闪烁）**：图鉴（codex）行把 `UiMeshPlane2d` 与 `Text2d` 放在**同一实体**。
+lunex 的 `system_text_size_from_dimension` 会按文本排布缩放实体 `Transform`——
+文本与 mesh 同实体时，行 mesh 被放大成整屏大色块（锁定行 = text_dim 色、解锁行 =
+text_main 色），覆盖 3D 场景并随布局抖动 → 观感「闪烁 + 看不清 + 字体异常」。
+**修复**：文本改为行的**独立子节点**（与积木面板行同构），状态同步改查子节点
+`CodexNameText`。修复后离屏捕获：UI 布局正确、两帧 0.00% 差异（稳定）。
+
+**根因 2（下拉叠在列表上）**：主题/挑战下拉行与积木列表行同为 z=3（UiDepth 逐层 +1），
+同深度重叠透明四边形渲染顺序不定。**修复**：下拉行 `UiDepth::Add(2.0)`（z=4>3），
+打开时浮于列表之上。
+
+**附带**：UI 相机 `Msaa::Off`（2D 层无需抗锯齿；与 3D 相机共享窗口目标时 MSAA
+跨相机 load/resolve 在 Metal 上不稳，先关掉 2D 侧规避）。
+
+**诊断方法**：本机窗口截图读回全黑（B-21 平台性 bug）+ 常开离屏相机与 Screenshot
+读回竞态 → 改用**一次性激活**的离屏 2D 相机（截图帧激活/次帧停用）+ 最小 Sprite /
+Mesh2d 隔离测试确认 2D 管线本身正常，再逐块二分定位到 codex 行。
+
+
 
 - **lunex 0.7 API 要点**（对照 Bevypunk 验证）：
   - 2D UI 相机：独立 `Camera2d` + `Camera { clear_color: ClearColorConfig::None, order: 1 }`

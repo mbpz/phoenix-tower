@@ -386,6 +386,8 @@ fn spawn_palette_nodes(
                             (UiHover::id(), theme.row_hover),
                         ]),
                         UiHover::new().instant(true),
+                        // 下拉行深度 +2（> 列表行 z=3），打开时浮于列表之上
+                        UiDepth::Add(2.0),
                         UiMeshPlane2d,
                         MeshMaterial2d(row_material),
                         Visibility::Hidden,
@@ -605,6 +607,8 @@ fn spawn_palette_nodes(
                             (UiHover::id(), theme.row_hover),
                         ]),
                         UiHover::new().instant(true),
+                        // 下拉行深度 +2（> 列表行 z=3），打开时浮于列表之上
+                        UiDepth::Add(2.0),
                         UiMeshPlane2d,
                         MeshMaterial2d(row_material),
                         Visibility::Hidden,
@@ -1100,27 +1104,45 @@ fn spawn_palette_nodes(
                                 .anchor(Anchor::CENTER)
                                 .pack(),
                             UiColor::new(vec![
-                                (
-                                    UiBase::id(),
-                                    if unlocked { theme.text_main } else { theme.text_dim },
-                                ),
-                                (UiHover::id(), theme.text_main),
+                                (UiBase::id(), theme.row_base),
+                                (UiHover::id(), theme.row_hover),
                             ]),
                             UiHover::new().instant(true),
                             UiMeshPlane2d,
                             MeshMaterial2d(row_mat),
-                            Text2d::new(label),
-                            TextFont {
-                                font: font.clone(),
-                                font_size: FontSize::Px(18.0),
-                                ..default()
-                            },
-                            UiTextSize::from(Rh(52.0)),
                             CodexRow(i),
                         ))
                         .observe(hover_set::<Pointer<Over>, true>)
                         .observe(hover_set::<Pointer<Out>, false>)
-                        .observe(codex_row_click);
+                        .observe(codex_row_click)
+                        .with_children(|row| {
+                            // 文本必须为独立子节点：文本缩放作用于本实体 Transform，
+                            // 与 mesh 同实体会把行放大成整屏色块（B 修复）
+                            row.spawn((
+                                Name::new("codex_name"),
+                                Text2d::new(label),
+                                TextFont {
+                                    font: font.clone(),
+                                    font_size: FontSize::Px(18.0),
+                                    ..default()
+                                },
+                                UiTextSize::from(Rh(52.0)),
+                                UiColor::new(vec![(
+                                    UiBase::id(),
+                                    if unlocked {
+                                        theme.text_main
+                                    } else {
+                                        theme.text_dim
+                                    },
+                                )]),
+                                UiLayout::window()
+                                    .pos((Rl(6.0), Rl(50.0)))
+                                    .anchor(Anchor::CENTER_LEFT)
+                                    .pack(),
+                                Pickable::IGNORE,
+                                CodexNameText(i),
+                            ));
+                        });
                     }
                 });
             });
@@ -1598,6 +1620,10 @@ pub struct TabCodexRoot;
 #[derive(Component)]
 pub struct CodexRow(pub usize);
 
+/// 图鉴行文本（独立子节点；存积木索引）
+#[derive(Component)]
+pub struct CodexNameText(pub usize);
+
 /// 图鉴滚动偏移（行单位）
 #[derive(Resource, Default)]
 pub struct CodexScroll(pub f32);
@@ -1698,12 +1724,12 @@ fn b5_codex_status_sync(
     collection: Res<Collection>,
     library: Res<BlockLibrary>,
     theme: Res<LunexTheme>,
-    mut rows: Query<(&CodexRow, &mut Text2d, &mut UiColor)>,
+    mut names: Query<(&CodexNameText, &mut Text2d, &mut UiColor)>,
 ) {
     if !collection.is_changed() {
         return;
     }
-    for (row, mut t, mut color) in &mut rows {
+    for (row, mut t, mut color) in &mut names {
         if row.0 >= library.defs.len() {
             continue;
         }
@@ -2308,8 +2334,6 @@ fn ui_probe_tabs(
             .filter(|(_, v)| *v != Visibility::Hidden)
             .count();
         info!("🧪 codex rows: {} total / {vis} visible", codex_rows.iter().count());
-        let first: Vec<_> = codex_rows.iter().take(3).map(|(r, v)| (r.0, *v)).collect();
-        info!("🧪 codex first rows: {:?}", first);
     }
     for t in &codex_detail {
         info!("🧪 codex detail: \"{}\"", t.0);
@@ -2373,6 +2397,9 @@ fn spawn_ui_camera(mut commands: Commands) {
             order: 1,
             ..default()
         },
+        // MSAA Off：2D UI 无需抗锯齿；与 3D 相机共享窗口目标时，
+        // MSAA 跨相机 load/resolve 在 Metal 上会闪烁（见 diagnose 记录）
+        Msaa::Off,
         UiSourceCamera::<0>,
         Transform::from_translation(Vec3::Z * 1000.0),
     ));
