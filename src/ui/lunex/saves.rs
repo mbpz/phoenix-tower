@@ -61,8 +61,8 @@ pub(super) fn save_list_system(
             .collect::<Vec<_>>()
             .join("\n")
     };
-    for mut t in &mut texts {
-        t.0 = txt.clone();
+    for t in &mut texts {
+        t.map_unchanged(|t| &mut t.0).set_if_neq(txt.clone());
     }
 }
 
@@ -89,15 +89,17 @@ pub(super) fn path_input_system(
             }
         }
     }
-    for mut t in &mut texts {
-        t.0 = if input.value.is_empty() {
+    for t in &mut texts {
+        let value = if input.value.is_empty() {
             "输入路径…".to_string()
         } else {
             input.value.clone()
         };
+        t.map_unchanged(|t| &mut t.0).set_if_neq(value);
     }
-    for mut s in &mut boxes {
-        s.0 = if input.focused { 1.0 } else { 0.0 };
+    for s in &mut boxes {
+        s.map_unchanged(|s| &mut s.0)
+            .set_if_neq(if input.focused { 1.0 } else { 0.0 });
     }
 }
 

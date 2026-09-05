@@ -189,9 +189,21 @@ fn completion_autopilot_system(
 ) {
     if blueprint.completed && !*prev_completed {
         orbit.autopilot = Some(AutoPilot {
-            goal_yaw: 0.15,
-            goal_pitch: 0.55,
-            goal_distance: 40.0,
+            goal_yaw: if blueprint.def.id == "riverside" {
+                0.68
+            } else {
+                0.15
+            },
+            goal_pitch: if blueprint.def.id == "riverside" {
+                0.40
+            } else {
+                0.55
+            },
+            goal_distance: if blueprint.def.id == "riverside" {
+                28.0
+            } else {
+                40.0
+            },
         });
         info!("🎥 观赏视角已就位（移动鼠标接管）");
     }

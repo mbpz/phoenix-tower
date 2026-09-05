@@ -105,6 +105,8 @@ pub struct PlacedBlock;
 pub struct BlockId(pub String);
 
 fn setup_block_assets(
+    asset_server: Res<AssetServer>,
+    mode: Res<crate::riverside::RiversideMode>,
     mut commands: Commands,
     library: Res<BlockLibrary>,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -118,31 +120,75 @@ fn setup_block_assets(
     for def in &library.defs {
         let (w, h, d) = (def.size[0] as f32, def.size[1] as f32, def.size[2] as f32);
         // 程序化建筑网格（B-07 形制升级）：按积木 ID 选用对应几何
-        let mesh = meshes.add(match def.id.as_str() {
-            "hongzhu" | "hongzhu4" | "fangzhu" => {
-                crate::building::meshes::column(0.5, h * GRID, 10)
-            }
-            "dengzhu" => crate::building::meshes::column(0.22, h * GRID, 8),
-            "denglong" => crate::building::meshes::column(0.42, 0.7, 8),
-            "biane" => crate::building::meshes::plaque(),
-            "liuliwa" | "chuiwa" => crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.26),
-            "feiyan" | "qiaoshou" => crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.45),
-            "dougong" => crate::building::meshes::dougong_bracket(),
-            "louban" | "louban5" => {
-                crate::building::meshes::eave_slab(w * GRID, d * GRID, 0.5, 0.9)
-            }
-            "taiji" | "datiji" => crate::building::meshes::eave_slab(w * GRID, d * GRID, 0.5, 0.0),
-            "baoding" => crate::building::meshes::spire(0.9),
-            "jizhuanding" => crate::building::meshes::conical_roof(w * GRID, d * GRID, h * GRID, 8),
-            _ => Mesh::from(Cuboid::new(w * GRID, h * GRID, d * GRID)),
-        });
+        let model = crate::riverside::model_path(&def.id)
+            .filter(|_| mode.0)
+            .filter(|path| {
+                let exists = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("assets")
+                    .join(path)
+                    .is_file();
+                if !exists {
+                    warn!("Missing Blender model {path}; using procedural mesh");
+                }
+                exists
+            });
+        let mesh = if let Some(path) = model {
+            asset_server.load(
+                bevy::gltf::GltfAssetLabel::Primitive {
+                    mesh: 0,
+                    primitive: 0,
+                }
+                .from_asset(path),
+            )
+        } else {
+            meshes.add(match def.id.as_str() {
+                "hongzhu" | "hongzhu4" | "fangzhu" => {
+                    crate::building::meshes::column(0.5, h * GRID, 10)
+                }
+                "dengzhu" => crate::building::meshes::column(0.22, h * GRID, 8),
+                "denglong" => crate::building::meshes::column(0.42, 0.7, 8),
+                "biane" => crate::building::meshes::plaque(),
+                "liuliwa" | "chuiwa" => {
+                    crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.26)
+                }
+                "feiyan" | "qiaoshou" => {
+                    crate::building::meshes::sloped_tile(w * GRID, d * GRID, 0.45)
+                }
+                "dougong" => crate::building::meshes::dougong_bracket(),
+                "louban" | "louban5" => {
+                    crate::building::meshes::eave_slab(w * GRID, d * GRID, 0.5, 0.9)
+                }
+                "taiji" | "datiji" => {
+                    crate::building::meshes::eave_slab(w * GRID, d * GRID, 0.5, 0.0)
+                }
+                "baoding" => crate::building::meshes::spire(0.9),
+                "jizhuanding" | "jiangting_roof" => {
+                    crate::building::meshes::conical_roof(w * GRID, d * GRID, h * GRID, 8)
+                }
+                _ => Mesh::from(Cuboid::new(w * GRID, h * GRID, d * GRID)),
+            })
+        };
         let is_roof = matches!(
             def.id.as_str(),
-            "liuliwa" | "chuiwa" | "feiyan" | "qiaoshou" | "jizhuanding" | "baoding"
+            "liuliwa"
+                | "chuiwa"
+                | "feiyan"
+                | "qiaoshou"
+                | "jizhuanding"
+                | "baoding"
+                | "jiangting_roof"
         );
         let mat = materials.add(StandardMaterial {
-            base_color: Color::srgba(def.color[0], def.color[1], def.color[2], def.color[3]),
-            base_color_texture: if is_roof { Some(tile.clone()) } else { None },
+            base_color: if model.is_some() {
+                Color::WHITE
+            } else {
+                Color::srgba(def.color[0], def.color[1], def.color[2], def.color[3])
+            },
+            base_color_texture: if is_roof && model.is_none() {
+                Some(tile.clone())
+            } else {
+                None
+            },
             perceptual_roughness: if is_roof { 0.35 } else { 0.55 },
             ..default()
         });
@@ -356,9 +402,17 @@ pub(crate) fn top_block_index_at(records: &[PlacedRecord], col: (i32, i32)) -> O
 // ---------- 系统 ----------
 
 /// M 键切换蓝图模式（幽灵实体由 reconcile_blueprint_ghosts 对账生成/销毁）。
-fn toggle_blueprint(keys: Res<ButtonInput<KeyCode>>, mut blueprint: ResMut<Blueprint>) {
+fn toggle_blueprint(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut blueprint: ResMut<Blueprint>,
+    stack: Res<PlacedBlocks>,
+    library: Res<BlockLibrary>,
+) {
     if keys.just_pressed(KeyCode::KeyM) {
         blueprint.active = !blueprint.active;
+        if blueprint.active {
+            refresh_completion(&stack, &library, &mut blueprint);
+        }
     }
 }
 
@@ -379,9 +433,9 @@ pub(crate) fn spawn_blueprint_ghosts(
             Mesh3d(render.blueprint_unit_mesh.clone()),
             MeshMaterial3d(mat),
             Transform::from_translation(Vec3::new(
-                cell.x as f32 + 0.5,
+                cell.x as f32,
                 cell.y as f32 + 0.5,
-                cell.z as f32 + 0.5,
+                cell.z as f32,
             )),
             BlueprintGhost,
             Name::new(format!("BlueprintGhost:{}", id)),
@@ -694,6 +748,85 @@ pub(crate) fn refresh_completion(
 mod tests {
     use super::*;
     use crate::building::block_defs::load_block_library;
+
+    #[test]
+    fn blueprint_unit_ghost_uses_same_grid_origin_as_real_blocks() {
+        let library = load_block_library();
+        let mut app = App::new();
+        let (blueprint, _) = load_blueprint_library();
+        let cell = blueprint.cell_list[0];
+        app.insert_resource(blueprint)
+            .insert_resource(BlockRenderAssets {
+                per_def: Default::default(),
+                ghost_material: Handle::default(),
+                ghost_bad_material: Handle::default(),
+                blueprint_materials: Default::default(),
+                blueprint_unit_mesh: Handle::default(),
+            })
+            .add_systems(
+                Startup,
+                |mut commands: Commands, bp: Res<Blueprint>, render: Res<BlockRenderAssets>| {
+                    spawn_blueprint_ghosts(&mut commands, &bp, &render);
+                },
+            );
+        app.update();
+        let mut unit = library.defs[0].clone();
+        unit.size = [1, 1, 1];
+        let expected = block_center(cell, &unit, 0);
+        let mut query = app
+            .world_mut()
+            .query_filtered::<&Transform, With<BlueprintGhost>>();
+        assert!(query.iter(app.world()).any(|tf| tf.translation == expected));
+        assert!(query
+            .iter(app.world())
+            .all(|tf| tf.translation.x.fract() == 0.0 && tf.translation.z.fract() == 0.0));
+    }
+
+    #[test]
+    fn enabling_blueprint_refreshes_completion_after_free_edits() {
+        let mut app = App::new();
+        let (mut blueprint, _) = load_blueprint_library();
+        blueprint.completion = 1.0;
+        let mut keys = ButtonInput::<KeyCode>::default();
+        keys.press(KeyCode::KeyM);
+        app.insert_resource(blueprint)
+            .insert_resource(load_block_library())
+            .insert_resource(PlacedBlocks::default())
+            .insert_resource(keys)
+            .add_systems(Update, toggle_blueprint);
+        app.update();
+        let blueprint = app.world().resource::<Blueprint>();
+        assert!(blueprint.active);
+        assert!(blueprint.completion < 0.95);
+    }
+
+    #[test]
+    fn riverside_roof_snaps_back_without_overlapping_remaining_structure() {
+        let library = load_block_library();
+        let (_, themes) = load_blueprint_library();
+        let def = &library.defs[library.by_id["jiangting_roof"]];
+        let mut blueprint = crate::building::blueprint::blueprint_from_def(
+            themes.defs.iter().find(|d| d.id == "riverside").unwrap(),
+        );
+        blueprint.active = true;
+        let mut stack = PlacedBlocks::default();
+        stack.occupied.extend(
+            blueprint
+                .expected
+                .iter()
+                .filter(|(_, id)| id.as_str() != "jiangting_roof")
+                .map(|(cell, _)| *cell),
+        );
+        for rot in 0..4 {
+            for column in [(0, 0), (-3, -3), (3, 3)] {
+                let anchor = placement_anchor(column, def, rot, &stack, &blueprint).unwrap();
+                assert_eq!(anchor, IVec3::new(-3, 7, -3));
+                let cells = footprint_cells(anchor, def, rot);
+                assert!(cells.iter().all(|cell| !stack.occupied.contains(cell)));
+                assert!(footprint_matches(&blueprint.expected, &cells, &def.id));
+            }
+        }
+    }
 
     #[test]
     fn column_heights_follow_remaining_cells_after_removal() {

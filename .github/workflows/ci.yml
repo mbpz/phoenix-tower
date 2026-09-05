@@ -7,31 +7,47 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  # Bevy's optimized dependency builds otherwise exhaust small runner memory.
+  CARGO_BUILD_JOBS: 2
+  PYTHONUTF8: 1
 
 jobs:
   check:
-    name: cargo check
-    runs-on: ubuntu-latest
+    name: Rust and verifier (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
-      - run: cargo check
-
-  test:
-    name: cargo test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo test
-
-  clippy:
-    name: cargo clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo clippy -- -D warnings
+      - name: Install Linux Bevy dependencies
+        if: runner.os == 'Linux'
+        # Official build prerequisites, including default X11/Wayland backends:
+        # https://github.com/bevyengine/bevy/blob/main/docs/linux_dependencies.md
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            g++ pkg-config libx11-dev libasound2-dev libudev-dev \
+            libxkbcommon-x11-0 libwayland-dev libxkbcommon-dev
+      - name: Test runtime verifier without a GUI
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            python -B -m unittest discover -s tools -p 'test_*.py' -v
+          else
+            python3 -B -m unittest discover -s tools -p 'test_*.py' -v
+          fi
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Check all targets (locked)
+        run: cargo check --locked --all-targets
+      - name: Test all targets without a GUI (locked)
+        run: cargo test --locked --all-targets
+      - name: Strict Clippy (locked)
+        run: cargo clippy --locked --all-targets -- -D warnings

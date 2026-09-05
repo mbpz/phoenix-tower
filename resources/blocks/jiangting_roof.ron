@@ -1,0 +1,11 @@
+(
+    id: "jiangting_roof",
+    name: "江亭飞檐顶",
+    category: roof,
+    layer: "屋顶",
+    order: 36,
+    size: (7, 3, 7),
+    color: (0.76, 0.54, 0.20, 1.0),
+    snap: grid,
+    description: "江岸亭顶：七格四坡屋面，起翘檐角与金色瓦垄围合成微缩江亭。Blender 模型与积木占格保持一致。",
+)

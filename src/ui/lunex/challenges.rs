@@ -135,11 +135,13 @@ pub(super) fn b3_challenge_sync(challenge: Res<Challenge>, mut texts: ChallengeT
         ChallengeState::Failed => ("⏱ 失败（重试）".to_string(), "重试".to_string()),
         ChallengeState::Idle => ("未开始".to_string(), "开始".to_string()),
     };
-    for mut t in texts.p0() {
-        t.0 = status_line.clone();
+    for t in texts.p0() {
+        t.map_unchanged(|t| &mut t.0)
+            .set_if_neq(status_line.clone());
     }
-    for mut t in texts.p1() {
-        t.0 = button_label.clone();
+    for t in texts.p1() {
+        t.map_unchanged(|t| &mut t.0)
+            .set_if_neq(button_label.clone());
     }
 }
 

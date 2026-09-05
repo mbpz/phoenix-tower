@@ -175,5 +175,12 @@ Mesh2d 隔离测试确认 2D 管线本身正常，再逐块二分定位到 codex
 - **A3 门控**：`HoverMap`（bevy_picking，PreUpdate 更新）+ `Query<Entity, With<UiLayout>>`；
   放置/拆除系统在鼠标释放时若指针悬停于 UI 节点则跳过。UI 节点点击事件后续用
   `.observe(|_: On<Pointer<Click>>| ...)` + `hover_set::<Pointer<Over>, true>` 实现。
-- **CJK 字形警告**：`ICU4X data error: No segmentation model for Chinese/Japanese`
-  是 cosmic-text 分词模型的非致命告警，不影响字形渲染，忽略即可。
+- **CJK 分词诊断（根因修正）**：`ICU4X data error: No segmentation model for complex script: Chinese/Japanese`
+  来自锁定的 `bevy_text 0.19.1 → parley 0.9.0 → icu_segmenter 2.3.0` 链路，
+  不是 Text3d 使用的 cosmic-text。Parley 的 analysis 模块调用
+  `WordSegmenter::new_for_non_complex_scripts` / `LineSegmenter::new_for_non_complex_scripts`，
+  缺少中文/日文复杂分词模型，当前没有应用层替换入口。仅启用传递依赖 feature 不能替换构造器。
+  应用现已避免 HUD、路径输入和挑战标签重复写入相同文本，FPS 显示每 500ms 采样；
+  这减少了这些系统的不必要 Changed 通知，但**没有修复上游分词问题**。原生验证仍记录大量该诊断，
+  不能据此保证中文断行/分词质量或视为可以无条件忽略。保留原始 stderr，并在验证摘要单独计数；
+  后续需要受控的上游修复验证，详见 `docs/refactoring/risk-followup.md`。

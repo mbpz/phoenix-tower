@@ -48,6 +48,7 @@ fn spawn_hint(mut commands: Commands, asset_server: Res<AssetServer>) {
 }
 
 fn update_hint(
+    riverside: Option<Res<crate::riverside::RiversideMode>>,
     mut hint: Query<&mut Text, With<HintText>>,
     library: Res<BlockLibrary>,
     blueprint: Res<Blueprint>,
@@ -58,9 +59,11 @@ fn update_hint(
     stability: Res<StabilityTest>,
     locale: Res<Locale>,
     diagnostics: Res<DiagnosticsStore>,
+    time: Res<Time>,
+    mut fps_display: Local<Option<(f64, f64)>>,
 ) {
     let def = library.current_def();
-    let Ok(mut text) = hint.single_mut() else {
+    let Ok(text) = hint.single_mut() else {
         return;
     };
     let lang: Lang = locale.lang;
@@ -68,6 +71,15 @@ fn update_hint(
         .get(&FrameTimeDiagnosticsPlugin::FPS)
         .and_then(|d| d.value())
         .unwrap_or(0.0);
+    // FPS is informational: sample twice per second instead of reshaping the
+    // entire CJK hint on every diagnostic update. Gameplay state stays immediate.
+    let now = time.elapsed_secs_f64();
+    let (sampled_at, sampled_fps) = fps_display.get_or_insert((now, fps));
+    if now - *sampled_at >= 0.5 {
+        *sampled_at = now;
+        *sampled_fps = fps;
+    }
+    let fps = *sampled_fps;
     let mode = if blueprint.active {
         format!(
             "{}: {}  {} {:.0}%",
@@ -79,7 +91,14 @@ fn update_hint(
     } else {
         t("自由模式", "Free Build", lang).to_string()
     };
-    let tutorial_line = if tutorial.active {
+    let tutorial_line = if riverside.as_ref().is_some_and(|mode| mode.0) && !tutorial.active {
+        t(
+            "江岸亭：撤销屋顶 → M 开启蓝图 → 点击绿色目标重建；F5 保存",
+            "Riverside: undo roof > M for snap guide > click green target; F5 saves",
+            lang,
+        )
+        .to_string()
+    } else if tutorial.active {
         let label = match lang {
             Lang::Zh => &tutorial.steps[tutorial.step].label,
             Lang::En => &tutorial.steps[tutorial.step].label_en,
@@ -152,7 +171,7 @@ fn update_hint(
          F2:shot  F5:save  F6:JSON  F7:share  F8:import  F9:slot"
         }
     };
-    text.0 = format!(
+    let value = format!(
         "{keys_line}\n\
          {mode}\n\
          {block_label}: {name} [{cur}/{total}] ({layer}) {rot_label} {rot}°\n\
@@ -178,4 +197,108 @@ fn update_hint(
         blocks_label = t("积木", "blocks", lang),
         blocks = stack.records.len(),
     );
+    text.map_unchanged(|t| &mut t.0).set_if_neq(value);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::building::{
+        block_defs::load_block_library, blueprint::load_blueprint, challenge::load_challenge,
+    };
+    use bevy::diagnostic::{Diagnostic, DiagnosticMeasurement};
+    use std::time::Duration;
+
+    #[derive(Resource, Default)]
+    struct TextChanges(usize);
+
+    fn count_changes(texts: Query<(), Changed<Text>>, mut count: ResMut<TextChanges>) {
+        count.0 = texts.iter().count();
+    }
+
+    fn app() -> (App, Entity) {
+        let mut app = App::new();
+        app.insert_resource(load_block_library())
+            .insert_resource(load_blueprint())
+            .insert_resource(load_challenge())
+            .insert_resource(Tutorial {
+                active: false,
+                step: 0,
+                steps: vec![],
+            })
+            .init_resource::<PlacedBlocks>()
+            .init_resource::<RemoveMode>()
+            .init_resource::<StabilityTest>()
+            .init_resource::<Locale>()
+            .init_resource::<DiagnosticsStore>()
+            .init_resource::<Time>()
+            .init_resource::<TextChanges>()
+            .add_systems(Update, (update_hint, count_changes).chain());
+        let entity = app.world_mut().spawn((HintText, Text::new(""))).id();
+        (app, entity)
+    }
+
+    fn fps(app: &mut App, value: f64) {
+        let mut diagnostic = Diagnostic::new(FrameTimeDiagnosticsPlugin::FPS);
+        diagnostic.add_measurement(DiagnosticMeasurement {
+            time: bevy::platform::time::Instant::now(),
+            value,
+        });
+        app.world_mut()
+            .resource_mut::<DiagnosticsStore>()
+            .add(diagnostic);
+    }
+
+    #[test]
+    fn unchanged_hint_does_not_trigger_text_layout() {
+        let (mut app, entity) = app();
+        app.update();
+        let initial = app.world().get::<Text>(entity).unwrap().0.clone();
+        app.update();
+        assert_eq!(app.world().resource::<TextChanges>().0, 0);
+        assert_eq!(app.world().get::<Text>(entity).unwrap().0, initial);
+        app.world_mut().resource_mut::<Locale>().lang = Lang::En;
+        app.update();
+        assert_eq!(app.world().resource::<TextChanges>().0, 1);
+        assert!(app.world().get::<Text>(entity).unwrap().0.contains("Block"));
+    }
+
+    #[test]
+    fn fps_sampling_is_bounded_but_gameplay_feedback_is_immediate() {
+        let (mut app, entity) = app();
+        fps(&mut app, 60.0);
+        app.update();
+        assert!(app
+            .world()
+            .get::<Text>(entity)
+            .unwrap()
+            .0
+            .contains("FPS 60"));
+        fps(&mut app, 30.0);
+        app.world_mut()
+            .resource_mut::<Time>()
+            .advance_by(Duration::from_millis(100));
+        app.update();
+        assert_eq!(app.world().resource::<TextChanges>().0, 0);
+        app.world_mut().resource_mut::<BlockLibrary>().rotation = 1;
+        app.update();
+        assert_eq!(app.world().resource::<TextChanges>().0, 1);
+        assert!(app.world().get::<Text>(entity).unwrap().0.contains("90°"));
+        assert!(app
+            .world()
+            .get::<Text>(entity)
+            .unwrap()
+            .0
+            .contains("FPS 60"));
+        app.world_mut()
+            .resource_mut::<Time>()
+            .advance_by(Duration::from_millis(400));
+        app.update();
+        assert!(app
+            .world()
+            .get::<Text>(entity)
+            .unwrap()
+            .0
+            .contains("FPS 30"));
+    }
 }

@@ -27,10 +27,14 @@ impl Plugin for ScenePlugin {
 // ---------- 地形 ----------
 
 fn setup_ground(
+    mode: Res<crate::riverside::RiversideMode>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    if mode.0 {
+        return;
+    }
     // 青灰地面（蛇山基座所在平原）
     commands.spawn((
         Mesh3d(meshes.add(Plane3d::default().mesh().size(130.0, 130.0))),
@@ -46,10 +50,14 @@ fn setup_ground(
 
 /// 蛇山：三级青石台地堆叠（移出建造区作背景，正式地形 Phase 2 用高度图）。
 fn setup_snake_hill(
+    mode: Res<crate::riverside::RiversideMode>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    if mode.0 {
+        return;
+    }
     // (w, d, h, y_center, x_center) —— 山体中心 (-18, 14)，避开建造区
     let layers: [(f32, f32, f32, f32, f32); 3] = [
         (18.0, 18.0, 2.0, 1.0, -18.0),
@@ -73,10 +81,14 @@ fn setup_snake_hill(
 
 /// 长江：远景水面（与平原边缘相接，视觉上形成江岸）。
 fn setup_river(
+    mode: Res<crate::riverside::RiversideMode>,
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+    if mode.0 {
+        return;
+    }
     commands.spawn((
         Mesh3d(meshes.add(Plane3d::default().mesh().size(260.0, 160.0))),
         MeshMaterial3d(materials.add(StandardMaterial {
@@ -89,10 +101,15 @@ fn setup_river(
     ));
 }
 
-fn setup_sun(mut commands: Commands) {
+fn setup_sun(mut commands: Commands, mode: Res<crate::riverside::RiversideMode>) {
     commands.spawn((
         DirectionalLight {
-            illuminance: DAY_SUN,
+            illuminance: if mode.0 { 5000.0 } else { DAY_SUN },
+            color: if mode.0 {
+                Color::srgb(1.0, 0.90, 0.78)
+            } else {
+                Color::WHITE
+            },
             shadow_maps_enabled: true,
             ..default()
         },
@@ -120,6 +137,7 @@ const NIGHT_SKY: [f32; 3] = [0.03, 0.05, 0.13];
 const TRANSITION_SPEED: f32 = 0.4;
 
 fn day_night_system(
+    mode: Res<crate::riverside::RiversideMode>,
     keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
     mut sky: ResMut<SkyState>,
@@ -146,9 +164,9 @@ fn day_night_system(
     let lerp = |a: f32, b: f32| a + (b - a) * t;
 
     if let Ok(mut light) = sun.single_mut() {
-        light.illuminance = lerp(DAY_SUN, NIGHT_SUN);
+        light.illuminance = lerp(if mode.0 { 5000.0 } else { DAY_SUN }, NIGHT_SUN);
     }
-    ambient.brightness = lerp(DAY_AMB, NIGHT_AMB);
+    ambient.brightness = lerp(if mode.0 { 450.0 } else { DAY_AMB }, NIGHT_AMB);
     clear.0 = Color::srgb(
         lerp(DAY_SKY[0], NIGHT_SKY[0]),
         lerp(DAY_SKY[1], NIGHT_SKY[1]),

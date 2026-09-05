@@ -287,3 +287,48 @@ fn path_input_mirrors_placeholder_value_and_focus() {
     );
     assert_eq!(app.world().get::<UiSelected>(input_box).unwrap().0, 1.0);
 }
+
+#[derive(Resource, Default)]
+struct TextChangeCount(usize);
+
+fn count_changed_labels(texts: Query<(), Changed<Text2d>>, mut count: ResMut<TextChangeCount>) {
+    count.0 = texts.iter().count();
+}
+
+#[test]
+fn idle_path_input_does_not_dirty_text_every_frame() {
+    let mut app = App::new();
+    app.init_resource::<PathInput>()
+        .init_resource::<TextChangeCount>()
+        .add_message::<KeyboardInput>()
+        .add_systems(Update, (path_input_system, count_changed_labels).chain());
+    app.world_mut().spawn((PathInputText, Text2d::new("")));
+    app.update();
+    app.update();
+    assert_eq!(app.world().resource::<TextChangeCount>().0, 0);
+    app.world_mut().resource_mut::<PathInput>().value = "建筑.ptw".into();
+    app.update();
+    assert_eq!(app.world().resource::<TextChangeCount>().0, 1);
+}
+
+#[test]
+fn challenge_tick_without_display_change_does_not_dirty_labels() {
+    let mut challenge = load_challenge();
+    challenge.state = ChallengeState::Active;
+    challenge.time_left = 100.0;
+    let mut app = App::new();
+    app.insert_resource(challenge)
+        .init_resource::<TextChangeCount>()
+        .add_systems(Update, (b3_challenge_sync, count_changed_labels).chain());
+    app.world_mut()
+        .spawn((ChallengeStatusText, Text2d::new("")));
+    app.world_mut()
+        .spawn((ChallengeButtonText, Text2d::new("")));
+    app.update();
+    app.world_mut().resource_mut::<Challenge>().time_left = 99.9;
+    app.update();
+    assert_eq!(app.world().resource::<TextChangeCount>().0, 0);
+    app.world_mut().resource_mut::<Challenge>().time_left = 99.0;
+    app.update();
+    assert_eq!(app.world().resource::<TextChangeCount>().0, 1);
+}

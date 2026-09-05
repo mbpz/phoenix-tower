@@ -277,9 +277,17 @@ mod tests {
     #[test]
     fn library_loads_all_themes_sorted() {
         let (_bp, lib) = load_blueprint_library();
-        assert!(lib.defs.len() >= 3, "应加载全部主题包");
+        assert!(lib.defs.len() >= 4, "应加载全部主题包");
         let ids: Vec<&str> = lib.defs.iter().map(|d| d.id.as_str()).collect();
-        assert_eq!(ids, ["yellow_crane_tower", "tengwangge", "yueyanglou"]);
+        assert_eq!(
+            ids,
+            [
+                "yellow_crane_tower",
+                "tengwangge",
+                "yueyanglou",
+                "riverside"
+            ]
+        );
         // order 升序
         assert!(lib.defs.windows(2).all(|w| w[0].order <= w[1].order));
     }

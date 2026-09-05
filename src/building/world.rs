@@ -298,4 +298,62 @@ mod tests {
         assert!(!stack.redo(Entity::PLACEHOLDER));
         assert_eq!(stack.revision, 0);
     }
+
+    /// Data-path benchmark, not a GPU or physics benchmark. Timings are evidence,
+    /// not CI thresholds, so slow runners do not produce false correctness failures.
+    #[test]
+    #[ignore = "opt-in 50k editable-world benchmark; run with --ignored --nocapture"]
+    fn editable_world_50k_history_and_save_roundtrip() {
+        use std::time::Instant;
+        let mut world = World::new();
+        let mut stack = PlacedBlocks::default();
+        let start = Instant::now();
+        for index in 0..50_000 {
+            let anchor = IVec3::new(index % 250, 0, index / 250);
+            stack.place(PlacedRecord {
+                entity: world.spawn_empty().id(),
+                def_id: "hongzhu4".into(),
+                anchor,
+                rot: 0,
+                cells: (0..4).map(|y| anchor + IVec3::Y * y).collect(),
+            });
+        }
+        let place_ms = start.elapsed().as_secs_f64() * 1000.0;
+        assert_eq!(stack.records.len(), 50_000);
+        assert_eq!(stack.occupied.len(), 200_000);
+        assert_indexes(&stack);
+        let start = Instant::now();
+        for _ in 0..MAX_HISTORY {
+            let entity = stack.undo().unwrap().entity;
+            assert!(world.despawn(entity));
+        }
+        let undo_ms = start.elapsed().as_secs_f64() * 1000.0;
+        assert!(stack.undo().is_none());
+        assert_eq!(stack.records.len(), 49_980);
+        let start = Instant::now();
+        for _ in 0..MAX_HISTORY {
+            assert!(stack.redo(world.spawn_empty().id()));
+        }
+        let redo_ms = start.elapsed().as_secs_f64() * 1000.0;
+        assert_eq!(stack.records.len(), 50_000);
+        assert_indexes(&stack);
+        let start = Instant::now();
+        let blueprint = crate::building::blueprint::load_blueprint();
+        let save = crate::save::build_save(&stack, &blueprint, "free");
+        let bytes = crate::save::encode_bincode(&save).unwrap();
+        let restored = crate::save::decode_bincode(&bytes).unwrap();
+        let save_ms = start.elapsed().as_secs_f64() * 1000.0;
+        assert_eq!(restored.blocks.len(), 50_000);
+        assert_eq!(restored.meta.block_count, 50_000);
+        for (stored, record) in restored.blocks.iter().zip(&stack.records) {
+            assert_eq!(stored.id, record.def_id);
+            assert_eq!(
+                stored.cell,
+                (record.anchor.x, record.anchor.y, record.anchor.z)
+            );
+            assert_eq!(stored.rot_90, record.rot);
+            assert!(world.get_entity(record.entity).is_ok());
+        }
+        println!("EDITABLE_WORLD_BENCH blocks=50000 cells=200000 place_ms={place_ms:.2} undo20_ms={undo_ms:.2} redo20_ms={redo_ms:.2} save_roundtrip_ms={save_ms:.2} bytes={}", bytes.len());
+    }
 }

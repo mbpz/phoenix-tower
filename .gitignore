@@ -2,3 +2,6 @@
 .DS_Store
 *.log
 saves/
+
+# Python asset/verification tooling
+__pycache__/

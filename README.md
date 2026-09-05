@@ -53,7 +53,7 @@ PHOENIX_STRESS=50000 cargo run   # 压力模式：自动生成 5 万积木并每
 - [x] **挑战模式（B-16）**：多挑战（限时复原 300s / 极速复原 120s）+ 材料配额 + 限旋转；星级 = 时间充裕度（>50% 三星），C 键启动，配额贯穿撤销/重做
 - [x] **图鉴与成就（B-18）**：部件图鉴（35 种，蓝图放置解锁 + 文化描述）、5 项成就、进度持久化（`saves/progress.json`）
 - [x] **音频（B-19）**：放置碰撞音（按积木分类）、完成编钟、长江水声 + 风铃环境音（程序化生成，`tools/gen_audio.py` 可复现）
-- [x] **性能验证（B-20）**：实测 M1 集显 50k 积木 ~110 FPS（早前；后续受机器内存压力与 egui 面板影响降至 ~36，真实玩法场景不受影响）；**lunex 面板（2026-09 实测 ~58 FPS，retained 模式优于 egui 每帧重画）**；FPS/积木数 HUD + `PHOENIX_STRESS=<n>` 压力模式 + 集合扫描 revision 门控（ADR-007）
+- [x] **性能验证入口（B-20）**：FPS/积木数 HUD + `PHOENIX_STRESS=<n>` 渲染压力模式 + 集合扫描 revision 门控（ADR-007）。新增限时、预热、多点采样与完整日志脚本；历史单点 FPS 不作为当前性能承诺，渲染压力实体也不代表可编辑建筑或物理规模。实际结果与限制见 `docs/refactoring/risk-followup.md`。
 - [x] **截图导出（B-21）**：F2 一键 PNG（离屏渲染目标方案，规避 Metal swapchain 读回黑帧问题）
 - [x] **结构稳定性（B-17）**：avian3d 物理集成——G 键重力测试（存活率评分 + 星级）、X 键拆除模式（坍塌玩法闭环）、自动复原
 - [x] **主题包框架（B-24）**：多蓝图数据驱动（黄鹤楼/滕王阁/岳阳楼）+ 多挑战选择，面板下拉切换——新增主题只需加 RON 文件
@@ -62,7 +62,7 @@ PHOENIX_STRESS=50000 cargo run   # 压力模式：自动生成 5 万积木并每
 - [x] **积木旋转（PRD §3.1）**：R 键 90° 步进，footprint 互换贯穿放置/撤销/重做/存档/蓝图匹配
 - [x] **积木库与形制（B-07）**：35 种积木 + **程序化建筑网格**（圆柱柱础/攒尖顶/八角檐板/斗拱/坡瓦/宝顶/匾额板 + 琉璃瓦勾缝纹理）
 - [x] **场景氛围（B-13）**：蛇山/长江 + 昼夜切换 + 距离雾 + 夜景灯笼辉光与点光源 + 程序化音效
-- [x] 编译零警告 + `cargo test` 全绿（52 例）+ 冒烟测试通过（稳定运行无 panic）
+- [x] 本机严格 Clippy 零警告 + Rust 回归测试 + 限时原生冒烟；具体数量、执行证据和已知中文诊断见风险验收记录。跨平台 CI 配置不等于远端已执行通过。
 - [x] 技术决策记录（ADR-001~007）与评审修订落地
 
 ## 代码结构
@@ -99,8 +99,8 @@ assets/
 ├── fonts/                  # CJK 子集字体（B-10）
 └── audio/                  # 程序化生成音效（tools/gen_audio.py）
 resources/
-├── blocks/                 # 积木定义（35 个 .ron，新增积木只需加文件）
-├── blueprints/             # 蓝图（3 主题：黄鹤楼 331 格/滕王阁/岳阳楼）
+├── blocks/                 # 积木定义（36 个 .ron，新增积木只需加文件）
+├── blueprints/             # 蓝图（4 主题：黄鹤楼 331 格/滕王阁/岳阳楼/江岸亭）
 └── challenges/             # 挑战（限时复原/极速复原）
 docs/
 ├── PRD.md                  # 产品方案（原文）
@@ -119,6 +119,34 @@ docs/
 
 计划与验收记录见 `docs/refactoring/2026-09-05-core.md`。本轮不更换引擎、不添加依赖、不重做美术。
 
+## 可复现的风险验证
+
+```bash
+cargo test --locked
+cargo clippy --locked --all-targets -- -D warnings
+cargo fmt --all -- --check
+python3 -B -m unittest discover -s tools -p 'test_verify_runtime.py' -v
+
+# 无窗口的 50k 可编辑建筑数据测试（含 20 次撤销/重做及存档往返）
+cargo test --locked editable_world_50k_history_and_save_roundtrip -- --ignored --nocapture
+
+# 独立构建原生程序；下列运行需要桌面/GPU，不在无窗口 CI 自动执行
+cargo build --locked --profile test
+python3 tools/verify_runtime.py --load saves/verify_plaque.ptw --screenshot
+python3 tools/verify_runtime.py --stress 10000 --warmup 10 --duration 30 --timeout 150
+```
+
+`verify_plaque.ptw` 由 Rust 存档测试生成。Windows 使用 `python`；其他平台通常使用 `python3`。
+工具默认在 `saves/verification/` 新建唯一结果目录，保留 `runtime.log`、`summary.json` 和可选新截图；
+可以用 `--output-dir` 指定目录。达到观察时长或超时后仅终止自己启动的进程，不发送保存按键。
+`--load`/`--screenshot` 不可与压力模式混用；运行中不要操作游戏或同时运行另一截图进程。
+已知 ICU 分词诊断单独计数，其他识别到的错误、意外退出、缺少 UI/导入/截图/压力采样证据均判失败。
+FPS 按日志生产时间划分窗口，避免积压日志混入预热后的采样；压力采样必须包含有效时间戳。
+“通过”指验证流程和存活检查通过，**不是性能达标或中文排版已完全正确**。
+
+CI 对 Linux/macOS/Windows 执行 locked 检查、无窗口测试、Clippy、格式和 Python 工具测试；
+本机验证不替代远端 CI、真实平台 GPU 测试或人工完整试玩。
+
 ## 路线图
 
 | 阶段 | 内容 | 状态 |
@@ -127,6 +155,51 @@ docs/
 | Phase 1 | MVP：积木库/蓝图/UI/存档/完成度/教程 | ✅ 完成 |
 | Phase 2 | 自由创造/挑战/物理/性能/截图 | ✅ 完成 |
 | Phase 3 | 分享/主题包/多语言/形制升级 | ✅ 自动项完成（Web 决策待人工） |
-| 待人工 | 试玩验收（ACCEPTANCE.md）/ B-26 Web 决策 / 美术 glTF | ⏳ |
+| 待人工 | 试玩验收（ACCEPTANCE.md）/ B-26 Web 决策 / 全量美术与跨平台 glTF | ⏳ |
 
 详见 `docs/BACKLOG.md` 与 `docs/RELEASE_READINESS.md`。
+
+
+## Blender 江岸亭：可编辑 3D 样板
+
+![Bevy 原生运行截图：江岸亭](docs/images/riverside.png)
+
+*实际游戏的离屏 3D 截图，不含 UI；不是 Blender 效果图。*
+
+```bash
+# 默认启动仍是原教程；显式选择样板，不需要安装 Blender 即可玩
+cargo run --locked --profile test -- --riverside
+# 或先 cargo build --locked --profile test，再运行：
+./target/debug/phoenix-tower --riverside
+```
+
+样板由 **8 个真实积木**组成：石台、四根朱柱、两根梁枋、七格飞檐顶，不是整栋静态模型。
+首次进入自由模式并选中亭顶；**Backspace 撤销屋顶 → M 打开蓝图 → 把绿色预览移到亭子上点击重建**。
+也可 Ctrl/Cmd+Y 重做，左拖环绕、右拖平移、滚轮缩放，T 切换昼夜，F2 截图，F5 保存。
+加载自己保存的 `.ptw` 继续编辑时，保持 `--riverside` 启动后使用原来的存档面板；初始化不会自动写任何存档。
+如果同时指定 `PHOENIX_LOAD` 或 `PHOENIX_STRESS`，导入/压力模式优先，样板不会填充世界。
+
+- 六种 Blender 模型：大台基、高朱柱、梁枋、楼板、斗拱、江亭顶。楼板/斗拱可从原积木面板单独选择。
+- 高细节模型只在 `--riverside` 启用；普通与压力模式继续使用轻量程序化网格。缺少 GLB 文件时有带警告的程序化回退。
+- 一个模型只有一个 mesh/primitive，使用顶点颜色，无外部贴图、无新增依赖、无逐积木场景树。
+- 模型尺寸与占格一致，放置/撤销/重做/拆除/存档仍走同一数据路径，存档格式保持 v1。
+- 新增短暂装配光环，最多响应同帧 16 个新积木，0.45 秒回收；不改变积木或碰撞体的变换。
+- 江面、石岸、远山、松树是背景，不参与占格或物理。当前没有行走、游泳或水面物理。
+
+### 重建模型与验证
+
+源文件及导出位于 `assets/models/riverside/`；`riverside.blend` 可直接用 Blender 打开编辑。
+脚本会覆盖自己生成的同名资产；手工修改源场景前请另存副本。
+
+```bash
+# 仅美术重新生成时才需要本机 Blender（以下为 macOS 路径）
+/Applications/Blender.app/Contents/MacOS/Blender --background --factory-startup \
+  --python tools/build_riverside_assets.py -- --output assets/models/riverside
+
+# 直接检查已提交的 GLB，无需 Blender 或额外 Python 包
+python3 -B -m unittest discover -s tools -p 'test_*.py' -v
+# 原生样板/UI/截图冒烟，不写入存档槽位
+python3 -B tools/verify_runtime.py --riverside --screenshot
+```
+
+设计边界、验证与尚未覆盖的风险见 `docs/design/riverside-slice.md`。
