@@ -13,7 +13,7 @@
 ```bash
 cargo run          # 开发模式运行（首次编译 Bevy 需 5-15 分钟）
 cargo check        # 快速编译检查
-cargo test         # 单元测试（29 例）
+cargo test         # 单元与无窗口 ECS 回归测试
 PHOENIX_STRESS=50000 cargo run   # 压力模式：自动生成 5 万积木并每 2s 采样 FPS
 ```
 
@@ -79,7 +79,9 @@ src/
 │   ├── challenge.rs        # 挑战：配额/星级/多挑战
 │   ├── collection.rs       # 图鉴成就 + 知识卡片
 │   ├── meshes.rs           # 程序化建筑网格（攒尖顶/圆柱/斗拱等）
-│   ├── placement.rs        # 三维射线放置 + 幽灵预览 + 蓝图模式
+│   ├── placement.rs        # 三维射线放置 + 幽灵预览 + 玩法编排
+│   ├── world.rs            # 完整建筑、占用索引与独立的 20 步撤销历史
+│   ├── decorations.rs      # 灯笼/匾额子实体生命周期（每个父积木只挂载一次）
 │   └── tutorial.rs         # 新手教程
 ├── camera/orbit_camera.rs  # 轨道相机 + 观赏视角 + 距离雾
 ├── scene/mod.rs            # 主场景：蛇山/长江/昼夜/雾
@@ -91,7 +93,8 @@ src/
 ├── i18n.rs                 # 中/英切换
 └── ui/
     ├── hud.rs              # HUD 提示（右下角）
-    └── lunex.rs            # Bevy-Lunex 面板（B1-B8）：积木/蓝图/挑战/存档/图鉴/成就 + 知识卡片 + 滑杆
+    ├── lunex.rs            # Bevy-Lunex 插件注册与兼容导出
+    └── lunex/              # layout / palette / saves / challenges / collection / probes / tests
 assets/
 ├── fonts/                  # CJK 子集字体（B-10）
 └── audio/                  # 程序化生成音效（tools/gen_audio.py）
@@ -105,6 +108,16 @@ docs/
 ├── BACKLOG.md              # 垂直切片任务清单（B-01 ~ B-27）
 └── adr/                    # 架构决策记录（6 篇）
 ```
+
+## 核心重构：建筑数据与 UI 职责分离
+
+- **建筑不再受 20 块上限限制**：20 仅限制可撤销的最近放置次数，较早积木继续保留在场景、完成度和存档中。
+- **统一数据变更**：放置、撤销、重做、拆除、导入、挑战重置统一维护占用索引与 revision；重力测试复原同步更新撤销实体引用。
+- **读档开启新编辑会话**：保留全部导入积木，但清空上一个世界的撤销/重做历史；`.ptw` v1 格式不变。
+- **装饰只挂载一次**：灯笼光源和匾额文字不再随无关建筑变化重复生成，压力测试积木继续排除。
+- **UI 按功能拆分**：布局、积木/蓝图、存档、挑战、图鉴和诊断独立维护，保留现有布局与交互。
+
+计划与验收记录见 `docs/refactoring/2026-09-05-core.md`。本轮不更换引擎、不添加依赖、不重做美术。
 
 ## 路线图
 

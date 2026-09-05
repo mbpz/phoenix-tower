@@ -5,19 +5,20 @@
 //! - 三维堆叠：光标列上按「列顶高度」落位，可向上建造多层；
 //! - 蓝图模式（M 键）：幽灵蓝图 + 严格吸附——仅当放置块 footprint 与蓝图
 //!   期望完全一致才允许放置（幽灵红/绿反馈），完成度实时计算（ADR-005）；
-//! - 撤销栈保留（Phase 1 完整版替换为 Command 模式 ≥20 步）。
+//! - 完整建筑与 20 步撤销历史独立维护（见 world 模块）。
 
 use bevy::pbr::{MeshMaterial3d, StandardMaterial};
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
-use bevy_rich_text3d::{Text3d, Text3dStyling, TextAlign, TextAnchor, TextAtlas};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use super::block_defs::{load_block_library, BlockDef, BlockLibrary};
 use super::blueprint::{
     compute_completion, footprint_matches, load_blueprint_library, Blueprint, BlueprintGhost,
 };
 use super::challenge::Challenge;
+use super::decorations::attach_block_decorations;
+pub use super::decorations::{LanternLight, PlaqueText};
 use crate::audio::{play_placement_sound, sound_kind_for, AudioAssets};
 use crate::stability::RemoveMode;
 
@@ -38,8 +39,7 @@ impl Plugin for PlacementPlugin {
                 (
                     toggle_blueprint,
                     reconcile_blueprint_ghosts,
-                    reconcile_lantern_lights,
-                    reconcile_plaque_text,
+                    attach_block_decorations,
                     select_block,
                     update_ghost_preview,
                     handle_place_and_undo,
@@ -55,8 +55,6 @@ const GRID: f32 = 1.0;
 const CLICK_DRAG_THRESHOLD: f32 = 10.0;
 /// 蓝图模式 y 扫描上限（防失控循环）
 const MAX_BLUEPRINT_Y: i32 = 64;
-/// 撤销历史上限（PRD §3.2：撤销/重做至少 20 步）
-const MAX_HISTORY: usize = 20;
 
 /// 幽灵蓝图透明度（B-10 打磨：面板滑杆实时调节）。
 #[derive(Resource)]
@@ -84,36 +82,8 @@ pub struct BlockRenderAssets {
     pub blueprint_unit_mesh: Handle<Mesh>,
 }
 
-/// 已放置积木：撤销历史 + 重做栈 + 占用集合 + 列顶高度（ADR-005 O(1) 查重）。
-///
-/// Command 模式（PRD §4.4）：放置即一条命令记录；撤销（Backspace / Ctrl+Z）
-/// 移入重做栈，重做（Ctrl+Y）重新执行（重建实体）。历史上限 MAX_HISTORY，
-/// 超限时丢弃最旧记录（同时销毁其实体）。
-#[derive(Resource, Default)]
-pub struct PlacedBlocks {
-    /// 撤销历史（最近 MAX_HISTORY 条放置记录）
-    pub records: Vec<PlacedRecord>,
-    /// 重做栈（记录实体已销毁，重做时重建）
-    pub redo: Vec<PlacedRecord>,
-    pub occupied: HashSet<IVec3>,
-    /// (x, z) → 该列当前最高已占用行 + 1（即下一层落位高度）
-    pub col_top: HashMap<(i32, i32), i32>,
-    /// 世界变更版本号：放置/撤销/重做/读档/清空时递增，
-    /// 供集合扫描等 O(n) 系统做增量门控（B-20 性能优化）
-    pub revision: u64,
-}
-
-/// 一条放置记录（撤销栈元素）。
-pub struct PlacedRecord {
-    pub entity: Entity,
-    pub def_id: String,
-    /// 锚点格（footprint 左上角，含 y）
-    pub anchor: IVec3,
-    /// 旋转（90°×rot）
-    pub rot: u8,
-    /// 占用格（3D）
-    pub cells: Vec<IVec3>,
-}
+// 兼容既有调用路径；数据变更集中在 world 模块。
+pub use super::world::{PlacedBlocks, PlacedRecord};
 
 /// 点击状态：用于点击 vs 拖拽消歧。
 #[derive(Resource, Default)]
@@ -208,14 +178,18 @@ fn setup_block_assets(
 
 // ---------- 几何与匹配辅助 ----------
 
+type PlacementCameras<'w, 's> = Query<
+    'w,
+    's,
+    (&'static Camera, &'static GlobalTransform),
+    (With<Camera3d>, Without<crate::screenshot::CaptureCamera>),
+>;
+
 /// 鼠标位置 → y=0 地面上的列 (x, z)。
 /// 排除离屏截图相机（B-21 引入的第二个 Camera3d），否则 single() 会因多匹配失效。
 fn cursor_column(
     windows: &Query<&Window, With<PrimaryWindow>>,
-    cameras: &Query<
-        (&Camera, &GlobalTransform),
-        (With<Camera3d>, Without<crate::screenshot::CaptureCamera>),
-    >,
+    cameras: &PlacementCameras<'_, '_>,
 ) -> Option<(i32, i32)> {
     let window = windows.single().ok()?;
     let cursor = window.cursor_position()?;
@@ -345,18 +319,6 @@ fn placement_anchor(
     }
 }
 
-/// 由放置记录重建「列顶高度」映射（撤销后使用）。
-pub(crate) fn rebuild_col_top_mut(stack: &mut PlacedBlocks) {
-    let mut col_top: HashMap<(i32, i32), i32> = HashMap::new();
-    for record in &stack.records {
-        for cell in &record.cells {
-            let entry = col_top.entry((cell.x, cell.z)).or_insert(0);
-            *entry = (*entry).max(cell.y + 1);
-        }
-    }
-    stack.col_top = col_top;
-}
-
 /// 生成积木实体（放置/重做/读档/复原共用）。
 pub(crate) fn spawn_block_entity(
     commands: &mut Commands,
@@ -483,10 +445,7 @@ fn update_ghost_preview(
     mut commands: Commands,
     time: Res<Time>,
     windows: Query<&Window, With<PrimaryWindow>>,
-    cameras: Query<
-        (&Camera, &GlobalTransform),
-        (With<Camera3d>, Without<crate::screenshot::CaptureCamera>),
-    >,
+    cameras: PlacementCameras<'_, '_>,
     mut ghost: Query<
         (
             Entity,
@@ -562,107 +521,6 @@ fn update_ghost_preview(
     }
 }
 
-/// 灯笼光源标记（点光源子实体）
-#[derive(Component)]
-pub struct LanternLight;
-
-/// 灯笼光源对账：每个已放置的灯笼自动挂一个点光源子实体
-/// （随积木移动；积木销毁时子实体随之销毁，无需手动清理）。
-fn reconcile_lantern_lights(
-    mut commands: Commands,
-    stack: Res<PlacedBlocks>,
-    mut last_revision: Local<u64>,
-    blocks: Query<
-        (Entity, &BlockId),
-        (
-            With<PlacedBlock>,
-            Without<LanternLight>,
-            Without<crate::stress::StressBlock>,
-        ),
-    >,
-) {
-    // revision 门控（B-20）：世界未变更时跳过全量扫描（压力测试 5 万实体关键）
-    if *last_revision == stack.revision {
-        return;
-    }
-    *last_revision = stack.revision;
-    for (entity, id) in &blocks {
-        if id.0 == "denglong" {
-            commands.entity(entity).with_children(|parent| {
-                parent.spawn((
-                    PointLight {
-                        intensity: 0.0, // 强度由昼夜系统驱动
-                        color: Color::srgb(1.0, 0.72, 0.45),
-                        range: 4.0,
-                        ..default()
-                    },
-                    LanternLight,
-                ));
-            });
-        }
-    }
-}
-
-/// 匾额文字标记
-#[derive(Component)]
-pub struct PlaqueText;
-
-/// 匾额题字对账：已放置的匾额自动挂 Text3d「黄鹤楼」（CJK 字体）。
-fn reconcile_plaque_text(
-    mut commands: Commands,
-    mut material: Local<Option<Handle<StandardMaterial>>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    stack: Res<PlacedBlocks>,
-    mut last_revision: Local<u64>,
-    blocks: Query<
-        (Entity, &BlockId),
-        (
-            With<PlacedBlock>,
-            Without<PlaqueText>,
-            Without<crate::stress::StressBlock>,
-        ),
-    >,
-) {
-    // revision 门控（B-20）
-    if *last_revision == stack.revision {
-        return;
-    }
-    *last_revision = stack.revision;
-    if material.is_none() {
-        *material = Some(materials.add(StandardMaterial {
-            base_color_texture: Some(TextAtlas::DEFAULT_IMAGE.clone()),
-            alpha_mode: AlphaMode::Blend,
-            ..default()
-        }));
-    }
-    let Some(material) = material.as_ref() else {
-        return;
-    };
-    for (entity, id) in &blocks {
-        if id.0 == "biane" {
-            commands.entity(entity).with_children(|parent| {
-                // C1：世界空间匾额文字（bevy_rich_text3d / cosmic-text，CJK 子集字体
-                // 经 LoadFonts 注入；A2 已验证）。Text3d 须自带 Mesh3d + 材质。
-                parent.spawn((
-                    Text3d::new("黄鹤楼"),
-                    Text3dStyling {
-                        size: 0.55,
-                        font: "Noto Sans CJK SC".into(),
-                        color: bevy::color::Srgba::new(0.95, 0.85, 0.40, 1.0),
-                        align: TextAlign::Center,
-                        anchor: TextAnchor::CENTER,
-                        ..default()
-                    },
-                    Mesh3d::default(),
-                    MeshMaterial3d(material.clone()),
-                    Transform::from_xyz(0.0, 0.0, 0.05),
-                    PlaqueText,
-                ));
-            });
-        }
-    }
-}
-
 /// 放置与撤销/重做（Command 模式，PRD §4.4）：
 /// - 撤销：Backspace 或 Ctrl/Cmd+Z —— 移除最后一次放置，移入重做栈
 /// - 重做：Ctrl/Cmd+Y —— 重建上次撤销的积木
@@ -671,10 +529,7 @@ fn handle_place_and_undo(
     mut commands: Commands,
     mut click: ResMut<ClickState>,
     windows: Query<&Window, With<PrimaryWindow>>,
-    cameras: Query<
-        (&Camera, &GlobalTransform),
-        (With<Camera3d>, Without<crate::screenshot::CaptureCamera>),
-    >,
+    cameras: PlacementCameras<'_, '_>,
     library: Res<BlockLibrary>,
     render: Res<BlockRenderAssets>,
     audio: Res<AudioAssets>,
@@ -695,18 +550,12 @@ fn handle_place_and_undo(
 
     // 撤销
     if keys.just_pressed(KeyCode::Backspace) || (modifier && keys.just_pressed(KeyCode::KeyZ)) {
-        if let Some(record) = stack.records.pop() {
-            for c in &record.cells {
-                stack.occupied.remove(c);
-            }
-            rebuild_col_top_mut(&mut stack);
+        if let Some(record) = stack.undo() {
             commands.entity(record.entity).despawn();
             // 挑战配额退返
             if challenge.is_active() {
                 challenge.refund(&record.def_id);
             }
-            stack.redo.push(record);
-            stack.revision += 1;
             if blueprint.active {
                 refresh_completion(&stack, &library, &mut blueprint);
             }
@@ -721,8 +570,7 @@ fn handle_place_and_undo(
             .last()
             .is_none_or(|r| !challenge.is_active() || challenge.can_place(&r.def_id));
         if can_redo {
-            if let Some(record) = stack.redo.pop() {
-                let def = &library.defs[library.by_id[&record.def_id]];
+            if let Some(record) = stack.redo.last() {
                 let entity = spawn_block_entity(
                     &mut commands,
                     &library,
@@ -731,25 +579,10 @@ fn handle_place_and_undo(
                     record.anchor,
                     record.rot,
                 );
-                for c in &record.cells {
-                    stack.occupied.insert(*c);
-                }
-                let h = def.size[1] as i32;
-                for (x, z) in footprint_columns(def, record.anchor.x, record.anchor.z, record.rot) {
-                    let top = stack.col_top.entry((x, z)).or_insert(0);
-                    *top = (*top).max(record.anchor.y + h);
-                }
                 if challenge.is_active() {
                     challenge.consume(&record.def_id);
                 }
-                stack.records.push(PlacedRecord {
-                    entity,
-                    def_id: record.def_id.clone(),
-                    anchor: record.anchor,
-                    rot: record.rot,
-                    cells: record.cells.clone(),
-                });
-                stack.revision += 1;
+                stack.redo(entity);
                 if blueprint.active {
                     refresh_completion(&stack, &library, &mut blueprint);
                 }
@@ -784,13 +617,8 @@ fn handle_place_and_undo(
                 // 拆除模式：移除光标列最顶部的积木
                 if remove.active {
                     if let Some(idx) = top_block_index_at(&stack.records, col) {
-                        let record = stack.records.remove(idx);
-                        for c in &record.cells {
-                            stack.occupied.remove(c);
-                        }
-                        rebuild_col_top_mut(&mut stack);
+                        let record = stack.remove(idx);
                         commands.entity(record.entity).despawn();
-                        stack.revision += 1;
                         if blueprint.active {
                             refresh_completion(&stack, &library, &mut blueprint);
                         }
@@ -815,18 +643,10 @@ fn handle_place_and_undo(
                             anchor,
                             rot,
                         );
-                        for c in &cells {
-                            stack.occupied.insert(*c);
-                        }
-                        let (ax, az) = (anchor.x, anchor.z);
-                        for (x, z) in footprint_columns(def, ax, az, rot) {
-                            let top = stack.col_top.entry((x, z)).or_insert(0);
-                            *top = (*top).max(anchor.y + def.size[1] as i32);
-                        }
                         if challenge.is_active() {
                             challenge.consume(&def.id);
                         }
-                        stack.records.push(PlacedRecord {
+                        stack.place(PlacedRecord {
                             entity,
                             def_id: def.id.clone(),
                             anchor,
@@ -837,25 +657,6 @@ fn handle_place_and_undo(
 
                         // 放置音效（B-19）：按积木分类
                         play_placement_sound(&mut commands, &audio, sound_kind_for(&def.category));
-
-                        // 新放置清空重做栈（标准撤销/重做语义）
-                        stack.redo.clear();
-
-                        // 历史上限：超限丢弃最旧记录（销毁其实体）
-                        let mut dropped = false;
-                        while stack.records.len() > MAX_HISTORY {
-                            let oldest = stack.records.remove(0);
-                            for c in &oldest.cells {
-                                stack.occupied.remove(c);
-                            }
-                            commands.entity(oldest.entity).despawn();
-                            dropped = true;
-                        }
-                        if dropped {
-                            // 丢弃最旧后列顶可能失效，重建（O(n)，低频）
-                            rebuild_col_top_mut(&mut stack);
-                        }
-                        stack.revision += 1;
 
                         if blueprint.active {
                             refresh_completion(&stack, &library, &mut blueprint);
@@ -893,6 +694,112 @@ pub(crate) fn refresh_completion(
 mod tests {
     use super::*;
     use crate::building::block_defs::load_block_library;
+
+    #[test]
+    fn column_heights_follow_remaining_cells_after_removal() {
+        let mut stack = PlacedBlocks::default();
+        stack.place(PlacedRecord {
+            entity: Entity::PLACEHOLDER,
+            def_id: "test".into(),
+            anchor: IVec3::ZERO,
+            rot: 0,
+            cells: vec![IVec3::ZERO, IVec3::Y, IVec3::new(1, 0, 0)],
+        });
+        assert_eq!(stack.col_top.get(&(0, 0)), Some(&2));
+        assert_eq!(stack.col_top.get(&(1, 0)), Some(&1));
+        stack.clear();
+        assert!(stack.col_top.is_empty());
+    }
+
+    fn history_input_app() -> App {
+        let mut app = App::new();
+        let library = load_block_library();
+        let def = &library.defs[library.by_id["taiji"]];
+        let entity = app.world_mut().spawn(PlacedBlock).id();
+        let mut stack = PlacedBlocks::default();
+        let cells = footprint_cells(IVec3::ZERO, def, 0);
+        stack.place(PlacedRecord {
+            entity,
+            def_id: "taiji".into(),
+            anchor: IVec3::ZERO,
+            rot: 0,
+            cells,
+        });
+        let mut blueprint = crate::building::blueprint::load_blueprint();
+        blueprint.active = false;
+        let mut challenge = crate::building::challenge::load_challenge();
+        challenge.state = crate::building::challenge::ChallengeState::Active;
+        challenge.quota_left.insert("taiji".into(), 0);
+        app.insert_resource(stack)
+            .insert_resource(library)
+            .insert_resource(blueprint)
+            .insert_resource(challenge)
+            .insert_resource(BlockRenderAssets {
+                per_def: [("taiji".into(), (Handle::default(), Handle::default()))].into(),
+                ghost_material: Handle::default(),
+                ghost_bad_material: Handle::default(),
+                blueprint_materials: Default::default(),
+                blueprint_unit_mesh: Handle::default(),
+            })
+            .insert_resource(AudioAssets {
+                place_wood: Handle::default(),
+                place_stone: Handle::default(),
+                bell_chime: Handle::default(),
+            })
+            .init_resource::<ClickState>()
+            .init_resource::<RemoveMode>()
+            .init_resource::<ButtonInput<KeyCode>>()
+            .init_resource::<ButtonInput<MouseButton>>()
+            .init_resource::<bevy::picking::hover::HoverMap>()
+            .add_systems(Update, handle_place_and_undo);
+        app
+    }
+
+    fn press_history_keys(app: &mut App, keys: &[KeyCode]) {
+        let mut input = app.world_mut().resource_mut::<ButtonInput<KeyCode>>();
+        input.reset_all();
+        for key in keys {
+            input.press(*key);
+        }
+        app.update();
+    }
+
+    #[test]
+    fn keyboard_undo_redo_updates_entities_and_challenge_quota() {
+        let mut app = history_input_app();
+        let original = app.world().resource::<PlacedBlocks>().records[0].entity;
+        press_history_keys(&mut app, &[KeyCode::Backspace]);
+        assert!(app.world().get_entity(original).is_err());
+        assert!(app.world().resource::<PlacedBlocks>().occupied.is_empty());
+        assert_eq!(app.world().resource::<Challenge>().quota_left["taiji"], 1);
+        press_history_keys(&mut app, &[KeyCode::ControlLeft, KeyCode::KeyY]);
+        let stack = app.world().resource::<PlacedBlocks>();
+        assert_eq!(stack.records.len(), 1);
+        assert_ne!(stack.records[0].entity, original);
+        assert!(app
+            .world()
+            .get::<PlacedBlock>(stack.records[0].entity)
+            .is_some());
+        assert_eq!(stack.occupied.len(), stack.records[0].cells.len());
+        assert_eq!(app.world().resource::<Challenge>().quota_left["taiji"], 0);
+    }
+
+    #[test]
+    fn insufficient_quota_keeps_redo_and_revision_unchanged() {
+        let mut app = history_input_app();
+        press_history_keys(&mut app, &[KeyCode::Backspace]);
+        let revision = app.world().resource::<PlacedBlocks>().revision;
+        app.world_mut()
+            .resource_mut::<Challenge>()
+            .quota_left
+            .insert("taiji".into(), 0);
+        press_history_keys(&mut app, &[KeyCode::ControlLeft, KeyCode::KeyY]);
+        let stack = app.world().resource::<PlacedBlocks>();
+        assert!(stack.records.is_empty());
+        assert_eq!(stack.redo.len(), 1);
+        assert_eq!(stack.revision, revision);
+        assert_eq!(app.world().resource::<Challenge>().quota_left["taiji"], 0);
+    }
 
     #[test]
     fn rotation_swaps_footprint() {

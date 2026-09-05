@@ -17,8 +17,8 @@ use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::Blueprint;
 use crate::building::challenge::{Challenge, ChallengeState};
 use crate::building::placement::{
-    footprint_cells, footprint_columns, refresh_completion, spawn_block_entity, BlockRenderAssets,
-    PlacedBlock, PlacedBlocks, PlacedRecord,
+    footprint_cells, refresh_completion, spawn_block_entity, BlockRenderAssets, PlacedBlock,
+    PlacedBlocks, PlacedRecord,
 };
 
 /// 当前存档格式版本（ADR-006：只增不减）
@@ -179,12 +179,8 @@ pub fn apply_save(
     render: &BlockRenderAssets,
     save: &SaveFile,
 ) -> usize {
-    // 清空世界（由调用方先 despawn 实体，这里只清数据）
-    stack.records.clear();
-    stack.occupied.clear();
-    stack.col_top.clear();
-
-    let mut loaded = 0;
+    // 调用方负责 despawn；先构建完整记录，再一次性替换数据与历史。
+    let mut records = Vec::with_capacity(save.blocks.len());
     for rec in &save.blocks {
         let Some(&idx) = library.by_id.get(&rec.id) else {
             warn!("存档包含未知积木 ID「{}」，已跳过", rec.id);
@@ -195,24 +191,16 @@ pub fn apply_save(
         let rot = rec.rot_90.min(3);
         let cells = footprint_cells(anchor, def, rot);
         let entity = spawn_block_entity(commands, library, render, &rec.id, anchor, rot);
-        for c in &cells {
-            stack.occupied.insert(*c);
-        }
-        let h = def.size[1] as i32;
-        for (x, z) in footprint_columns(def, anchor.x, anchor.z, rot) {
-            let top = stack.col_top.entry((x, z)).or_insert(0);
-            *top = (*top).max(anchor.y + h);
-        }
-        stack.records.push(PlacedRecord {
+        records.push(PlacedRecord {
             entity,
             def_id: rec.id.clone(),
             anchor,
             rot,
             cells,
         });
-        loaded += 1;
     }
-    stack.revision += 1;
+    let loaded = records.len();
+    stack.replace_all(records);
     loaded
 }
 
@@ -328,20 +316,31 @@ pub fn import_save(
 /// 保存到默认槽位（F5 / lunex 面板「保存」）
 pub fn save_slot(stack: &PlacedBlocks, blueprint: &Blueprint) -> Result<(), String> {
     let dir = saves_dir();
-    let mode = if blueprint.active { "blueprint" } else { "free" };
+    let mode = if blueprint.active {
+        "blueprint"
+    } else {
+        "free"
+    };
     let save = build_save(stack, blueprint, mode);
     encode_bincode(&save).and_then(|bytes| {
         std::fs::create_dir_all(&dir).map_err(|e| format!("创建存档目录失败: {e}"))?;
         write_atomic(&dir.join(SLOT_FILENAME), &bytes)
     })?;
-    info!("💾 已保存 {} 个积木 → saves/{}", save.meta.block_count, SLOT_FILENAME);
+    info!(
+        "💾 已保存 {} 个积木 → saves/{}",
+        save.meta.block_count, SLOT_FILENAME
+    );
     Ok(())
 }
 
 /// 导出 JSON（F6 / lunex 面板「JSON」）
 pub fn export_json(stack: &PlacedBlocks, blueprint: &Blueprint) -> Result<(), String> {
     let dir = saves_dir();
-    let mode = if blueprint.active { "blueprint" } else { "free" };
+    let mode = if blueprint.active {
+        "blueprint"
+    } else {
+        "free"
+    };
     let save = build_save(stack, blueprint, mode);
     let json = serde_json::to_string_pretty(&save).map_err(|e| format!("JSON 序列化失败: {e}"))?;
     std::fs::create_dir_all(&dir).map_err(|e| format!("创建存档目录失败: {e}"))?;
@@ -353,7 +352,11 @@ pub fn export_json(stack: &PlacedBlocks, blueprint: &Blueprint) -> Result<(), St
 /// 导出分享副本（F7 / lunex 面板「分享」；时间戳命名便于分发）
 pub fn share_export(stack: &PlacedBlocks, blueprint: &Blueprint) -> Result<(), String> {
     let dir = saves_dir();
-    let mode = if blueprint.active { "blueprint" } else { "free" };
+    let mode = if blueprint.active {
+        "blueprint"
+    } else {
+        "free"
+    };
     let save = build_save(stack, blueprint, mode);
     let unix = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -479,6 +482,96 @@ mod tests {
     }
 
     #[test]
+    fn loading_a_save_discards_redo_from_the_previous_world() {
+        let (mut stack, bp, library) = setup();
+        let save = build_save(&stack, &bp, "free");
+        stack.redo.push(PlacedRecord {
+            entity: Entity::PLACEHOLDER,
+            def_id: "taiji".into(),
+            anchor: IVec3::ZERO,
+            rot: 0,
+            cells: vec![IVec3::ZERO],
+        });
+        let render = BlockRenderAssets {
+            per_def: Default::default(),
+            ghost_material: Default::default(),
+            ghost_bad_material: Default::default(),
+            blueprint_materials: Default::default(),
+            blueprint_unit_mesh: Default::default(),
+        };
+        let mut world = World::new();
+        let mut queue = bevy::ecs::world::CommandQueue::default();
+        let mut commands = Commands::new(&mut queue, &world);
+        assert_eq!(
+            apply_save(&mut commands, &mut stack, &library, &render, &save),
+            0
+        );
+        queue.apply(&mut world);
+        assert!(stack.redo.is_empty(), "导入后不能重做上一个世界的积木");
+        assert!(stack.records.is_empty());
+        assert!(stack.occupied.is_empty());
+        assert!(stack.col_top.is_empty());
+    }
+
+    #[test]
+    fn import_replaces_nonempty_world_and_preserves_rotated_footprint() {
+        let (mut stack, mut blueprint, library) = setup();
+        let mut world = World::new();
+        let old = world.spawn(PlacedBlock).id();
+        let untracked = world.spawn(PlacedBlock).id();
+        stack.records.push(PlacedRecord {
+            entity: old,
+            def_id: "taiji".into(),
+            anchor: IVec3::ZERO,
+            rot: 0,
+            cells: vec![IVec3::ZERO],
+        });
+        let render = BlockRenderAssets {
+            per_def: [("liangfang".into(), (Handle::default(), Handle::default()))].into(),
+            ghost_material: Handle::default(),
+            ghost_bad_material: Handle::default(),
+            blueprint_materials: Default::default(),
+            blueprint_unit_mesh: Handle::default(),
+        };
+        let mut save = build_save(&stack, &blueprint, "free");
+        save.blocks = vec![PlacedBlockRecord {
+            id: "liangfang".into(),
+            cell: (5, 2, 5),
+            rot_90: 1,
+        }];
+        let mut challenge = crate::building::challenge::load_challenge();
+        challenge.state = ChallengeState::Active;
+        let mut state = bevy::ecs::system::SystemState::<(
+            Commands,
+            Query<Entity, With<PlacedBlock>>,
+        )>::new(&mut world);
+        let (mut commands, query) = state.get_mut(&mut world).unwrap();
+        assert_eq!(
+            import_save(
+                &mut commands,
+                &mut stack,
+                &library,
+                &render,
+                &mut blueprint,
+                &mut challenge,
+                &query,
+                save
+            ),
+            1
+        );
+        state.apply(&mut world);
+        assert!(world.get_entity(old).is_err());
+        assert!(world.get_entity(untracked).is_err());
+        assert_eq!(stack.records.len(), 1);
+        assert!(world.get::<PlacedBlock>(stack.records[0].entity).is_some());
+        assert_eq!(stack.records[0].rot, 1);
+        assert!(stack.occupied.contains(&IVec3::new(5, 2, 8)));
+        assert!(!stack.occupied.contains(&IVec3::ZERO));
+        assert_eq!(stack.col_top[&(5, 8)], 3);
+        assert_eq!(challenge.state, ChallengeState::Idle);
+    }
+
+    #[test]
     fn bincode_round_trip_preserves_save() {
         let (mut stack, bp, lib) = setup();
         let taiji = lib.by_id["taiji"];
@@ -504,6 +597,29 @@ mod tests {
         assert_eq!(back.meta.block_count, 1);
         assert_eq!(back.blocks[0].id, "taiji");
         assert_eq!(back.blocks[0].cell, (0, 0, 0));
+    }
+
+    #[test]
+    fn save_keeps_all_blocks_beyond_the_undo_limit() {
+        let (mut stack, blueprint, library) = setup();
+        let mut world = World::new();
+        let def = &library.defs[library.by_id["taiji"]];
+        for x in 0..30 {
+            let anchor = IVec3::new(x * 4, 0, 0);
+            stack.place(PlacedRecord {
+                entity: world.spawn_empty().id(),
+                def_id: def.id.clone(),
+                anchor,
+                rot: 0,
+                cells: footprint_cells(anchor, def, 0),
+            });
+        }
+        let save = build_save(&stack, &blueprint, "free");
+        let restored = decode_bincode(&encode_bincode(&save).unwrap()).unwrap();
+        assert_eq!(restored.blocks.len(), 30);
+        assert_eq!(restored.meta.block_count, 30);
+        assert_eq!(restored.blocks.first().unwrap().cell, (0, 0, 0));
+        assert_eq!(restored.blocks.last().unwrap().cell, (116, 0, 0));
     }
 
     #[test]

@@ -201,10 +201,9 @@ pub fn rebuild_from_records(
     library: &BlockLibrary,
     render: &BlockRenderAssets,
 ) {
-    for r in stack.records.iter_mut() {
-        r.entity = spawn_block_entity(commands, library, render, &r.def_id, r.anchor, r.rot);
-    }
-    stack.revision += 1;
+    stack.rebuild_entities(|r| {
+        spawn_block_entity(commands, library, render, &r.def_id, r.anchor, r.rot)
+    });
 }
 
 #[cfg(test)]

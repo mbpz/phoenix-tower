@@ -52,7 +52,7 @@ pub fn column(radius: f32, height: f32, segments: usize) -> Mesh {
         (top_r, height),  // 柱顶外缘
         (0.0, height),    // 顶面中心
     ];
-    for (_, (r, y)) in rings.iter().enumerate() {
+    for (r, y) in &rings {
         for i in 0..segments {
             let a = std::f32::consts::TAU * i as f32 / segments as f32;
             positions.push([r * a.cos(), *y, r * a.sin()]);
@@ -191,8 +191,6 @@ pub fn sloped_tile(w: f32, d: f32, pitch: f32) -> Mesh {
         indices,
     )
 }
-
-/// 宝顶：小型多棱尖塔（收束攒尖顶）。
 
 /// 斗拱：三层交替 45° 出挑的承托构件（中式木构精髓）。
 pub fn dougong_bracket() -> Mesh {

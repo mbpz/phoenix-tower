@@ -209,11 +209,7 @@ pub fn start_challenge(
     for entity in placed_query.iter() {
         commands.entity(entity).despawn();
     }
-    stack.records.clear();
-    stack.occupied.clear();
-    stack.col_top.clear();
-    stack.redo.clear();
-    stack.revision += 1;
+    stack.clear();
 
     // 挑战按 blueprint_id 选择主题（B-24：主题包切换后挑战仍对应正确蓝图）
     if let Some(idx) = blueprint_library.select_by_id(&challenge.def.blueprint_id) {
