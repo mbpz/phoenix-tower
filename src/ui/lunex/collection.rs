@@ -26,21 +26,26 @@ pub(super) fn b6_achievement_sync(
     theme: Res<LunexTheme>,
     mut names: Query<(&AchievementNameText, &mut Text2d, &mut UiColor)>,
 ) {
-    if !collection.is_changed() {
+    if !collection.is_changed() && !theme.is_changed() {
         return;
     }
-    for (row, mut t, mut color) in &mut names {
+    for (row, t, mut color) in &mut names {
         let (id, name, desc) = achievement_defs()[row.0];
         let unlocked = collection.achievements.contains(id);
-        t.0 = format!("{}  {}\n{}", name, if unlocked { "✓" } else { "🔒" }, desc);
-        *color = UiColor::new(vec![(
+        t.map_unchanged(|t| &mut t.0).set_if_neq(format!(
+            "{}  {}\n{}",
+            name,
+            if unlocked { "✓" } else { "🔒" },
+            desc
+        ));
+        color.set_if_neq(UiColor::new(vec![(
             UiBase::id(),
             if unlocked {
                 theme.accent
             } else {
                 theme.text_main
             },
-        )]);
+        )]));
     }
 }
 
@@ -145,7 +150,7 @@ pub(super) fn b5_codex_detail_sync(
     library: Res<BlockLibrary>,
     mut texts: Query<&mut Text2d, With<CodexDetailText>>,
 ) {
-    if !selected.is_changed() {
+    if !selected.is_changed() && !collection.is_changed() && !library.is_changed() {
         return;
     }
     let txt = match selected.0 {
@@ -165,8 +170,8 @@ pub(super) fn b5_codex_detail_sync(
         }
         _ => "点击条目查看文化描述".to_string(),
     };
-    for mut t in &mut texts {
-        t.0 = txt.clone();
+    for t in &mut texts {
+        t.map_unchanged(|t| &mut t.0).set_if_neq(txt.clone());
     }
 }
 
@@ -215,28 +220,31 @@ pub(super) fn b5_codex_status_sync(
     theme: Res<LunexTheme>,
     mut names: Query<(&CodexNameText, &mut Text2d, &mut UiColor)>,
 ) {
-    if !collection.is_changed() {
+    if !collection.is_changed() && !library.is_changed() && !theme.is_changed() {
         return;
     }
-    for (row, mut t, mut color) in &mut names {
+    for (row, t, mut color) in &mut names {
         if row.0 >= library.defs.len() {
             continue;
         }
         let def = &library.defs[row.0];
         let unlocked = collection.codex.contains(&def.id);
-        t.0 = if unlocked {
+        let label = if unlocked {
             format!("{}  ✓", def.name)
         } else {
             format!("{}  🔒", def.name)
         };
-        *color = UiColor::new(vec![(
+        // Collection is also ticked when no unlock changes. Do not invalidate
+        // retained text/layout (including hidden tabs) for identical display values.
+        t.map_unchanged(|t| &mut t.0).set_if_neq(label);
+        color.set_if_neq(UiColor::new(vec![(
             UiBase::id(),
             if unlocked {
                 theme.text_main
             } else {
                 theme.text_dim
             },
-        )]);
+        )]));
     }
 }
 

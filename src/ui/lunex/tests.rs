@@ -332,3 +332,158 @@ fn challenge_tick_without_display_change_does_not_dirty_labels() {
     app.update();
     assert_eq!(app.world().resource::<TextChangeCount>().0, 1);
 }
+
+#[derive(Resource, Default)]
+struct ColorChangeCount(usize);
+
+fn count_changed_colors(colors: Query<(), Changed<UiColor>>, mut count: ResMut<ColorChangeCount>) {
+    count.0 = colors.iter().count();
+}
+
+#[test]
+fn collection_tick_does_not_rewrite_unchanged_hidden_labels_or_colors() {
+    use crate::building::collection::{Collection, ACH_FIRST};
+    let mut app = App::new();
+    app.insert_resource(load_block_library())
+        .init_resource::<Collection>()
+        .init_resource::<LunexTheme>()
+        .init_resource::<TextChangeCount>()
+        .init_resource::<ColorChangeCount>()
+        .add_systems(
+            Update,
+            (
+                b5_codex_status_sync,
+                b6_achievement_sync,
+                count_changed_labels,
+                count_changed_colors,
+            )
+                .chain(),
+        );
+    for i in 0..2 {
+        app.world_mut().spawn((
+            CodexNameText(i),
+            Text2d::new(""),
+            UiColor::default(),
+            Visibility::Hidden,
+        ));
+        app.world_mut().spawn((
+            AchievementNameText(i),
+            Text2d::new(""),
+            UiColor::default(),
+            Visibility::Hidden,
+        ));
+    }
+    app.update();
+    // The production collection system invokes this mutable method each frame,
+    // even when there are no new unlocks. Protect the UI boundary, not just Res ticks.
+    let stack = crate::building::placement::PlacedBlocks::default();
+    for _ in 0..3 {
+        app.world_mut().resource_mut::<Collection>().update(
+            &stack,
+            false,
+            false,
+            ChallengeState::Idle,
+            0,
+            false,
+            stack.revision,
+        );
+        app.update();
+        assert_eq!(app.world().resource::<TextChangeCount>().0, 0);
+        assert_eq!(app.world().resource::<ColorChangeCount>().0, 0);
+    }
+    let id = app.world().resource::<BlockLibrary>().defs[0].id.clone();
+    {
+        let mut collection = app.world_mut().resource_mut::<Collection>();
+        collection.codex.insert(id);
+        collection.achievements.insert(ACH_FIRST.into());
+    }
+    app.update();
+    assert_eq!(app.world().resource::<TextChangeCount>().0, 2);
+    assert_eq!(app.world().resource::<ColorChangeCount>().0, 2);
+}
+
+#[test]
+fn selected_codex_detail_refreshes_on_unlock_without_reselection() {
+    use crate::building::collection::Collection;
+    let mut app = App::new();
+    app.insert_resource(load_block_library())
+        .init_resource::<Collection>()
+        .insert_resource(CodexSelected(Some(0)))
+        .init_resource::<TextChangeCount>()
+        .add_systems(Update, (b5_codex_detail_sync, count_changed_labels).chain());
+    let detail = app
+        .world_mut()
+        .spawn((CodexDetailText, Text2d::new("")))
+        .id();
+    app.update();
+    assert!(app
+        .world()
+        .get::<Text2d>(detail)
+        .unwrap()
+        .0
+        .contains("未解锁"));
+    let id = app.world().resource::<BlockLibrary>().defs[0].id.clone();
+    app.world_mut()
+        .resource_mut::<Collection>()
+        .codex
+        .insert(id);
+    app.update();
+    assert!(app
+        .world()
+        .get::<Text2d>(detail)
+        .unwrap()
+        .0
+        .contains("已解锁"));
+    assert_eq!(app.world().resource::<TextChangeCount>().0, 1);
+    app.world_mut().resource_mut::<Collection>().set_changed();
+    app.update();
+    assert_eq!(app.world().resource::<TextChangeCount>().0, 0);
+    app.world_mut().resource_mut::<BlockLibrary>().defs[0].description =
+        "江岸 Pavilion 3D\n中英混排".into();
+    app.update();
+    assert!(app
+        .world()
+        .get::<Text2d>(detail)
+        .unwrap()
+        .0
+        .contains("江岸 Pavilion 3D\n中英混排"));
+}
+
+#[test]
+fn collection_theme_change_updates_colors_without_reshaping_text() {
+    use crate::building::collection::Collection;
+    let mut app = App::new();
+    app.insert_resource(load_block_library())
+        .init_resource::<Collection>()
+        .init_resource::<LunexTheme>()
+        .init_resource::<TextChangeCount>()
+        .add_systems(
+            Update,
+            (
+                b5_codex_status_sync,
+                b6_achievement_sync,
+                count_changed_labels,
+            )
+                .chain(),
+        );
+    let codex = app
+        .world_mut()
+        .spawn((CodexNameText(0), Text2d::new(""), UiColor::default()))
+        .id();
+    let achievement = app
+        .world_mut()
+        .spawn((AchievementNameText(0), Text2d::new(""), UiColor::default()))
+        .id();
+    app.update();
+    let replacement = Color::srgb(0.12, 0.34, 0.56);
+    {
+        let mut theme = app.world_mut().resource_mut::<LunexTheme>();
+        theme.text_dim = replacement;
+        theme.text_main = replacement;
+    }
+    app.update();
+    let expected = UiColor::new(vec![(UiBase::id(), replacement)]);
+    assert_eq!(app.world().get::<UiColor>(codex).unwrap(), &expected);
+    assert_eq!(app.world().get::<UiColor>(achievement).unwrap(), &expected);
+    assert_eq!(app.world().resource::<TextChangeCount>().0, 0);
+}

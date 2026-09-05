@@ -3,12 +3,14 @@
 
 Build separately, then run, for example:
   python3 tools/verify_runtime.py --load saves/verify_plaque.ptw --screenshot
+  python3 tools/verify_runtime.py --riverside --measure-fps --duration 30
   python3 tools/verify_runtime.py --stress 10000 --warmup 10 --duration 30 --timeout 120
 
 Duration is the observation window AFTER requested startup evidence and warmup;
 timeout caps the entire child lifetime (plus at most 5 seconds for termination).
-A stress run requires at least three FPS samples in that window. These are
-render-stress entities, not editable-world data or a portable performance target.
+Stress runs and --measure-fps require at least three FPS samples in that window.
+This checks evidence, not a portable performance target. Only --stress creates
+render-stress entities; --riverside keeps its real editable blocks.
 Raw stdout AND stderr are retained in runtime.log, including known ICU diagnostics.
 No save keys are sent, save slots are never written, and screenshots are opt-in.
 The binary must be built from --root: the game embeds its asset/save root at build
@@ -132,6 +134,8 @@ def parse_args(argv=None):
     parser.add_argument('--duration', type=float, default=15, help='post-warmup observation seconds')
     parser.add_argument('--timeout', type=float, default=90, help='absolute lifetime limit in seconds')
     parser.add_argument('--warmup', type=float, default=5, help='seconds after startup evidence to ignore')
+    parser.add_argument('--measure-fps', action='store_true',
+                        help='require continuous FPS evidence for smoke/riverside (stress always requires it)')
     parser.add_argument('--riverside', action='store_true', help='verify editable Blender diorama')
     parser.add_argument('--stress', type=int, default=0, help='render-stress block count, 0 for smoke')
     parser.add_argument('--load', type=Path, help='read-only .ptw fixture; relative to root')
@@ -166,6 +170,8 @@ def build_environment(args):
     env.update(RUST_LOG='info', RUST_BACKTRACE='1', NO_COLOR='1', PHOENIX_UI_PROBE='1')
     if args.stress:
         env['PHOENIX_STRESS'] = str(args.stress)
+    if args.measure_fps and not args.stress:
+        env['PHOENIX_PERF_PROBE'] = '1'
     if args.load:
         env['PHOENIX_LOAD'] = str(args.load)
     if args.screenshot:
@@ -301,9 +307,10 @@ def run_verification(args, *, command=None):
         failures.append('Missing successful import evidence for the requested fixture.')
     if args.stress and evidence.spawn_counts != [args.stress]:
         failures.append(f'Missing or mismatched stress spawn log: expected [{args.stress}].')
-    if args.stress and evidence.untimed_fps_count:
+    fps_required = bool(args.stress or args.measure_fps)
+    if fps_required and evidence.untimed_fps_count:
         failures.append(f'{evidence.untimed_fps_count} FPS sample(s) missing valid producer timestamps.')
-    if args.stress and fps['count'] < MIN_FPS_SAMPLES:
+    if fps_required and fps['count'] < MIN_FPS_SAMPLES:
         failures.append(f'Need at least {MIN_FPS_SAMPLES} post-warmup FPS samples; got {fps["count"]}.')
     if args.riverside and not evidence.riverside_ready:
         failures.append('Missing editable riverside startup evidence.')
@@ -331,6 +338,7 @@ def run_verification(args, *, command=None):
         'warmup_seconds': args.warmup, 'duration_seconds': args.duration,
         'timeout_seconds': args.timeout, 'elapsed_seconds': elapsed,
         'sample_window_seconds_after_launch': [window_start, window_end],
+        'fps_required': fps_required,
         'fps': fps, 'fps_timing': 'producer_utc_relative_to_launch',
         'untimed_fps_count': evidence.untimed_fps_count,
         'exit_code_before_cleanup': exit_code,

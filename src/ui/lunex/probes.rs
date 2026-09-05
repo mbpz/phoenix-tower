@@ -234,3 +234,25 @@ pub(super) fn spawn_text3d_probe(
         Text3dProbe,
     ));
 }
+
+/// Explicit continuous sampling for ordinary/riverside scenes. Registered only
+/// by PHOENIX_PERF_PROBE; stress mode keeps its own sampler (no duplicate samples).
+/// Real time, not the clamped virtual clock, sets the one-second cadence.
+pub(super) fn ui_perf_probe(
+    time: Res<Time<Real>>,
+    diagnostics: Res<bevy::diagnostic::DiagnosticsStore>,
+    mut last_log: Local<f64>,
+) {
+    if time.elapsed_secs_f64() - *last_log < 1.0 {
+        return;
+    }
+    *last_log = time.elapsed_secs_f64();
+    if let Some(fps) = diagnostics
+        .get(&bevy::diagnostic::FrameTimeDiagnosticsPlugin::FPS)
+        .and_then(|d| d.value())
+        .filter(|fps| fps.is_finite() && *fps > 0.0)
+    {
+        // Instantaneous frame FPS sampled at 1Hz, not a whole-window average or GPU timing.
+        info!("🧪 基准采样：FPS {fps:.1} source=ui");
+    }
+}

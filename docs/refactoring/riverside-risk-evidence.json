@@ -1,0 +1,445 @@
+{
+  "recorded_at": "2026-09-06T02:57:45.261999+08:00",
+  "baseline_commit": "37a5e7e",
+  "baseline_note": "Baseline collection UI plus the same opt-in sampler used after the fix; native measurements run sequentially.",
+  "profile": "test",
+  "binary_sha256": {
+    "before": "b078b3bff87dbd35d51c55dd163df7dbc91670852548b527b896994c5ccd73a8",
+    "after": "15b99e7f832e008d742d8c9bec15d3cf97f708c62f0102ff061457eac4f9fd5f"
+  },
+  "limitations": [
+    "Single local sequential pair; not statistical FPS improvement evidence.",
+    "FPS is instantaneous sampled frame rate, not GPU timing or whole-window throughput.",
+    "ICU counts cover complete unequal-length runs, not the FPS observation window.",
+    "Screenshot is offscreen 3D only, not full UI or interaction validation."
+  ],
+  "visual": {
+    "reference": "/Users/jinguo.zeng/dmall/ai/phoenix-tower/docs/images/riverside.png",
+    "reference_sha256": "2d38a90cf8a096f68fd9152a0ac860f88aeaf60a7221ec0ce224c27be378775b",
+    "new_screenshot_sha256": "d4e755be22e4ca0f3ef72c11ff3799f50dfe785eae101aee695ae72e65b8b618",
+    "byte_identical": false
+  },
+  "runs": {
+    "before": {
+      "schema_version": 1,
+      "status": "passed",
+      "stop_reason": "duration_complete",
+      "failures": [],
+      "binary": "/private/tmp/phoenix-riverside-baseline",
+      "root": "/Users/jinguo.zeng/dmall/ai/phoenix-tower",
+      "mode": "riverside",
+      "requested_stress": 0,
+      "stress_spawn_counts": [],
+      "load_fixture": null,
+      "ui_ready": true,
+      "ready_seconds_after_launch": 12.787561084005574,
+      "warmup_seconds": 5.0,
+      "duration_seconds": 20.0,
+      "timeout_seconds": 75.0,
+      "elapsed_seconds": 37.83113729199977,
+      "sample_window_seconds_after_launch": [
+        17.787561084005574,
+        37.787561084005574
+      ],
+      "fps_required": true,
+      "fps": {
+        "count": 19,
+        "median": 60.7,
+        "min": 55.1,
+        "samples": [
+          {
+            "seconds_after_launch": 18.63484025001526,
+            "fps": 55.1
+          },
+          {
+            "seconds_after_launch": 19.63593316078186,
+            "fps": 59.9
+          },
+          {
+            "seconds_after_launch": 20.65392804145813,
+            "fps": 55.3
+          },
+          {
+            "seconds_after_launch": 21.670820236206055,
+            "fps": 59.6
+          },
+          {
+            "seconds_after_launch": 22.671093225479126,
+            "fps": 64.2
+          },
+          {
+            "seconds_after_launch": 23.68677020072937,
+            "fps": 63.7
+          },
+          {
+            "seconds_after_launch": 24.703206062316895,
+            "fps": 65.9
+          },
+          {
+            "seconds_after_launch": 25.70534920692444,
+            "fps": 61.8
+          },
+          {
+            "seconds_after_launch": 26.721965074539185,
+            "fps": 60.5
+          },
+          {
+            "seconds_after_launch": 27.738843202590942,
+            "fps": 65.2
+          },
+          {
+            "seconds_after_launch": 28.75433611869812,
+            "fps": 59.6
+          },
+          {
+            "seconds_after_launch": 29.755759239196777,
+            "fps": 58.7
+          },
+          {
+            "seconds_after_launch": 30.771831035614014,
+            "fps": 60.7
+          },
+          {
+            "seconds_after_launch": 31.789552211761475,
+            "fps": 60.2
+          },
+          {
+            "seconds_after_launch": 32.80640506744385,
+            "fps": 61.8
+          },
+          {
+            "seconds_after_launch": 33.806315183639526,
+            "fps": 68.2
+          },
+          {
+            "seconds_after_launch": 34.82332921028137,
+            "fps": 63.7
+          },
+          {
+            "seconds_after_launch": 35.823474168777466,
+            "fps": 60.1
+          },
+          {
+            "seconds_after_launch": 36.82239007949829,
+            "fps": 61.9
+          }
+        ]
+      },
+      "fps_timing": "producer_utc_relative_to_launch",
+      "untimed_fps_count": 0,
+      "exit_code_before_cleanup": null,
+      "exit_code": -15,
+      "owned_pid": 33664,
+      "owned_child_reaped": true,
+      "diagnostics": {
+        "known_icu_segmentation_count": 82606,
+        "incomplete_known_icu_tail_count": 0,
+        "error_count": 0,
+        "error_examples": []
+      },
+      "log_path": "/private/tmp/phoenix-risks-ab-before/20260905T184945Z-xi87zdyc/runtime.log",
+      "summary_path": "/private/tmp/phoenix-risks-ab-before/20260905T184945Z-xi87zdyc/summary.json",
+      "screenshot_path": null
+    },
+    "after": {
+      "schema_version": 1,
+      "status": "passed",
+      "stop_reason": "duration_complete",
+      "failures": [],
+      "binary": "/Users/jinguo.zeng/dmall/ai/phoenix-tower/target/debug/phoenix-tower",
+      "root": "/Users/jinguo.zeng/dmall/ai/phoenix-tower",
+      "mode": "riverside",
+      "requested_stress": 0,
+      "stress_spawn_counts": [],
+      "load_fixture": null,
+      "ui_ready": true,
+      "ready_seconds_after_launch": 7.879809207996004,
+      "warmup_seconds": 5.0,
+      "duration_seconds": 20.0,
+      "timeout_seconds": 75.0,
+      "elapsed_seconds": 32.89847516699956,
+      "sample_window_seconds_after_launch": [
+        12.879809207996004,
+        32.879809207996004
+      ],
+      "fps_required": true,
+      "fps": {
+        "count": 20,
+        "median": 59.95,
+        "min": 52.5,
+        "samples": [
+          {
+            "seconds_after_launch": 12.960079908370972,
+            "fps": 68.7
+          },
+          {
+            "seconds_after_launch": 13.975745916366577,
+            "fps": 60.2
+          },
+          {
+            "seconds_after_launch": 14.975496053695679,
+            "fps": 59.7
+          },
+          {
+            "seconds_after_launch": 15.993505001068115,
+            "fps": 54.6
+          },
+          {
+            "seconds_after_launch": 16.993617057800293,
+            "fps": 67.4
+          },
+          {
+            "seconds_after_launch": 18.008495092391968,
+            "fps": 65.8
+          },
+          {
+            "seconds_after_launch": 19.026968955993652,
+            "fps": 65.8
+          },
+          {
+            "seconds_after_launch": 20.026986122131348,
+            "fps": 55.5
+          },
+          {
+            "seconds_after_launch": 21.042892932891846,
+            "fps": 59.5
+          },
+          {
+            "seconds_after_launch": 22.042860984802246,
+            "fps": 53.0
+          },
+          {
+            "seconds_after_launch": 23.060401916503906,
+            "fps": 64.2
+          },
+          {
+            "seconds_after_launch": 24.060462951660156,
+            "fps": 67.5
+          },
+          {
+            "seconds_after_launch": 25.05857801437378,
+            "fps": 59.6
+          },
+          {
+            "seconds_after_launch": 26.077161073684692,
+            "fps": 60.8
+          },
+          {
+            "seconds_after_launch": 27.093836069107056,
+            "fps": 61.9
+          },
+          {
+            "seconds_after_launch": 28.108792066574097,
+            "fps": 57.2
+          },
+          {
+            "seconds_after_launch": 29.110599040985107,
+            "fps": 54.2
+          },
+          {
+            "seconds_after_launch": 30.110624074935913,
+            "fps": 57.2
+          },
+          {
+            "seconds_after_launch": 31.127059936523438,
+            "fps": 69.5
+          },
+          {
+            "seconds_after_launch": 32.12678599357605,
+            "fps": 52.5
+          }
+        ]
+      },
+      "fps_timing": "producer_utc_relative_to_launch",
+      "untimed_fps_count": 0,
+      "exit_code_before_cleanup": null,
+      "exit_code": -15,
+      "owned_pid": 33799,
+      "owned_child_reaped": true,
+      "diagnostics": {
+        "known_icu_segmentation_count": 2026,
+        "incomplete_known_icu_tail_count": 0,
+        "error_count": 0,
+        "error_examples": []
+      },
+      "log_path": "/private/tmp/phoenix-risks-ab-after/20260905T185159Z-akoj55h6/runtime.log",
+      "summary_path": "/private/tmp/phoenix-risks-ab-after/20260905T185159Z-akoj55h6/summary.json",
+      "screenshot_path": null
+    },
+    "render_50k": {
+      "schema_version": 1,
+      "status": "passed",
+      "stop_reason": "duration_complete",
+      "failures": [],
+      "binary": "/Users/jinguo.zeng/dmall/ai/phoenix-tower/target/debug/phoenix-tower",
+      "root": "/Users/jinguo.zeng/dmall/ai/phoenix-tower",
+      "mode": "render_stress",
+      "requested_stress": 50000,
+      "stress_spawn_counts": [
+        50000
+      ],
+      "load_fixture": null,
+      "ui_ready": true,
+      "ready_seconds_after_launch": 4.7042767079983605,
+      "warmup_seconds": 10.0,
+      "duration_seconds": 20.0,
+      "timeout_seconds": 100.0,
+      "elapsed_seconds": 34.74631633300305,
+      "sample_window_seconds_after_launch": [
+        14.70427670799836,
+        34.70427670799836
+      ],
+      "fps_required": true,
+      "fps": {
+        "count": 10,
+        "median": 31.35,
+        "min": 30.2,
+        "samples": [
+          {
+            "seconds_after_launch": 14.80841612815857,
+            "fps": 31.4
+          },
+          {
+            "seconds_after_launch": 16.818310976028442,
+            "fps": 31.6
+          },
+          {
+            "seconds_after_launch": 18.82408905029297,
+            "fps": 31.0
+          },
+          {
+            "seconds_after_launch": 20.832618951797485,
+            "fps": 31.7
+          },
+          {
+            "seconds_after_launch": 22.84347891807556,
+            "fps": 31.1
+          },
+          {
+            "seconds_after_launch": 24.851875066757202,
+            "fps": 31.3
+          },
+          {
+            "seconds_after_launch": 26.859636068344116,
+            "fps": 30.7
+          },
+          {
+            "seconds_after_launch": 28.882538080215454,
+            "fps": 32.0
+          },
+          {
+            "seconds_after_launch": 30.891809940338135,
+            "fps": 30.2
+          },
+          {
+            "seconds_after_launch": 32.900131940841675,
+            "fps": 31.7
+          }
+        ]
+      },
+      "fps_timing": "producer_utc_relative_to_launch",
+      "untimed_fps_count": 0,
+      "exit_code_before_cleanup": null,
+      "exit_code": -15,
+      "owned_pid": 33834,
+      "owned_child_reaped": true,
+      "diagnostics": {
+        "known_icu_segmentation_count": 1730,
+        "incomplete_known_icu_tail_count": 0,
+        "error_count": 0,
+        "error_examples": []
+      },
+      "log_path": "/private/tmp/phoenix-risks-50k/20260905T185322Z-i7rmli75/runtime.log",
+      "summary_path": "/private/tmp/phoenix-risks-50k/20260905T185322Z-i7rmli75/summary.json",
+      "screenshot_path": null
+    },
+    "visual": {
+      "schema_version": 1,
+      "status": "passed",
+      "stop_reason": "duration_complete",
+      "failures": [],
+      "binary": "/Users/jinguo.zeng/dmall/ai/phoenix-tower/target/debug/phoenix-tower",
+      "root": "/Users/jinguo.zeng/dmall/ai/phoenix-tower",
+      "mode": "riverside",
+      "requested_stress": 0,
+      "stress_spawn_counts": [],
+      "load_fixture": null,
+      "ui_ready": true,
+      "ready_seconds_after_launch": 4.36155308400339,
+      "warmup_seconds": 2.0,
+      "duration_seconds": 6.0,
+      "timeout_seconds": 60.0,
+      "elapsed_seconds": 12.397969667006691,
+      "sample_window_seconds_after_launch": [
+        6.36155308400339,
+        12.36155308400339
+      ],
+      "fps_required": false,
+      "fps": {
+        "count": 0,
+        "median": null,
+        "min": null,
+        "samples": []
+      },
+      "fps_timing": "producer_utc_relative_to_launch",
+      "untimed_fps_count": 0,
+      "exit_code_before_cleanup": null,
+      "exit_code": -15,
+      "owned_pid": 33854,
+      "owned_child_reaped": true,
+      "diagnostics": {
+        "known_icu_segmentation_count": 982,
+        "incomplete_known_icu_tail_count": 0,
+        "error_count": 0,
+        "error_examples": []
+      },
+      "log_path": "/private/tmp/phoenix-risks-visual/20260905T185430Z-eyocsmq8/runtime.log",
+      "summary_path": "/private/tmp/phoenix-risks-visual/20260905T185430Z-eyocsmq8/summary.json",
+      "screenshot_path": "/private/tmp/phoenix-risks-visual/20260905T185430Z-eyocsmq8/screenshot_1788634472.png"
+    },
+    "load": {
+      "schema_version": 1,
+      "status": "passed",
+      "stop_reason": "duration_complete",
+      "failures": [],
+      "binary": "/Users/jinguo.zeng/dmall/ai/phoenix-tower/target/debug/phoenix-tower",
+      "root": "/Users/jinguo.zeng/dmall/ai/phoenix-tower",
+      "mode": "smoke",
+      "requested_stress": 0,
+      "stress_spawn_counts": [],
+      "load_fixture": "/Users/jinguo.zeng/dmall/ai/phoenix-tower/saves/verify_plaque.ptw",
+      "ui_ready": true,
+      "ready_seconds_after_launch": 4.35032154199871,
+      "warmup_seconds": 2.0,
+      "duration_seconds": 6.0,
+      "timeout_seconds": 60.0,
+      "elapsed_seconds": 12.371729624996078,
+      "sample_window_seconds_after_launch": [
+        6.35032154199871,
+        12.35032154199871
+      ],
+      "fps_required": false,
+      "fps": {
+        "count": 0,
+        "median": null,
+        "min": null,
+        "samples": []
+      },
+      "fps_timing": "producer_utc_relative_to_launch",
+      "untimed_fps_count": 0,
+      "exit_code_before_cleanup": null,
+      "exit_code": -15,
+      "owned_pid": 33863,
+      "owned_child_reaped": true,
+      "diagnostics": {
+        "known_icu_segmentation_count": 1091,
+        "incomplete_known_icu_tail_count": 0,
+        "error_count": 0,
+        "error_examples": []
+      },
+      "log_path": "/private/tmp/phoenix-risks-load/20260905T185442Z-35s3ms53/runtime.log",
+      "summary_path": "/private/tmp/phoenix-risks-load/20260905T185442Z-35s3ms53/summary.json",
+      "screenshot_path": "/private/tmp/phoenix-risks-load/20260905T185442Z-35s3ms53/screenshot_1788634484.png"
+    }
+  }
+}

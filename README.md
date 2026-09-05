@@ -200,6 +200,13 @@ cargo run --locked --profile test -- --riverside
 python3 -B -m unittest discover -s tools -p 'test_*.py' -v
 # 原生样板/UI/截图冒烟，不写入存档槽位
 python3 -B tools/verify_runtime.py --riverside --screenshot
+# 连续帧率证据：UI/样板就绪后预热 5 秒，再观测 30 秒（截图另跑，避免干扰）
+python3 -B tools/verify_runtime.py --riverside --measure-fps --warmup 5 --duration 30
 ```
 
 设计边界、验证与尚未覆盖的风险见 `docs/design/riverside-slice.md`。
+
+`--measure-fps` 显式开启约每秒一次的瞬时帧 FPS 日志，并要求预热后至少 3 个带生产时间戳的样本；
+普通冒烟不强制 FPS，压力模式始终强制采样且不会重复开启 UI 采样器。
+采样中位数不是整个窗口的平均吞吐或 GPU 耗时，也不代表跨平台帧率承诺。
+后续中文排版重复失效修复、对照测量与剩余限制见 `docs/refactoring/riverside-risk-followup.md`。

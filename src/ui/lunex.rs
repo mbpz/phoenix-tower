@@ -45,6 +45,11 @@ impl Plugin for LunexUiPlugin {
             .resource_mut::<LoadFonts>()
             .font_paths
             .push(subset);
+        if std::env::var_os("PHOENIX_PERF_PROBE").is_some()
+            && std::env::var_os("PHOENIX_STRESS").is_none()
+        {
+            app.add_systems(Update, probes::ui_perf_probe);
+        }
         app.init_resource::<LunexTheme>()
             .init_resource::<PaletteScroll>()
             .init_resource::<ThemeMenuOpen>()

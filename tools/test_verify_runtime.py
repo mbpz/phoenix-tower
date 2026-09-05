@@ -196,6 +196,37 @@ class ProcessTests(unittest.TestCase):
         self.assertEqual(result['status'], 'failed')
         self.assertEqual(result['fps']['count'], 0)
 
+    def test_riverside_fps_measurement_requires_post_warmup_samples(self):
+        code = (f'import time; print({UI!r}); '
+                'print("RIVERSIDE_READY blocks=8 editable=true"); time.sleep(10)')
+        result = self.run_fake(code, '--riverside', '--measure-fps')
+        self.assertEqual(result['status'], 'failed')
+        self.assertTrue(result['fps_required'])
+        self.assertTrue(any('FPS samples' in error for error in result['failures']))
+
+    def test_riverside_fps_measurement_accepts_live_samples(self):
+        code = (f'import time; from datetime import datetime, timezone; print({UI!r}); '
+                'print("RIVERSIDE_READY blocks=8 editable=true"); time.sleep(0.05)\n'
+                'for fps in [30, 40, 50, 60]:\n'
+                ' print(datetime.now(timezone.utc).isoformat() + f" INFO 基准采样：FPS {fps}.0 source=ui", flush=True); time.sleep(0.06)\n'
+                'time.sleep(10)')
+        result = self.run_fake(code, '--riverside', '--measure-fps', '--duration', '0.6')
+        self.assertEqual(result['status'], 'passed', result)
+        self.assertEqual(result['fps']['count'], 4)
+        self.assertEqual(result['fps']['median'], 45.0)
+        self.assertEqual(result['mode'], 'riverside')
+
+    def test_ui_measurement_rejects_untimed_samples_even_with_enough_timed_samples(self):
+        code = (f'import time; from datetime import datetime, timezone; print({UI!r}); '
+                'time.sleep(0.05)\n'
+                'for fps in [30, 40, 50, 60]:\n'
+                ' print(datetime.now(timezone.utc).isoformat() + f" INFO 基准采样：FPS {fps}.0", flush=True); time.sleep(0.06)\n'
+                'print("INFO 基准采样：FPS 999.0"); time.sleep(10)')
+        result = self.run_fake(code, '--measure-fps', '--duration', '0.6')
+        self.assertEqual(result['status'], 'failed')
+        self.assertEqual(result['untimed_fps_count'], 1)
+        self.assertTrue(any('timestamps' in error for error in result['failures']))
+
     def test_stale_screenshot_never_satisfies_capture_request(self):
         (self.root / 'saves' / 'screenshot_1.png').write_bytes(b'old screenshot')
         result = self.run_fake(f'import time; print({UI!r}); time.sleep(10)',
@@ -268,6 +299,13 @@ class ProcessTests(unittest.TestCase):
 
 
 class RiversideTests(unittest.TestCase):
+    def test_perf_probe_is_opt_in_and_does_not_duplicate_stress_sampler(self):
+        self.assertFalse(parse_args([]).measure_fps)
+        args = parse_args(['--riverside', '--measure-fps'])
+        self.assertEqual(build_environment(args)['PHOENIX_PERF_PROBE'], '1')
+        args = parse_args(['--stress', '1000', '--measure-fps'])
+        self.assertNotIn('PHOENIX_PERF_PROBE', build_environment(args))
+
     def test_mode_is_explicit_and_exclusive(self):
         self.assertFalse(parse_args([]).riverside)
         self.assertTrue(parse_args(['--riverside', '--screenshot']).riverside)
