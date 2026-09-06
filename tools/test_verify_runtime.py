@@ -1,6 +1,7 @@
 """Headless stdlib tests: python3 -B -m unittest discover -s tools -v."""
 import json
 import os
+import signal
 from pathlib import Path
 import subprocess
 import sys
@@ -121,9 +122,18 @@ class ProcessTests(unittest.TestCase):
             processes.append(process)
             return process
 
-        with patch('verify_runtime.subprocess.Popen', side_effect=track):
-            result = run_verification(self.config(*flags),
-                                      command=[sys.executable, '-u', '-X', 'utf8', '-c', code])
+        try:
+            with patch('verify_runtime.subprocess.Popen', side_effect=track):
+                result = run_verification(self.config(*flags),
+                                          command=[sys.executable, '-u', '-X', 'utf8', '-c', code])
+                self.assertTrue(all(p.poll() is not None for p in processes),
+                                'verifier must reap its child before returning')
+        finally:
+            # A failing lifecycle regression must not leak its test child.
+            for process in processes:
+                if process.poll() is None:
+                    process.kill()
+                process.wait(timeout=5)
         self.assertEqual(len(processes), 1)
         self.assertIsNotNone(processes[0].poll(), 'owned child must always be reaped')
         self.assertEqual(self.slot.read_bytes(), b'user data must stay untouched')
@@ -289,6 +299,88 @@ class ProcessTests(unittest.TestCase):
             result = self.run_fake('import time; time.sleep(10)')
         self.assertEqual(result['status'], 'failed')
         self.assertEqual(result['stop_reason'], 'interrupted')
+
+    def test_unterminated_oversized_line_fails_without_losing_raw_bytes(self):
+        payload = b'x' * 4097
+        code = (f'import sys, time; print({UI!r}); '
+                f'sys.stdout.buffer.write({payload!r}); sys.stdout.flush(); time.sleep(10)')
+        with patch('verify_runtime.MAX_LOG_LINE_BYTES', 4096):
+            result = self.run_fake(code)
+        self.assertEqual(result['status'], 'failed', result)
+        self.assertTrue(any('line limit' in item for item in result['failures']))
+        self.assertIn(payload, Path(result['log_path']).read_bytes())
+
+    def test_terminated_oversized_line_cannot_supply_ready_evidence(self):
+        code = f'import time; print({UI!r} + "x" * 4096); time.sleep(10)'
+        with patch('verify_runtime.MAX_LOG_LINE_BYTES', 4096):
+            result = self.run_fake(code)
+        self.assertEqual(result['status'], 'failed')
+        self.assertFalse(result['ui_ready'])
+        self.assertIn('line limit', result['log_limits']['exceeded'])
+
+    def test_exact_line_and_total_budgets_preserve_utf8_evidence(self):
+        line = ('中文' * 100).encode('utf-8')
+        payload = UI.encode() + b'\n' + line + b'\n'
+        code = f'import sys, time; sys.stdout.buffer.write({payload!r}); sys.stdout.flush(); time.sleep(10)'
+        with patch('verify_runtime.MAX_LOG_LINE_BYTES', len(line)), \
+                patch('verify_runtime.MAX_LOG_PARSE_BYTES', len(payload)):
+            result = self.run_fake(code)
+        self.assertEqual(result['status'], 'passed', result)
+        self.assertIsNone(result['log_limits']['exceeded'])
+        self.assertEqual(result['log_limits']['read_bytes'], len(payload))
+        self.assertEqual(Path(result['log_path']).read_bytes(), payload)
+
+    def test_limit_found_only_during_final_drain_still_fails(self):
+        from verify_runtime import stop_owned_process
+
+        def append_late_log(process):
+            stop_owned_process(process)
+            log = next((self.root / 'runs').glob('*/runtime.log'))
+            with log.open('ab') as output:
+                output.write(b'x' * 4097)
+
+        with patch('verify_runtime.MAX_LOG_LINE_BYTES', 4096), \
+                patch('verify_runtime.stop_owned_process', side_effect=append_late_log):
+            result = self.run_fake(f'import time; print({UI!r}); time.sleep(10)')
+        self.assertEqual(result['status'], 'failed')
+        self.assertEqual(result['stop_reason'], 'duration_complete')
+        self.assertIn('line limit', result['log_limits']['exceeded'])
+
+    def test_total_log_budget_fails_even_for_short_valid_lines(self):
+        code = f'import time; print({UI!r}); print("safe line\\n" * 2000); time.sleep(10)'
+        with patch('verify_runtime.MAX_LOG_PARSE_BYTES', 4096):
+            result = self.run_fake(code)
+        self.assertEqual(result['status'], 'failed', result)
+        self.assertTrue(any('parse limit' in item for item in result['failures']))
+
+    def test_repeated_sigint_during_cleanup_is_deferred_and_handler_restored(self):
+        from verify_runtime import stop_owned_process
+        previous = signal.getsignal(signal.SIGINT)
+
+        def interrupt_cleanup(process):
+            signal.raise_signal(signal.SIGINT)
+            signal.raise_signal(signal.SIGINT)
+            stop_owned_process(process)
+
+        real_sleep = time.sleep
+        interrupted = False
+
+        def first_interrupt(seconds):
+            nonlocal interrupted
+            if not interrupted:
+                interrupted = True
+                signal.raise_signal(signal.SIGINT)
+            real_sleep(seconds)
+
+        with patch('verify_runtime.time.sleep', side_effect=first_interrupt), \
+                patch('verify_runtime.stop_owned_process', side_effect=interrupt_cleanup):
+            try:
+                result = self.run_fake('import time; time.sleep(10)')
+            except KeyboardInterrupt:
+                self.fail('second SIGINT escaped owned-process cleanup')
+        self.assertEqual(result['stop_reason'], 'interrupted')
+        self.assertEqual(result['status'], 'failed')
+        self.assertEqual(signal.getsignal(signal.SIGINT), previous)
 
     def test_launch_failure_still_emits_machine_readable_report(self):
         config = self.config('--binary', str(self.root / 'missing-executable'))

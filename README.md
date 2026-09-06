@@ -139,6 +139,8 @@ python3 tools/verify_runtime.py --stress 10000 --warmup 10 --duration 30 --timeo
 `verify_plaque.ptw` 由 Rust 存档测试生成。Windows 使用 `python`；其他平台通常使用 `python3`。
 工具默认在 `saves/verification/` 新建唯一结果目录，保留 `runtime.log`、`summary.json` 和可选新截图；
 可以用 `--output-dir` 指定目录。达到观察时长或超时后仅终止自己启动的进程，不发送保存按键。
+日志解析有 64 KiB 单行及 64 MiB 总字节预算，超限明确失败；原始日志保留，预算不等于磁盘配额。
+CLI 回收进程和最后解析期间临时忽略重复 Ctrl-C，结束后恢复原信号处理器。
 `--load`/`--screenshot` 不可与压力模式混用；运行中不要操作游戏或同时运行另一截图进程。
 已知 ICU 分词诊断单独计数，其他识别到的错误、意外退出、缺少 UI/导入/截图/压力采样证据均判失败。
 FPS 按日志生产时间划分窗口，避免积压日志混入预热后的采样；压力采样必须包含有效时间戳。

@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-06",
+  "base_revision": "22cc372",
+  "binary_sha256": "15b99e7f832e008d742d8c9bec15d3cf97f708c62f0102ff061457eac4f9fd5f",
+  "native_run": {
+    "schema_version": 1,
+    "status": "passed",
+    "stop_reason": "duration_complete",
+    "failures": [],
+    "binary": "/Users/jinguo.zeng/dmall/ai/phoenix-tower/target/debug/phoenix-tower",
+    "root": "/Users/jinguo.zeng/dmall/ai/phoenix-tower",
+    "mode": "riverside",
+    "requested_stress": 0,
+    "stress_spawn_counts": [],
+    "load_fixture": null,
+    "ui_ready": true,
+    "ready_seconds_after_launch": 4.688691292001749,
+    "warmup_seconds": 2.0,
+    "duration_seconds": 5.0,
+    "timeout_seconds": 60.0,
+    "elapsed_seconds": 11.712414292007452,
+    "sample_window_seconds_after_launch": [
+      6.688691292001749,
+      11.68869129200175
+    ],
+    "fps_required": true,
+    "fps": {
+      "count": 5,
+      "median": 60.0,
+      "min": 55.6,
+      "samples": [
+        {
+          "seconds_after_launch": 6.75003981590271,
+          "fps": 59.9
+        },
+        {
+          "seconds_after_launch": 7.767388820648193,
+          "fps": 60.0
+        },
+        {
+          "seconds_after_launch": 8.783267736434937,
+          "fps": 60.6
+        },
+        {
+          "seconds_after_launch": 9.783176898956299,
+          "fps": 60.1
+        },
+        {
+          "seconds_after_launch": 10.78304672241211,
+          "fps": 55.6
+        }
+      ]
+    },
+    "fps_timing": "producer_utc_relative_to_launch",
+    "untimed_fps_count": 0,
+    "exit_code_before_cleanup": null,
+    "exit_code": -15,
+    "owned_pid": 38960,
+    "owned_child_reaped": true,
+    "diagnostics": {
+      "known_icu_segmentation_count": 910,
+      "incomplete_known_icu_tail_count": 0,
+      "error_count": 0,
+      "error_examples": []
+    },
+    "log_limits": {
+      "line_bytes": 65536,
+      "parse_bytes": 67108864,
+      "read_bytes": 105053,
+      "exceeded": null,
+      "raw_bytes": 105053
+    },
+    "log_path": "/private/tmp/phoenix-boundaries-native/20260906T004350Z-xz0l3ysd/runtime.log",
+    "summary_path": "/private/tmp/phoenix-boundaries-native/20260906T004350Z-xz0l3ysd/summary.json",
+    "screenshot_path": null
+  },
+  "verification": {
+    "python_passed": 40,
+    "rust_passed": 98,
+    "rust_ignored": 1,
+    "check": "passed",
+    "clippy": "passed",
+    "fmt": "passed",
+    "diff_check": "passed"
+  },
+  "limitations": [
+    "Single short native smoke run, not performance improvement evidence.",
+    "SIGINT regression is in-process real signals, not independent terminal/Windows console acceptance.",
+    "Parsing budgets are not disk quotas or process-tree isolation."
+  ]
+}

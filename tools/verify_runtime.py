@@ -7,10 +7,13 @@ Build separately, then run, for example:
   python3 tools/verify_runtime.py --stress 10000 --warmup 10 --duration 30 --timeout 120
 
 Duration is the observation window AFTER requested startup evidence and warmup;
-timeout caps the entire child lifetime (plus at most 5 seconds for termination).
+timeout bounds observation; cleanup adds a 5-second termination grace, forced
+reaping if needed, and byte-bounded final parsing (not a hard wall-clock limit).
 Stress runs and --measure-fps require at least three FPS samples in that window.
 This checks evidence, not a portable performance target. Only --stress creates
 render-stress entities; --riverside keeps its real editable blocks.
+Parsing fails closed above 64 KiB per line or 64 MiB total; these are not disk
+quotas. Repeated SIGINT is ignored during owned-child cleanup in the CLI.
 Raw stdout AND stderr are retained in runtime.log, including known ICU diagnostics.
 No save keys are sent, save slots are never written, and screenshots are opt-in.
 The binary must be built from --root: the game embeds its asset/save root at build
@@ -24,10 +27,12 @@ import os
 from pathlib import Path
 import re
 import shutil
+import signal
 import statistics
 import subprocess
 import tempfile
 import time
+import threading
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,6 +48,8 @@ ERROR = re.compile(
     r'^(?:ERROR\b|FATAL\b|ICU4X data error:|wgpu error:|Validation Error|'
     r'LLVM ERROR:|panic(?:ked)?\b|thread .+ panicked\b)', re.IGNORECASE)
 MIN_FPS_SAMPLES = 3
+MAX_LOG_LINE_BYTES = 64 * 1024
+MAX_LOG_PARSE_BYTES = 64 * 1024 * 1024
 
 
 class LogEvidence:
@@ -231,14 +238,27 @@ def run_verification(args, *, command=None):
     exit_code = None
     failures = []
     pending = b''
+    parsed_bytes = 0
+    log_limit = None
 
     def drain(reader, final=False, terminated_tail=False):
-        nonlocal pending
-        # Cap per-poll work so a noisy child cannot prevent deadline checks.
-        chunk = reader.read(1024 * 1024)
-        pending += chunk
-        lines = pending.split(b'\n')
+        nonlocal pending, parsed_bytes, log_limit
+        if log_limit:
+            return False
+        # Bound both per-poll work and the final drain. One extra byte detects
+        # overflow; the raw file remains intact, and incomplete analysis fails.
+        chunk = reader.read(min(1024 * 1024, MAX_LOG_PARSE_BYTES - parsed_bytes + 1))
+        parsed_bytes += len(chunk)
+        if parsed_bytes > MAX_LOG_PARSE_BYTES:
+            log_limit = f'Log parse limit exceeded ({MAX_LOG_PARSE_BYTES} bytes).'
+            pending = b''
+            return False
+        lines = (pending + chunk).split(b'\n')
         pending = lines.pop()
+        if len(pending) > MAX_LOG_LINE_BYTES or any(len(line) > MAX_LOG_LINE_BYTES for line in lines):
+            log_limit = f'Log line limit exceeded ({MAX_LOG_LINE_BYTES} bytes).'
+            pending = b''
+            return False
         elapsed = time.monotonic() - start
         for line in lines:
             evidence.feed(line.decode('utf-8', errors='replace'), elapsed)
@@ -262,6 +282,9 @@ def run_verification(args, *, command=None):
                 if exit_code is not None:
                     stop_reason = 'early_exit'
                     break
+                if log_limit:
+                    stop_reason = 'log_limit'
+                    break
                 if evidence.error_count:
                     stop_reason = 'runtime_error'
                     break
@@ -284,15 +307,26 @@ def run_verification(args, *, command=None):
             failures.append(f'{type(error).__name__}: {error}')
             stop_reason = 'launch_error' if process is None else 'verifier_error'
         finally:
-            if process is not None and stop_reason == 'duration_complete':
-                exit_code = process.poll()
-                if exit_code is not None:
-                    stop_reason = 'early_exit'
-            stop_owned_process(process)
-            # Child is reaped before the final read, retaining stderr and any late errors.
-            while drain(reader):
-                pass
-            drain(reader, final=True, terminated_tail=stop_reason == 'duration_complete')
+            # Ctrl-C has already selected failure above. Further SIGINT must
+            # not strand the owned child during its bounded termination grace.
+            # Signal handlers may only be installed by Python's main thread.
+            main_thread = threading.current_thread() is threading.main_thread()
+            previous_sigint = signal.signal(signal.SIGINT, signal.SIG_IGN) if main_thread else None
+            try:
+                if process is not None and stop_reason == 'duration_complete':
+                    exit_code = process.poll()
+                    if exit_code is not None:
+                        stop_reason = 'early_exit'
+                stop_owned_process(process)
+                # Child is reaped before bounded final parsing of late errors.
+                while drain(reader):
+                    pass
+                drain(reader, final=True, terminated_tail=stop_reason == 'duration_complete')
+            finally:
+                if main_thread:
+                    signal.signal(signal.SIGINT, previous_sigint)
+    if log_limit:
+        failures.append(log_limit + ' Evidence is incomplete; raw output remains in runtime.log.')
     elapsed = time.monotonic() - start
     window_start = ready_at + args.warmup if ready_at is not None else elapsed
     window_end = min(window_start + args.duration, elapsed)
@@ -348,6 +382,9 @@ def run_verification(args, *, command=None):
         'diagnostics': {'known_icu_segmentation_count': evidence.known_icu_count,
                         'incomplete_known_icu_tail_count': evidence.incomplete_known_icu_tail_count,
                         'error_count': evidence.error_count, 'error_examples': evidence.error_examples},
+        'log_limits': {'line_bytes': MAX_LOG_LINE_BYTES, 'parse_bytes': MAX_LOG_PARSE_BYTES,
+                       'read_bytes': parsed_bytes, 'exceeded': log_limit,
+                       'raw_bytes': log_path.stat().st_size},
         'log_path': str(log_path), 'summary_path': str(summary_path),
         'screenshot_path': str(screenshot_path) if screenshot_path else None,
     }

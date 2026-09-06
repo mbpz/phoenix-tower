@@ -82,3 +82,7 @@
 - `tools/verify_runtime.py`、`tools/test_verify_runtime.py`：可选帧率证据、4 项回归。
 - `README.md`、`docs/design/riverside-slice.md`：命令和历史交付状态更新。
 - 本记录与 `docs/refactoring/riverside-risk-evidence.json`：计划、验收、量化证据和剩余边界。
+
+## 后续边界修复（基线 `22cc372`）
+
+上述第 5 项中的无换行日志解析增长及 CLI 重复 SIGINT 回收问题已另行收敛，详见 `runtime-verifier-boundaries.md`。原始日志磁盘占用、派生子进程、强制杀死验证器等边界仍不属于沙箱保证；其余玩法、上游中文及跨平台风险保持不变。
