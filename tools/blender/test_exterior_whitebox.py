@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
-from exterior_whitebox import roof_mesh, tier_outline, output_paths, approach_steps, save_checkpoint, component_volumes
+from exterior_whitebox import roof_mesh, tier_outline, output_paths, approach_steps, save_checkpoint, component_volumes, transition_band, enclosure_height
 
 
 class ExteriorGeometryTests(unittest.TestCase):
@@ -96,6 +96,61 @@ class ExteriorGeometryTests(unittest.TestCase):
             roof_mesh([], [], 1, 0, [])
         with self.assertRaises(ValueError):
             roof_mesh([(0,0)]*4, [(0,0)]*4, 1, 0, [], thickness=0)
+
+    def test_transition_band_is_bounded_and_fourfold_symmetric(self):
+        import json
+        data=json.loads((Path(__file__).resolve().parents[2]/'docs/refactoring/yellow-crane-plan-traces.json').read_text())
+        outline=next(f['outline_m'] for f in data['floors'] if f['id']=='L2')
+        members=transition_band(outline,12.3)
+        def key(label,center,size,material):
+            return label,tuple(round(v,6) for v in center),tuple(round(v,6) for v in size),material
+        actual=Counter(key(*m) for m in members)
+        rotated=Counter(key(label,(-y,x,z),(sy,sx,sz),material) for label,(x,y,z),(sx,sy,sz),material in members)
+        self.assertEqual(actual,rotated)
+        self.assertGreater(len(members),0)
+        for _,(x,y,z),(sx,sy,sz),_ in members:
+            self.assertTrue(all(math.isfinite(v) and v>0 for v in (sx,sy,sz)))
+            self.assertGreaterEqual(z-sz/2,10.5-1e-9)
+            self.assertLessEqual(z+sz/2,12.15+1e-9)
+            self.assertLessEqual(abs(x)+sx/2,12+1e-9)
+            self.assertLessEqual(abs(y)+sy/2,12+1e-9)
+
+    def test_transition_cells_are_recessed_not_a_solid_front_wall(self):
+        members=transition_band([(-6,-6),(-6,6),(6,6),(6,-6)],12.3)
+        cells=[m for m in members if m[0]=='Transition_recess_cells' and m[1][1]<-5]
+        self.assertGreater(len(cells),4)
+        for _,(x,y,z),(sx,sy,sz),material in cells:
+            self.assertGreater(y-sy/2,-5.88) # behind frame centre plane
+            self.assertLess(sz,.8)
+            self.assertLess(sx,1.1)
+            self.assertEqual(material,'recess')
+        # No full-height blank member may run the entire facade in the cell band.
+        for label,(_,_,z),(sx,sy,sz),_ in members:
+            if abs(z-11.05)<.1 and label!='Transition_recess_cells':
+                self.assertLess(min(sx,sy),.25)
+                self.assertLess(max(sx,sy),12)
+
+    def test_transition_band_rejects_invalid_contours(self):
+        for outline in ([],[(0,0)]*4,[(0,0),(1,1),(0,2)],[(0,0),(0,1),(float('nan'),1),(1,0)]):
+            with self.assertRaises(ValueError):
+                transition_band(outline,12.3)
+        with self.assertRaises(ValueError):
+            transition_band([(-6,-6),(-6,6),(6,6),(6,-6)],float('nan'))
+
+    def test_transition_band_accepts_either_winding_and_moves_with_floor(self):
+        outline=[(-6,-6),(-6,6),(6,6),(6,-6)]
+        def normalized(members,offset=0):
+            return Counter((label,tuple(round(v,5) for v in (x,y,z-offset)),tuple(round(v,5) for v in size),material) for label,(x,y,z),size,material in members)
+        base=normalized(transition_band(outline,12.3))
+        self.assertEqual(base,normalized(transition_band(list(reversed(outline)),12.3)))
+        self.assertEqual(base,normalized(transition_band(outline,13.3),1))
+
+    def test_only_ground_enclosure_ceiling_changes(self):
+        self.assertEqual(enclosure_height(0,6),7.1)
+        self.assertAlmostEqual(enclosure_height(12.3,19.4),7.1)
+        self.assertAlmostEqual(enclosure_height(19.4,26),6.6)
+        self.assertAlmostEqual(enclosure_height(26,32.6),6.6)
+        self.assertAlmostEqual(enclosure_height(32.6,40.6),8)
 
     def test_existing_outputs_preserved(self):
         with tempfile.TemporaryDirectory() as d:

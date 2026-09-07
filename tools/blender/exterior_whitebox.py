@@ -64,6 +64,67 @@ def roof_mesh(inner, outer, ridge_z, eave_z, tips, thickness=.18, steps=12, subd
     return vertices,faces
 
 
+def enclosure_height(elevation, schematic_top):
+    """Ground enclosure stops below its canopy; upper stories retain v04 heights."""
+    if elevation == 0:
+        return 7.1
+    return (40.6 if elevation == 32.6 else schematic_top) - elevation
+
+
+def transition_band(outline, floor_z):
+    """Batched box descriptors for estimated rectangular cells under the L2 slab.
+
+    Plate 2-2-7 shows a divided band, not evidence of transparent glass. Opaque
+    recessed cells preserve this uncertainty. Heights, divisions and sections
+    are visual estimates. Outline must be a simple orthogonal floor perimeter.
+    """
+    if len(outline)<4 or not math.isfinite(floor_z) or any(not math.isfinite(v) for p in outline for v in p):
+        raise ValueError('Finite orthogonal outline and floor level required')
+    area=sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(outline,outline[1:]+outline[:1]))
+    if abs(area)<1e-8:
+        raise ValueError('Non-degenerate outline required')
+    normals=[]
+    for (ax,ay),(bx,by) in zip(outline,outline[1:]+outline[:1]):
+        dx,dy=bx-ax,by-ay
+        if (dx==0)==(dy==0):
+            raise ValueError('Non-zero axis-aligned edges required')
+        length=math.hypot(dx,dy)
+        sign=1 if area>0 else -1
+        normals.append((-dy/length*sign,dx/length*sign))
+    # Offset both adjacent supporting lines; unlike scaling, this retains steps.
+    inset=[(x+.12*(normals[i-1][0]+normals[i][0]),y+.12*(normals[i-1][1]+normals[i][1])) for i,(x,y) in enumerate(outline)]
+    members=[]
+    bottom,top=floor_z-1.65,floor_z-.85
+    for i,((ax,ay),(bx,by)) in enumerate(zip(inset,inset[1:]+inset[:1])):
+        length=math.hypot(bx-ax,by-ay)
+        if length<.4:
+            raise ValueError('Band edges must accommodate a framed cell')
+        ux,uy=(bx-ax)/length,(by-ay)/length
+        nx,ny=normals[i]
+        def member(label,distance,z,width,height,material='wood',depth=.22,recess=0):
+            center=(ax+ux*distance+nx*recess,ay+uy*distance+ny*recess,z)
+            size=(width,depth,height) if ux else (depth,width,height)
+            members.append((label,center,size,material))
+        member('Transition_sill',length/2,bottom-.075,length+.22,.15,'stone')
+        member('Transition_header',length/2,(top+floor_z-.15)/2,length+.22,floor_z-.15-top,'wall')
+        bays=max(1,round(length/4))
+        pitch=length/bays
+        for j in range(bays+1):
+            member('Transition_piers',j*pitch,(bottom+top)/2,.20,top-bottom,'wall')
+        for j in range(bays):
+            start=j*pitch+.10
+            clear=pitch-.20
+            for z in (bottom+.03,top-.03):
+                member('Transition_frames',start+clear/2,z,clear,.06)
+            cells=max(1,round(clear/.85))
+            cell_pitch=clear/cells
+            for k in range(1,cells):
+                member('Transition_frames',start+k*cell_pitch,(bottom+top)/2,.055,top-bottom-.12)
+            for k in range(cells):
+                member('Transition_recess_cells',start+(k+.5)*cell_pitch,(bottom+top)/2,cell_pitch-.055,top-bottom-.12,'recess',depth=.04,recess=.07)
+    return members
+
+
 def component_volumes(vertices, faces):
     """Signed volume per connected shell; a large shell cannot hide an inverted one."""
     parent=list(range(len(vertices)))
@@ -162,7 +223,7 @@ def build(root, version='01'):
         scene.collection.children.link(c)
         groups[key]=c
     materials={}
-    for key,color in {'roof':(.57,.61,.64,1),'wall':(.78,.75,.68,1),'wood':(.43,.40,.35,1),'stone':(.66,.68,.66,1)}.items():
+    for key,color in {'roof':(.57,.61,.64,1),'wall':(.78,.75,.68,1),'wood':(.43,.40,.35,1),'stone':(.66,.68,.66,1),'recess':(.24,.28,.30,1)}.items():
         m=bpy.data.materials.new(f'WB{version}_{key}')
         m.diffuse_color=color
         materials[key]=m
@@ -216,7 +277,7 @@ def build(root, version='01'):
                         wx,wy=rotate(x+dx,half)
                         box('Window_mullions',(wx,wy,z+3.05),(.09,.09,1.8))
                 box('Wall_lintels',(px,py,z+4.18),(*width,.35))
-                ceiling = 12.3 if z==0 else (40.6-z if z==32.6 else floor['schematic_post_top_m']-z)
+                ceiling = enclosure_height(z, floor['schematic_post_top_m'])
                 box('Upper_enclosure_frieze',(px,py,z+(4.35+ceiling)/2),(*((2.04,.24) if side%2==0 else (.24,2.04)),ceiling-4.35),'wall')
         # Estimated post-head beam silhouettes; detailed dougong belongs to M2.
         for (ax,ay),(bx,by) in zip(outline,outline[1:]+outline[:1]):
@@ -233,6 +294,10 @@ def build(root, version='01'):
                 for j in range(int(length/.65)+1):
                     t=j/max(1,int(length/.65))
                     box('Balcony_balusters',(ax+(bx-ax)*t,ay+(by-ay)*t,z+.65),(.10,.10,.8),'stone')
+
+    second_floor=next(f for f in data['floors'] if f['id']=='L2')
+    for label,center,size,material in transition_band(second_floor['outline_m'],second_floor['elevation_m']):
+        box(label,center,size,material)
 
     for label,scale,inner_ratio,ridge,eave in [
         ('Ground_canopy',1.29,.50,10.21,7.23),
@@ -317,5 +382,5 @@ def build(root, version='01'):
         bm.free()
     if any(r['non_manifold_edges'] or r['inconsistent_winding_edges'] or r['signed_volume']<=0 or r['min_component_volume']<=0 for r in results):
         raise ValueError(f'Invalid whitebox meshes: {results}')
-    scene['pending_report']=json.dumps({'status':'M1_in_progress_not_visually_accepted','source':'design plates, NOT as-built','scene':name,'meshes':results,'triangles':sum(r['triangles'] for r in results),'limitations':['Roof intersections untrimmed','Transferred lower-tier outline estimates','No material/UV/detail/game acceptance','Wall openings and finial proxy dimensions']},indent=2)
+    scene['pending_report']=json.dumps({'status':'M1_in_progress_not_visually_accepted','source':'design plates, NOT as-built','scene':name,'meshes':results,'triangles':sum(r['triangles'] for r in results),'limitations':['Roof intersections untrimmed','Transferred lower-tier outline estimates','No material/UV/detail/game acceptance','Wall openings and finial proxy dimensions','L2 transition cells are opaque visual proxies, not verified window construction']},indent=2)
     return save_scene_checkpoint(scene,blend,report)

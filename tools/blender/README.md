@@ -49,11 +49,11 @@ scope['build_study'](root)
 
 `exterior_whitebox.py` reuses the study's slab/column helpers and creates a **new**
 versioned scene via Blender MCP. Current local checkpoint is
-`HHL_Exterior_Whitebox_04` / `.omx/references/yellow-crane/exterior-whitebox-04.blend`.
+`HHL_Exterior_Whitebox_05` / `.omx/references/yellow-crane/exterior-whitebox-05.blend`.
 It has NOT passed architectural fidelity or game acceptance. See
 `docs/refactoring/yellow-crane-exterior-whitebox-notes.md` for source/estimate boundaries.
 
-Load this module with `tools/blender` on `sys.path`, then call `build(repo_root, '05')`
+Load this module with `tools/blender` on `sys.path`, then call `build(repo_root, '06')`
 through Blender MCP for a new iteration. It refuses existing output files or scenes;
 never delete previous versions to bypass the guard. If saving fails without creating
 outputs, calling the same version retries saving its retained scene, not reconstruction.
@@ -73,3 +73,10 @@ Reports now verify non-manifold edges, winding consistency and signed volumes pe
 connected shell. These checks do **not** certify self-intersections, roof junctions,
 walkable collision or real-time performance. Raw reference plates and local Blend/
 overlay outputs must remain out of Git and game packages.
+
+Checkpoint 05 limits the ground enclosure to the existing estimated post-head height
+and adds a stepped rectangular-cell band below L2. Cells are **opaque recessed
+proxies**, not verified windows/glazing. The band reuses batched boxes and the L2
+floor outline; vertical bounds, subdivisions and member sections remain estimates.
+Pure tests cover bounds, rotational/winding invariance, recesses and upper-story
+height regression. Roof geometry is unchanged from checkpoint 04.
