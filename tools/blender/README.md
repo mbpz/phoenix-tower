@@ -43,3 +43,33 @@ scope['build_study'](root)
 翼角折线仅用于对照原图，禁止当作米制屋面扫描截面。
 `export_to_game=false` 是语义标记，不会替代 Blender 导出器的人工筛选。
 不要将任何研究场景或原图直接导出到游戏；完整限制与来源见研究登记文档。
+
+
+## Exterior whitebox (M1 WIP)
+
+`exterior_whitebox.py` reuses the study's slab/column helpers and creates a **new**
+versioned scene via Blender MCP. Current local checkpoint is
+`HHL_Exterior_Whitebox_04` / `.omx/references/yellow-crane/exterior-whitebox-04.blend`.
+It has NOT passed architectural fidelity or game acceptance. See
+`docs/refactoring/yellow-crane-exterior-whitebox-notes.md` for source/estimate boundaries.
+
+Load this module with `tools/blender` on `sys.path`, then call `build(repo_root, '05')`
+through Blender MCP for a new iteration. It refuses existing output files or scenes;
+never delete previous versions to bypass the guard. If saving fails without creating
+outputs, calling the same version retries saving its retained scene, not reconstruction.
+If a partial output exists, preserve it and use a new version. Validation failures also
+retain the new scene for inspection; correct code in a new version.
+
+Roof panels are closed curved patches, but inter-object overlaps remain. Repeated
+rails/windows/stairs are batched; no new dependency is needed for generation/tests.
+`export_to_game=false` is metadata only, not an enforced exporter guard. No export is
+performed by this module. Run all pure regression tests with:
+
+```sh
+python3 -m unittest discover -s tools/blender -p 'test_*.py' -q
+```
+
+Reports now verify non-manifold edges, winding consistency and signed volumes per
+connected shell. These checks do **not** certify self-intersections, roof junctions,
+walkable collision or real-time performance. Raw reference plates and local Blend/
+overlay outputs must remain out of Git and game packages.
