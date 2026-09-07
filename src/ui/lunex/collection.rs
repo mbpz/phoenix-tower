@@ -1,5 +1,6 @@
 //! Codex, achievements, and knowledge-card presentation.
 use super::palette::{PALETTE_VISIBLE, ROW_H_PCT};
+use super::set_hover;
 use super::LunexTheme;
 use crate::building::block_defs::BlockLibrary;
 use crate::building::collection::{achievement_defs, Collection, KnowledgeHints};
@@ -85,7 +86,7 @@ pub(super) fn b7_knowledge_sync(
     }
     for mut v in &mut cards {
         *v = if hints.card.is_some() {
-            Visibility::Visible
+            Visibility::Inherited
         } else {
             Visibility::Hidden
         };
@@ -208,7 +209,7 @@ pub(super) fn codex_scroll_system(
         *vis = if y < 0.0 || y > 100.0 {
             Visibility::Hidden
         } else {
-            Visibility::Visible
+            Visibility::Inherited
         };
     }
 }
@@ -279,7 +280,7 @@ pub(super) fn spawn_collection_tabs(
                     font_size: FontSize::Px(20.0),
                     ..default()
                 },
-                UiTextSize::from(Rh(3.0)),
+                UiTextSize::from(Ab(20.0)),
                 UiColor::new(vec![(UiBase::id(), theme.accent)]),
                 UiLayout::window()
                     .pos((Rl(4.0), Rh(2.0)))
@@ -309,7 +310,7 @@ pub(super) fn spawn_collection_tabs(
                         font_size: FontSize::Px(15.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(3.4)),
+                    UiTextSize::from(Ab(15.0)),
                     UiColor::new(vec![(UiBase::id(), theme.text_main)]),
                     UiLayout::window()
                         .pos((Rl(4.0), Rh(4.0)))
@@ -355,8 +356,8 @@ pub(super) fn spawn_collection_tabs(
                         MeshMaterial2d(row_mat),
                         CodexRow(i),
                     ))
-                    .observe(hover_set::<Pointer<Over>, true>)
-                    .observe(hover_set::<Pointer<Out>, false>)
+                    .observe(set_hover::<Pointer<Over>, true>)
+                    .observe(set_hover::<Pointer<Out>, false>)
                     .observe(codex_row_click)
                     .with_children(|row| {
                         // 文本必须为独立子节点：文本缩放作用于本实体 Transform，
@@ -369,7 +370,7 @@ pub(super) fn spawn_collection_tabs(
                                 font_size: FontSize::Px(18.0),
                                 ..default()
                             },
-                            UiTextSize::from(Rh(52.0)),
+                            UiTextSize::from(Ab(18.0)),
                             UiColor::new(vec![(
                                 UiBase::id(),
                                 if unlocked {
@@ -412,7 +413,7 @@ pub(super) fn spawn_collection_tabs(
                     font_size: FontSize::Px(20.0),
                     ..default()
                 },
-                UiTextSize::from(Rh(3.0)),
+                UiTextSize::from(Ab(20.0)),
                 UiColor::new(vec![(UiBase::id(), theme.accent)]),
                 UiLayout::window()
                     .pos((Rl(4.0), Rh(2.0)))
@@ -449,7 +450,7 @@ pub(super) fn spawn_collection_tabs(
                             font_size: FontSize::Px(16.0),
                             ..default()
                         },
-                        UiTextSize::from(Rh(3.0)),
+                        UiTextSize::from(Ab(16.0)),
                         UiColor::new(vec![(
                             UiBase::id(),
                             if unlocked {

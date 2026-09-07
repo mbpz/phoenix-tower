@@ -9,6 +9,7 @@
 //!
 //! 挑战定义数据驱动：resources/challenges/*.ron
 
+use crate::ui::input::{shortcuts_allowed, InputOwnership};
 use std::collections::HashMap;
 
 use bevy::prelude::*;
@@ -242,6 +243,7 @@ pub fn start_challenge(
 
 /// C 键启动 / 重新开始挑战。
 fn challenge_key_start(
+    ownership: Option<Res<InputOwnership>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
     mut stack: ResMut<PlacedBlocks>,
@@ -250,7 +252,7 @@ fn challenge_key_start(
     mut challenge: ResMut<Challenge>,
     placed_query: Query<Entity, With<PlacedBlock>>,
 ) {
-    if keys.just_pressed(KeyCode::KeyC) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::KeyC) {
         start_challenge(
             &mut commands,
             &mut stack,
@@ -454,6 +456,42 @@ mod tests {
         let blueprint = app.world().resource::<Blueprint>();
         assert!(blueprint.completed);
         assert!((blueprint.completion - 1.0).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn focused_path_and_modified_c_do_not_restart_challenge() {
+        use crate::ui::input::InputOwnershipPlugin;
+        use crate::ui::lunex::{LunexTab, LunexTabId, PathInput};
+
+        let mut app = lifecycle_app();
+        app.add_plugins(InputOwnershipPlugin)
+            .insert_resource(PathInput {
+                value: String::new(),
+                focused: true,
+            })
+            .insert_resource(LunexTab(LunexTabId::Saves));
+        let entity = place_fixture(&mut app, IVec3::X);
+        let revision = app.world().resource::<PlacedBlocks>().revision;
+        lifecycle_step(&mut app, 0.0, true);
+        assert!(app.world().get_entity(entity).is_ok());
+        assert_eq!(app.world().resource::<PlacedBlocks>().revision, revision);
+        assert_eq!(
+            app.world().resource::<Challenge>().state,
+            ChallengeState::Idle
+        );
+
+        app.world_mut().resource_mut::<PathInput>().focused = false;
+        for modifier in [KeyCode::ControlLeft, KeyCode::SuperLeft, KeyCode::AltLeft] {
+            let mut keys = app.world_mut().resource_mut::<ButtonInput<KeyCode>>();
+            keys.reset_all();
+            keys.press(modifier);
+            keys.press(KeyCode::KeyC);
+            app.update();
+            assert!(app.world().get_entity(entity).is_ok());
+            assert_eq!(app.world().resource::<PlacedBlocks>().revision, revision);
+        }
+        lifecycle_step(&mut app, 0.0, true);
+        assert!(app.world().get_entity(entity).is_err());
     }
 
     #[test]

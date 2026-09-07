@@ -3,6 +3,7 @@ use super::challenges::spawn_challenge_section;
 use super::collection::spawn_collection_tabs;
 use super::palette::{spawn_blueprint_section, spawn_palette_list};
 use super::saves::spawn_saves_tab;
+use super::set_hover;
 use super::{
     KnowledgeCardDesc, KnowledgeCardName, KnowledgeCardRoot, TabAchievementsRoot, TabCodexRoot,
 };
@@ -91,6 +92,7 @@ fn tab_button_click(
     trigger: On<Pointer<Click>>,
     mut tab: ResMut<LunexTab>,
     buttons: Query<&TabButton>,
+    mut path: ResMut<super::PathInput>,
 ) {
     if trigger.event().button != PointerButton::Primary {
         return;
@@ -99,6 +101,9 @@ fn tab_button_click(
         return;
     };
     tab.0 = btn.0;
+    if btn.0 != LunexTabId::Saves {
+        path.focused = false;
+    }
 }
 
 type TabContentQuery<'w, 's> = Query<
@@ -134,7 +139,7 @@ pub(super) fn lunex_tab_sync(
             || (codex.is_some() && tab.0 == LunexTabId::Codex)
             || (achievements.is_some() && tab.0 == LunexTabId::Achievements);
         *v = if visible {
-            Visibility::Visible
+            Visibility::Inherited
         } else {
             Visibility::Hidden
         };
@@ -208,8 +213,8 @@ fn spawn_palette_nodes(
                     MeshMaterial2d(tab_material),
                     TabButton(*tab),
                 ))
-                .observe(hover_set::<Pointer<Over>, true>)
-                .observe(hover_set::<Pointer<Out>, false>)
+                .observe(set_hover::<Pointer<Over>, true>)
+                .observe(set_hover::<Pointer<Out>, false>)
                 .observe(tab_button_click)
                 .with_children(|b| {
                     b.spawn((
@@ -220,9 +225,9 @@ fn spawn_palette_nodes(
                             font_size: FontSize::Px(18.0),
                             ..default()
                         },
-                        UiTextSize::from(Rh(50.0)),
+                        UiTextSize::from(Ab(18.0)),
                         UiColor::new(vec![(UiBase::id(), theme.text_main)]),
-                        UiLayout::window().full().pack(),
+                        super::typography::centered_label_layout(),
                         Pickable::IGNORE,
                     ));
                 });
@@ -237,7 +242,7 @@ fn spawn_palette_nodes(
                 font_size: FontSize::Px(26.0),
                 ..default()
             },
-            UiTextSize::from(Rh(4.5)),
+            UiTextSize::from(Ab(26.0)),
             UiColor::new(vec![(UiBase::id(), theme.accent)]),
             UiLayout::window()
                 .pos((Rl(50.0), Rh(10.5)))
@@ -326,12 +331,12 @@ pub(super) fn spawn_hud_root(
                     Text2d::new("黄鹤楼 · 筑梦江城"),
                     TextFont {
                         font: font.clone(),
-                        font_size: FontSize::Px(44.0),
+                        font_size: FontSize::Px(24.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(55.0)),
+                    UiTextSize::from(Ab(24.0)),
                     UiColor::new(vec![(UiBase::id(), theme.accent)]),
-                    UiLayout::window().full().pack(),
+                    super::typography::centered_label_layout(),
                     // 纯展示文本，不参与点击
                     Pickable::IGNORE,
                 ));
@@ -377,7 +382,7 @@ pub(super) fn spawn_hud_root(
                         font_size: FontSize::Px(20.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(26.0)),
+                    UiTextSize::from(Ab(20.0)),
                     UiColor::new(vec![(UiBase::id(), theme.accent)]),
                     UiLayout::window()
                         .pos((Rl(3.0), Rh(8.0)))
@@ -394,7 +399,7 @@ pub(super) fn spawn_hud_root(
                         font_size: FontSize::Px(15.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(16.0)),
+                    UiTextSize::from(Ab(15.0)),
                     UiColor::new(vec![(UiBase::id(), theme.text_main)]),
                     UiLayout::window()
                         .pos((Rl(3.0), Rh(44.0)))

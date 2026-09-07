@@ -12,6 +12,7 @@
 //!
 //! 检测逻辑为纯函数（Collection::update / scan_placed），单元测试覆盖。
 
+use crate::ui::input::{shortcuts_allowed, InputOwnership};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 
@@ -20,7 +21,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::building::block_defs::BlockLibrary;
 use crate::building::challenge::ChallengeState;
-use crate::building::placement::PlacedBlocks;
+use crate::building::placement::{handle_place_and_undo, BlueprintPlacementUndone, PlacedBlocks};
 
 // ---------- 成就定义 ----------
 
@@ -92,7 +93,7 @@ impl Collection {
         blueprint_active: bool,
         challenge_state: ChallengeState,
         challenge_stars: u8,
-        undo_pressed: bool,
+        undo_performed: bool,
         revision: u64,
     ) -> Updates {
         let mut updates = Updates::default();
@@ -114,7 +115,7 @@ impl Collection {
         if blueprint_active && !self.blueprint_active_prev {
             self.undo_used_this_run = false;
         }
-        if undo_pressed && blueprint_active {
+        if undo_performed && blueprint_active {
             self.undo_used_this_run = true;
         }
         self.blueprint_active_prev = blueprint_active;
@@ -285,6 +286,7 @@ pub fn pick_next_card(
 
 /// 智能提示系统：K 键开关；放置动作重置空闲计时；停顿 >12s 弹卡片（8s 后消失）。
 fn knowledge_hint_system(
+    ownership: Option<Res<InputOwnership>>,
     time: Res<Time>,
     keys: Res<ButtonInput<KeyCode>>,
     stack: Res<PlacedBlocks>,
@@ -294,7 +296,7 @@ fn knowledge_hint_system(
     mut hints: ResMut<KnowledgeHints>,
     mut prev_revision: Local<u64>,
 ) {
-    if keys.just_pressed(KeyCode::KeyK) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::KeyK) {
         hints.enabled = !hints.enabled;
         if !hints.enabled {
             hints.card = None;
@@ -335,25 +337,27 @@ pub struct CollectionPlugin;
 
 impl Plugin for CollectionPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(load_progress())
+        app.add_message::<BlueprintPlacementUndone>()
+            .insert_resource(load_progress())
             .insert_resource(KnowledgeHints::default())
-            .add_systems(Update, (collection_system, knowledge_hint_system));
+            .add_systems(
+                Update,
+                (
+                    collection_system.after(handle_place_and_undo),
+                    knowledge_hint_system,
+                ),
+            );
     }
 }
 
 fn collection_system(
-    keys: Res<ButtonInput<KeyCode>>,
+    mut undone: MessageReader<BlueprintPlacementUndone>,
     stack: Res<PlacedBlocks>,
     blueprint: Res<crate::building::blueprint::Blueprint>,
     challenge: Res<crate::building::challenge::Challenge>,
     mut collection: ResMut<Collection>,
 ) {
-    let modifier = keys.pressed(KeyCode::ControlLeft)
-        || keys.pressed(KeyCode::ControlRight)
-        || keys.pressed(KeyCode::SuperLeft)
-        || keys.pressed(KeyCode::SuperRight);
-    let undo_pressed =
-        keys.just_pressed(KeyCode::Backspace) || (modifier && keys.just_pressed(KeyCode::KeyZ));
+    let undo_performed = undone.read().count() > 0;
 
     let updates = collection.update(
         &stack,
@@ -361,7 +365,7 @@ fn collection_system(
         blueprint.active,
         challenge.state,
         challenge.stars,
-        undo_pressed,
+        undo_performed,
         stack.revision,
     );
 
@@ -420,6 +424,31 @@ mod tests {
             u.achievements.contains(&ACH_FLAWLESS.to_string()),
             "未撤销时应解锁一气呵成"
         );
+    }
+
+    #[test]
+    fn collection_counts_undo_facts_not_raw_backspace() {
+        let mut blueprint = crate::building::blueprint::load_blueprint();
+        blueprint.active = true;
+        blueprint.completed = false;
+        let mut app = App::new();
+        app.init_resource::<Collection>()
+            .init_resource::<PlacedBlocks>()
+            .init_resource::<ButtonInput<KeyCode>>()
+            .insert_resource(blueprint)
+            .insert_resource(crate::building::challenge::load_challenge())
+            .add_message::<BlueprintPlacementUndone>()
+            .add_systems(Update, collection_system);
+        app.world_mut()
+            .resource_mut::<ButtonInput<KeyCode>>()
+            .press(KeyCode::Backspace);
+        app.update();
+        assert!(!app.world().resource::<Collection>().undo_used_this_run);
+        app.world_mut()
+            .resource_mut::<Messages<BlueprintPlacementUndone>>()
+            .write(BlueprintPlacementUndone);
+        app.update();
+        assert!(app.world().resource::<Collection>().undo_used_this_run);
     }
 
     #[test]

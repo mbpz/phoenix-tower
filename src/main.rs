@@ -66,6 +66,7 @@ fn main() {
             ScenePlugin,
             HudPlugin,
             LunexUiPlugin,
+            ui::input::InputOwnershipPlugin,
             SavePlugin,
             ScreenshotPlugin,
             StabilityPlugin,

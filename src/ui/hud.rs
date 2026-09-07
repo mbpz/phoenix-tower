@@ -19,17 +19,34 @@ pub struct HudPlugin;
 
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_hint)
-            .add_systems(Update, update_hint);
+        app.init_resource::<HelpVisible>()
+            .add_systems(Startup, spawn_hint)
+            .add_systems(Update, (toggle_help, update_hint).chain());
     }
 }
 
 #[derive(Component)]
 struct HintText;
 
+#[derive(Resource, Default)]
+struct HelpVisible(bool);
+
+fn toggle_help(
+    keys: Res<ButtonInput<KeyCode>>,
+    mut help: ResMut<HelpVisible>,
+    ownership: Option<Res<crate::ui::input::InputOwnership>>,
+) {
+    if crate::ui::input::shortcuts_allowed(&keys, ownership.as_deref())
+        && keys.just_pressed(KeyCode::F1)
+    {
+        help.0 = !help.0;
+    }
+}
+
 fn spawn_hint(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         Text::new(""),
+        TextLayout::linebreak(bevy::text::LineBreak::AnyCharacter),
         TextFont {
             font: FontSource::Handle(asset_server.load("fonts/NotoSansSC-subset.otf")),
             font_size: FontSize::Px(15.0),
@@ -38,17 +55,26 @@ fn spawn_hint(mut commands: Commands, asset_server: Res<AssetServer>) {
         TextColor(Color::WHITE),
         Node {
             position_type: PositionType::Absolute,
-            // 右下角：避免与左侧 egui 积木面板重叠
-            bottom: Val::Px(12.0),
-            right: Val::Px(12.0),
+            // Bound text in logical pixels; never stretch across the play surface.
+            bottom: Val::Px(16.0),
+            right: Val::Px(16.0),
+            width: Val::Px(440.0),
+            // Bevy 0.19 re-resolves a measured leaf's percentage max-width
+            // against its content width, over-wrapping the height measurement.
+            // This root is viewport-relative; Vw resolves to pixels before measure.
+            max_width: Val::Vw(50.0),
+            padding: UiRect::all(Val::Px(12.0)),
             ..default()
         },
+        BackgroundColor(Color::srgba(0.025, 0.045, 0.065, 0.92)),
+        Pickable::IGNORE,
         HintText,
     ));
 }
 
 fn update_hint(
     riverside: Option<Res<crate::riverside::RiversideMode>>,
+    help: Option<Res<HelpVisible>>,
     mut hint: Query<&mut Text, With<HintText>>,
     library: Res<BlockLibrary>,
     blueprint: Res<Blueprint>,
@@ -84,7 +110,7 @@ fn update_hint(
         format!(
             "{}: {}  {} {:.0}%",
             t("蓝图模式", "Blueprint", lang),
-            blueprint.def.name,
+            t("引导搭建", "Guided build", lang),
             t("完成度", "done", lang),
             blueprint.completion * 100.0
         )
@@ -103,7 +129,7 @@ fn update_hint(
             Lang::Zh => &tutorial.steps[tutorial.step].label,
             Lang::En => &tutorial.steps[tutorial.step].label_en,
         };
-        format!("🎓 {label}\n（{}）", t("N 键跳过教程", "N to skip", lang))
+        format!("{label}（{}）", t("N 跳过", "N to skip", lang))
     } else {
         String::new()
     };
@@ -158,7 +184,7 @@ fn update_hint(
     let keys_line = match lang {
         Lang::Zh => {
             "左键:放置  左拖:旋转  右拖:平移  滚轮:缩放\n\
-         撤销:Backspace/Ctrl+Z  重做:Ctrl+Y（20 步）\n\
+         撤销:⌘Z / Ctrl+Z  重做:⌘⇧Z / Ctrl+Y（20 步）\n\
          1-9:选积木  Q/E:切换  R:旋转90°  X:拆除  M:蓝图/自由\n\
          L:中/英  K:知识提示  T:昼夜  G:重力测试  C:挑战\n\
          F2:截图  F5:保存  F6:JSON  F7:分享  F8:导入  F9:槽位"
@@ -171,32 +197,37 @@ fn update_hint(
          F2:shot  F5:save  F6:JSON  F7:share  F8:import  F9:slot"
         }
     };
-    let value = format!(
-        "{keys_line}\n\
-         {mode}\n\
-         {block_label}: {name} [{cur}/{total}] ({layer}) {rot_label} {rot}°\n\
-         {challenge_line}\n\
-         {stability_line}\n\
-         {tool_line}\n\
-         {tutorial_line}\n\
-         FPS {fps:.0} | {blocks_label} {blocks}",
-        keys_line = keys_line,
-        block_label = t("当前积木", "Block", lang),
-        name = def.name,
-        cur = library.current + 1,
-        total = library.defs.len(),
-        layer = def.layer,
-        rot_label = t("旋转", "rot", lang),
-        rot = library.rotation as u32 * 90,
-        mode = mode,
-        challenge_line = challenge_line,
-        stability_line = stability_line,
-        tool_line = tool_line,
-        tutorial_line = tutorial_line,
-        fps = fps,
-        blocks_label = t("积木", "blocks", lang),
-        blocks = stack.records.len(),
+    let compact_keys = t(
+        "点击放置 · 拖动旋转 · 滚轮缩放 · F1 全部操作",
+        "Click: place · Drag: orbit · Wheel: zoom · F1: help",
+        lang,
     );
+    let mut lines = vec![
+        if help.is_some_and(|h| h.0) {
+            keys_line.to_string()
+        } else {
+            compact_keys.to_string()
+        },
+        format!(
+            "{}: {} · {} {}° · {}",
+            t("积木", "Block", lang),
+            def.name,
+            t("旋转", "Rotation", lang),
+            library.rotation as u32 * 90,
+            mode
+        ),
+    ];
+    for line in [challenge_line, stability_line, tool_line, tutorial_line] {
+        if !line.is_empty() {
+            lines.push(line);
+        }
+    }
+    lines.push(format!(
+        "FPS {fps:.0} · {} {}",
+        stack.records.len(),
+        t("块积木", "blocks", lang)
+    ));
+    let value = lines.join("\n");
     text.map_unchanged(|t| &mut t.0).set_if_neq(value);
 }
 
@@ -247,6 +278,142 @@ mod tests {
         app.world_mut()
             .resource_mut::<DiagnosticsStore>()
             .add(diagnostic);
+    }
+
+    // Exercise Bevy's actual text measure + Taffy layout, not newline counts:
+    // a percentage max-width on a measured leaf can reserve invisible wrapped rows.
+    #[test]
+    fn hint_background_tracks_wrapped_text_at_native_scales() {
+        use bevy::asset::AssetPlugin;
+        use bevy::ecs::system::{RunSystemOnce, SystemState};
+        use bevy::text::{
+            load_font_assets_into_font_collection, ComputedTextBlock, FontCx, FontLoader, LayoutCx,
+            TextBounds, TextMeasureInfo, TextPipeline,
+        };
+        use bevy::ui::{ui_surface::UiSurface, widget::TextMeasure, LayoutContext, NodeMeasure};
+
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .init_asset::<Font>()
+            .init_asset_loader::<FontLoader>()
+            .init_resource::<FontCx>();
+        app.world_mut().run_system_once(spawn_hint).unwrap();
+        let entity = app
+            .world_mut()
+            .query_filtered::<Entity, With<HintText>>()
+            .single(app.world())
+            .unwrap();
+        // Load synchronously so the regression needs neither a window nor IO polling.
+        let font = app
+            .world_mut()
+            .resource_mut::<Assets<Font>>()
+            .add(Font::from_bytes(
+                include_bytes!("../../assets/fonts/NotoSansSC-subset.otf").to_vec(),
+            ));
+        app.world_mut().get_mut::<TextFont>(entity).unwrap().font = FontSource::Handle(font);
+        app.world_mut()
+            .run_system_once(load_font_assets_into_font_collection)
+            .unwrap();
+        let node = app.world().get::<Node>(entity).unwrap().clone();
+        let font = app.world().get::<TextFont>(entity).unwrap().clone();
+        let text_layout = *app.world().get::<TextLayout>(entity).unwrap();
+        let fonts = app.world_mut().remove_resource::<Assets<Font>>().unwrap();
+        let mut font_cx = app.world_mut().remove_resource::<FontCx>().unwrap();
+        let mut pipeline = TextPipeline::default();
+        let mut layout_cx = LayoutCx::default();
+        let mut surface = UiSurface::default();
+        let mut buffers = SystemState::<Query<&mut ComputedTextBlock>>::new(app.world_mut());
+
+        for scale in [1.0, 2.0] {
+            for viewport_width in [1280.0, 640.0] {
+                let viewport = Vec2::new(viewport_width, 752.0);
+                let physical_size = viewport * scale;
+                let mut previous_height = f32::INFINITY;
+                // Long -> short covers hiding tutorial/help without a stale tall panel.
+                for line_count in [5, 3] {
+                    let text = vec!["积木".repeat(12); line_count].join("\n");
+                    app.world_mut().get_mut::<Text>(entity).unwrap().0 = text.clone();
+                    let measure = pipeline
+                        .create_text_measure(
+                            entity,
+                            &fonts,
+                            std::iter::once((
+                                entity,
+                                0,
+                                text.as_str(),
+                                &font,
+                                Color::WHITE,
+                                default(),
+                                default(),
+                            )),
+                            scale,
+                            &text_layout,
+                            &mut app
+                                .world_mut()
+                                .get_mut::<ComputedTextBlock>(entity)
+                                .unwrap(),
+                            &mut font_cx,
+                            &mut layout_cx,
+                            viewport,
+                            16.0,
+                        )
+                        .unwrap();
+                    let mut expected_measure = TextMeasureInfo {
+                        min: measure.min,
+                        max: measure.max,
+                        entity,
+                    };
+                    surface.upsert_node(
+                        &LayoutContext {
+                            scale_factor: scale,
+                            physical_size,
+                        },
+                        entity,
+                        &node,
+                        Some(NodeMeasure::Text(TextMeasure { info: measure })),
+                    );
+                    surface.compute_layout(
+                        entity,
+                        physical_size.as_uvec2(),
+                        &mut buffers.get_mut(app.world_mut()).unwrap(),
+                        &mut font_cx,
+                    );
+                    let layout = surface.get_layout(entity, true).unwrap().0;
+                    let text_size = expected_measure.compute_size(
+                        TextBounds::new_horizontal(layout.content_box_width()),
+                        &mut app
+                            .world_mut()
+                            .get_mut::<ComputedTextBlock>(entity)
+                            .unwrap(),
+                        &mut font_cx,
+                    );
+                    assert_eq!(
+                        layout.size.width / scale,
+                        440.0_f32.min(viewport_width * 0.5)
+                    );
+                    assert!(text_size.y > 0.0);
+                    assert!(
+                        (layout.size.height - text_size.y - 24.0 * scale).abs() <= 1.0,
+                        "scale={scale}, viewport={viewport_width}, lines={line_count}: \
+                         panel={}, text={}",
+                        layout.size.height,
+                        text_size.y,
+                    );
+                    assert!(layout.size.height < previous_height);
+                    previous_height = layout.size.height;
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn default_hint_is_compact_and_has_no_blank_rows() {
+        let (mut app, entity) = app();
+        app.update();
+        let text = &app.world().get::<Text>(entity).unwrap().0;
+        assert!(text.lines().count() <= 5, "{text}");
+        assert!(text.lines().all(|line| !line.trim().is_empty()));
+        assert!(text.contains("F1"));
     }
 
     #[test]

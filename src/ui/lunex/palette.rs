@@ -1,4 +1,5 @@
 //! Building selection, blueprint theme/progress, and opacity controls.
+use super::set_hover;
 use super::{LunexTheme, TabBlocksRoot};
 use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::{select_blueprint, Blueprint, BlueprintGhost, BlueprintLibrary};
@@ -64,7 +65,21 @@ pub(super) fn palette_scroll_system(
     library: Res<BlockLibrary>,
     mut rows: Query<(Entity, &PaletteRow, &mut UiLayout, &mut Visibility)>,
     mut last_applied: Local<Option<f32>>,
+    mut last_selected: Local<Option<usize>>,
 ) {
+    // Reveal tutorial/keyboard selections once; do not fight manual browsing when
+    // the tutorial assigns the same selection again on the next frame.
+    if *last_selected != Some(library.current) {
+        let selected = library.current as f32;
+        let max = library.defs.len().saturating_sub(PALETTE_VISIBLE) as f32;
+        if selected < scroll.0 {
+            scroll.0 = selected;
+        } else if selected >= scroll.0 + PALETTE_VISIBLE as f32 {
+            scroll.0 = selected + 1.0 - PALETTE_VISIBLE as f32;
+        }
+        scroll.0 = scroll.0.clamp(0.0, max);
+        *last_selected = Some(library.current);
+    }
     let delta = mouse_scroll.delta.y;
     if delta != 0.0 {
         let over_palette = hover_map
@@ -89,7 +104,7 @@ pub(super) fn palette_scroll_system(
         *vis = if y < 0.0 || y > 100.0 {
             Visibility::Hidden
         } else {
-            Visibility::Visible
+            Visibility::Inherited
         };
     }
 }
@@ -156,7 +171,7 @@ pub(super) fn b2_theme_menu_sync(
     }
     for mut v in &mut rows {
         *v = if menu.0 {
-            Visibility::Visible
+            Visibility::Inherited
         } else {
             Visibility::Hidden
         };
@@ -350,7 +365,7 @@ pub(super) fn spawn_blueprint_section(
                     font_size: FontSize::Px(20.0),
                     ..default()
                 },
-                UiTextSize::from(Rh(26.0)),
+                UiTextSize::from(Ab(20.0)),
                 UiColor::new(vec![(UiBase::id(), theme.text_main)]),
                 UiLayout::window()
                     .pos((Rl(4.0), Rh(5.0)))
@@ -365,8 +380,8 @@ pub(super) fn spawn_blueprint_section(
             sec.spawn((
                 Name::new("Progress Bar"),
                 UiLayout::window()
-                    .pos((Rl(4.0), Rh(42.0)))
-                    .size((Rl(72.0), Rh(24.0)))
+                    .pos((Rl(4.0), Rh(32.0)))
+                    .size((Rl(72.0), Rh(18.0)))
                     .anchor(Anchor::CENTER_LEFT)
                     .pack(),
                 UiMeshPlane2d,
@@ -400,10 +415,10 @@ pub(super) fn spawn_blueprint_section(
                     font_size: FontSize::Px(16.0),
                     ..default()
                 },
-                UiTextSize::from(Rh(20.0)),
+                UiTextSize::from(Ab(16.0)),
                 UiColor::new(vec![(UiBase::id(), theme.text_main)]),
                 UiLayout::window()
-                    .pos((Rl(79.0), Rh(42.0)))
+                    .pos((Rl(79.0), Rh(32.0)))
                     .anchor(Anchor::CENTER_LEFT)
                     .pack(),
                 Pickable::IGNORE,
@@ -414,8 +429,8 @@ pub(super) fn spawn_blueprint_section(
             sec.spawn((
                 Name::new("Theme Button"),
                 UiLayout::window()
-                    .pos((Rl(50.0), Rh(82.0)))
-                    .size((Rl(92.0), Rh(30.0)))
+                    .pos((Rl(50.0), Rh(62.0)))
+                    .size((Rl(92.0), Rh(26.0)))
                     .anchor(Anchor::CENTER)
                     .pack(),
                 UiColor::new(vec![
@@ -427,8 +442,8 @@ pub(super) fn spawn_blueprint_section(
                 MeshMaterial2d(btn_material),
                 Pickable::default(),
             ))
-            .observe(hover_set::<Pointer<Over>, true>)
-            .observe(hover_set::<Pointer<Out>, false>)
+            .observe(set_hover::<Pointer<Over>, true>)
+            .observe(set_hover::<Pointer<Out>, false>)
             .observe(theme_button_click)
             .with_children(|btn| {
                 btn.spawn((
@@ -439,9 +454,9 @@ pub(super) fn spawn_blueprint_section(
                         font_size: FontSize::Px(15.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(50.0)),
+                    UiTextSize::from(Ab(15.0)),
                     UiColor::new(vec![(UiBase::id(), theme.accent)]),
-                    UiLayout::window().full().pack(),
+                    super::typography::centered_label_layout(),
                     Pickable::IGNORE,
                     ThemeButtonText,
                 ));
@@ -470,8 +485,8 @@ pub(super) fn spawn_blueprint_section(
                     Visibility::Hidden,
                     ThemeMenuRow(i),
                 ))
-                .observe(hover_set::<Pointer<Over>, true>)
-                .observe(hover_set::<Pointer<Out>, false>)
+                .observe(set_hover::<Pointer<Over>, true>)
+                .observe(set_hover::<Pointer<Out>, false>)
                 .observe(theme_menu_row_click)
                 .with_children(|row| {
                     row.spawn((
@@ -482,7 +497,7 @@ pub(super) fn spawn_blueprint_section(
                             font_size: FontSize::Px(15.0),
                             ..default()
                         },
-                        UiTextSize::from(Rh(52.0)),
+                        UiTextSize::from(Ab(15.0)),
                         UiColor::new(vec![(UiBase::id(), theme.text_main)]),
                         UiLayout::window()
                             .pos((Rl(8.0), Rl(50.0)))
@@ -501,7 +516,7 @@ pub(super) fn spawn_blueprint_section(
                     font_size: FontSize::Px(15.0),
                     ..default()
                 },
-                UiTextSize::from(Rh(3.6)),
+                UiTextSize::from(Ab(15.0)),
                 UiColor::new(vec![(UiBase::id(), theme.text_main)]),
                 UiLayout::window()
                     .pos((Rl(4.0), Rh(91.0)))
@@ -609,8 +624,8 @@ pub(super) fn spawn_palette_list(
                     MeshMaterial2d(row_material),
                     PaletteRow(i),
                 ))
-                .observe(hover_set::<Pointer<Over>, true>)
-                .observe(hover_set::<Pointer<Out>, false>)
+                .observe(set_hover::<Pointer<Over>, true>)
+                .observe(set_hover::<Pointer<Out>, false>)
                 .observe(palette_row_click)
                 .with_children(|row| {
                     // 色块
@@ -634,7 +649,7 @@ pub(super) fn spawn_palette_list(
                             font_size: FontSize::Px(20.0),
                             ..default()
                         },
-                        UiTextSize::from(Rh(52.0)),
+                        UiTextSize::from(Ab(20.0)),
                         UiColor::new(vec![(UiBase::id(), theme.text_main)]),
                         UiLayout::window()
                             .pos((Rl(19.0), Rl(50.0)))

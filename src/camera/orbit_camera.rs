@@ -7,6 +7,7 @@
 //!
 //! 参数均收敛在有界范围内，保证古建对称美学下视角始终稳定。
 
+use crate::ui::input::InputOwnership;
 use bevy::input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll};
 use bevy::prelude::*;
 
@@ -104,9 +105,61 @@ impl OrbitCamera {
     }
 }
 
-fn spawn_orbit_camera(mut commands: Commands, orbit: Res<OrbitCamera>) {
+fn spawn_orbit_camera(
+    mut commands: Commands,
+    mut orbit: ResMut<OrbitCamera>,
+    blueprint: Option<Res<crate::building::blueprint::Blueprint>>,
+    windows: Query<&Window, With<bevy::window::PrimaryWindow>>,
+) {
+    // Frame once, before the tutorial enables its blueprint. Never reset player
+    // pan/zoom on subsequent frames; riverside keeps its PostStartup override.
+    if let Some(blueprint) = blueprint.filter(|bp| !bp.cell_list.is_empty()) {
+        let min = blueprint
+            .cell_list
+            .iter()
+            .fold(Vec3::splat(f32::INFINITY), |bound, cell| {
+                bound.min(cell.as_vec3())
+            })
+            + Vec3::new(-0.5, 0.0, -0.5);
+        let max = blueprint
+            .cell_list
+            .iter()
+            .fold(Vec3::splat(f32::NEG_INFINITY), |bound, cell| {
+                bound.max(cell.as_vec3())
+            })
+            + Vec3::new(0.5, 1.0, 0.5);
+        orbit.target = (min + max) * 0.5;
+        let aspect = windows
+            .single()
+            .ok()
+            .map(|w| w.width() / w.height().max(1.0))
+            .unwrap_or(16.0 / 9.0);
+        let tan_half_fov = (PerspectiveProjection::default().fov * 0.5).tan();
+        let rotation = Transform::from_translation(orbit.position())
+            .looking_at(orbit.target, Vec3::Y)
+            .rotation
+            .inverse();
+        let mut distance = DIST_MIN;
+        for x in [min.x, max.x] {
+            for y in [min.y, max.y] {
+                for z in [min.z, max.z] {
+                    let p = rotation * (Vec3::new(x, y, z) - orbit.target);
+                    // Reserve the top quarter for title/knowledge cards and the
+                    // lower edge for hints, rather than merely fitting the lens.
+                    let vertical_margin = if p.y > 0.0 { 0.5 } else { 0.75 };
+                    distance = distance
+                        .max(p.z + p.y.abs() / (tan_half_fov * vertical_margin))
+                        .max(p.z + p.x.abs() / (tan_half_fov * aspect * 0.8));
+                }
+            }
+        }
+        orbit.distance = (distance * 1.03).clamp(DIST_MIN, DIST_MAX);
+    }
     commands.spawn((
         Camera3d::default(),
+        // Bevy keys shared color textures by MSAA as well as render target.
+        // Match the 2D overlay, otherwise its separate texture hides the scene.
+        Msaa::Off,
         Transform::from_translation(orbit.position()).looking_at(orbit.target, Vec3::Y),
         // 距离雾（场景纵深与昼夜氛围；颜色由昼夜系统驱动）
         DistanceFog {
@@ -122,6 +175,7 @@ fn spawn_orbit_camera(mut commands: Commands, orbit: Res<OrbitCamera>) {
 }
 
 fn orbit_camera_system(
+    ownership: Option<Res<InputOwnership>>,
     mut orbit: ResMut<OrbitCamera>,
     // 排除离屏截图相机（B-21 引入的第二个 Camera3d），否则 single_mut 失效
     mut camera_query: Query<
@@ -135,10 +189,22 @@ fn orbit_camera_system(
 ) {
     // Bevy 0.19：鼠标位移/滚轮为逐帧累加资源（每帧自动清零）
     let drag_delta = mouse_motion.delta;
-    let scroll = mouse_scroll.delta.y;
-    let input_active = drag_delta.length() > 0.0
-        || scroll.abs() > 0.0
-        || mouse_buttons.any_pressed([MouseButton::Left, MouseButton::Middle, MouseButton::Right]);
+    let orbit_drag = mouse_buttons.pressed(MouseButton::Left)
+        && ownership
+            .as_deref()
+            .is_none_or(InputOwnership::orbit_allowed);
+    let pan_drag = mouse_buttons.pressed(MouseButton::Right)
+        && ownership.as_deref().is_none_or(InputOwnership::pan_allowed);
+    let scroll = if ownership
+        .as_deref()
+        .is_none_or(InputOwnership::zoom_allowed)
+    {
+        mouse_scroll.delta.y
+    } else {
+        0.0
+    };
+    let input_active =
+        ((orbit_drag || pan_drag) && drag_delta.length_squared() > 0.0) || scroll != 0.0;
 
     // 观赏自动驾驶（PRD §3.2）：无输入时朝目标平滑过渡；玩家输入即接管
     if let Some(pilot) = orbit.autopilot {
@@ -159,12 +225,12 @@ fn orbit_camera_system(
         }
     }
 
-    if mouse_buttons.pressed(MouseButton::Left) {
+    if orbit_drag {
         orbit.yaw -= drag_delta.x * ORBIT_SPEED;
         orbit.pitch = (orbit.pitch + drag_delta.y * ORBIT_SPEED).clamp(PITCH_MIN, PITCH_MAX);
     }
 
-    if mouse_buttons.pressed(MouseButton::Right) {
+    if pan_drag {
         // 相机基向量：right / up（随视角变化）
         let forward = (orbit.target - orbit.position()).normalize_or_zero();
         let right = forward.cross(Vec3::Y).normalize_or_zero();
@@ -205,7 +271,7 @@ fn completion_autopilot_system(
                 40.0
             },
         });
-        info!("🎥 观赏视角已就位（移动鼠标接管）");
+        info!("🎥 观赏视角已就位（场景拖拽或滚轮接管）");
     }
     *prev_completed = blueprint.completed;
 }
@@ -230,6 +296,133 @@ pub fn autopilot_step(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn startup_frames_default_blueprint_below_title_with_native_aspects() {
+        use bevy::camera::CameraProjection;
+        use bevy::window::PrimaryWindow;
+        for (width, height) in [(1280.0, 720.0), (900.0, 720.0)] {
+            let mut app = App::new();
+            let blueprint = crate::building::blueprint::load_blueprint_library().0;
+            let cells = blueprint.cell_list.clone();
+            app.insert_resource(blueprint)
+                .init_resource::<OrbitCamera>()
+                .add_systems(Startup, spawn_orbit_camera);
+            app.world_mut().spawn((
+                Window {
+                    resolution: (width as u32, height as u32).into(),
+                    ..default()
+                },
+                PrimaryWindow,
+            ));
+            app.update();
+            let orbit = app.world().resource::<OrbitCamera>();
+            let view = Transform::from_translation(orbit.position())
+                .looking_at(orbit.target, Vec3::Y)
+                .to_matrix()
+                .inverse();
+            let mut projection = PerspectiveProjection::default();
+            projection.update(width, height);
+            let clip = projection.get_clip_from_view() * view;
+            for cell in &cells {
+                for corner in [Vec3::new(-0.5, 0.0, -0.5), Vec3::new(0.5, 1.0, 0.5)] {
+                    let ndc = clip.project_point3(cell.as_vec3() + corner);
+                    assert!(
+                        ndc.x.abs() < 0.8 && ndc.y > -0.8 && ndc.y < 0.55,
+                        "{width}x{height}: cell={cell:?}, ndc={ndc:?}"
+                    );
+                }
+            }
+            // Startup framing must never reset a later player pan/zoom.
+            app.world_mut().resource_mut::<OrbitCamera>().target = Vec3::splat(9.0);
+            app.update();
+            assert_eq!(
+                app.world().resource::<OrbitCamera>().target,
+                Vec3::splat(9.0)
+            );
+        }
+    }
+
+    #[test]
+    fn scene_camera_uses_same_samples_as_ui_overlay() {
+        let mut app = App::new();
+        app.init_resource::<OrbitCamera>()
+            .add_systems(Startup, spawn_orbit_camera);
+        app.update();
+        let mut cameras = app.world_mut().query_filtered::<&Msaa, With<Camera3d>>();
+        assert_eq!(*cameras.single(app.world()).unwrap(), Msaa::Off);
+    }
+
+    #[test]
+    fn ui_pointer_scroll_and_drag_leave_camera_unchanged() {
+        use crate::ui::input::InputOwnershipPlugin;
+        use bevy::picking::{backend::HitData, hover::HoverMap, pointer::PointerId};
+        use bevy::window::PrimaryWindow;
+        use bevy_lunex::UiLayout;
+
+        let mut app = App::new();
+        app.init_resource::<OrbitCamera>()
+            .init_resource::<Time>()
+            .init_resource::<ButtonInput<MouseButton>>()
+            .init_resource::<AccumulatedMouseMotion>()
+            .init_resource::<AccumulatedMouseScroll>()
+            .init_resource::<HoverMap>()
+            .add_plugins(InputOwnershipPlugin)
+            .add_systems(Update, orbit_camera_system);
+        let mut window = Window {
+            focused: true,
+            ..default()
+        };
+        window.set_cursor_position(Some(Vec2::ZERO));
+        let window = app.world_mut().spawn((window, PrimaryWindow)).id();
+        let row = app.world_mut().spawn(UiLayout::window().pack()).id();
+        app.world_mut()
+            .resource_mut::<HoverMap>()
+            .entry(PointerId::Mouse)
+            .or_default()
+            .insert(row, HitData::new(row, 0.0, None, None));
+        let start = {
+            let orbit = app.world().resource::<OrbitCamera>();
+            (orbit.yaw, orbit.pitch, orbit.distance, orbit.target)
+        };
+        app.world_mut()
+            .resource_mut::<AccumulatedMouseScroll>()
+            .delta
+            .y = -2.0;
+        app.world_mut()
+            .resource_mut::<ButtonInput<MouseButton>>()
+            .press(MouseButton::Left);
+        app.update();
+        app.world_mut()
+            .resource_mut::<ButtonInput<MouseButton>>()
+            .clear();
+        app.world_mut().resource_mut::<HoverMap>().clear();
+        app.world_mut()
+            .get_mut::<Window>(window)
+            .unwrap()
+            .set_cursor_position(Some(Vec2::new(100.0, 100.0)));
+        app.world_mut()
+            .resource_mut::<AccumulatedMouseMotion>()
+            .delta = Vec2::splat(100.0);
+        app.update();
+        let orbit = app.world().resource::<OrbitCamera>();
+        assert_eq!(
+            (orbit.yaw, orbit.pitch, orbit.distance, orbit.target),
+            start
+        );
+        app.world_mut()
+            .resource_mut::<ButtonInput<MouseButton>>()
+            .reset_all();
+        app.world_mut()
+            .resource_mut::<AccumulatedMouseMotion>()
+            .delta = Vec2::ZERO;
+        app.update();
+        assert_ne!(
+            app.world().resource::<OrbitCamera>().distance,
+            start.2,
+            "wheel outside UI must still zoom after the captured gesture ends"
+        );
+    }
 
     #[test]
     fn autopilot_converges_to_goal() {

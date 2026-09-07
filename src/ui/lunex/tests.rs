@@ -46,7 +46,7 @@ fn tabs_show_only_the_selected_content_and_highlight() {
             assert_eq!(
                 *app.world().get::<Visibility>(roots[i]).unwrap(),
                 if i == selected {
-                    Visibility::Visible
+                    Visibility::Inherited
                 } else {
                     Visibility::Hidden
                 }
@@ -92,11 +92,15 @@ fn scrolling_initially_hides_overflow_and_ignores_unhovered_wheel() {
                 .spawn((
                     PaletteRow(i),
                     UiLayout::window().pack(),
-                    Visibility::Visible,
+                    Visibility::Inherited,
                 ))
                 .id(),
             app.world_mut()
-                .spawn((CodexRow(i), UiLayout::window().pack(), Visibility::Visible))
+                .spawn((
+                    CodexRow(i),
+                    UiLayout::window().pack(),
+                    Visibility::Inherited,
+                ))
                 .id(),
         )
     });
@@ -105,7 +109,7 @@ fn scrolling_initially_hides_overflow_and_ignores_unhovered_wheel() {
         let expected = if i == 2 {
             Visibility::Hidden
         } else {
-            Visibility::Visible
+            Visibility::Inherited
         };
         assert_eq!(*app.world().get::<Visibility>(palette).unwrap(), expected);
         assert_eq!(*app.world().get::<Visibility>(codex).unwrap(), expected);
@@ -182,7 +186,7 @@ fn knowledge_card_updates_text_and_hides_when_cleared() {
         .add_systems(Update, b7_knowledge_sync);
     let root = app
         .world_mut()
-        .spawn((KnowledgeCardRoot, Visibility::Visible))
+        .spawn((KnowledgeCardRoot, Visibility::Inherited))
         .id();
     let name = app
         .world_mut()
@@ -204,7 +208,7 @@ fn knowledge_card_updates_text_and_hides_when_cleared() {
     app.update();
     assert_eq!(
         *app.world().get::<Visibility>(root).unwrap(),
-        Visibility::Visible
+        Visibility::Inherited
     );
     assert_eq!(app.world().get::<Text2d>(name).unwrap().0, "📖 斗拱");
     assert_eq!(app.world().get::<Text2d>(desc).unwrap().0, "承托屋檐");
@@ -486,4 +490,136 @@ fn collection_theme_change_updates_colors_without_reshaping_text() {
     assert_eq!(app.world().get::<UiColor>(codex).unwrap(), &expected);
     assert_eq!(app.world().get::<UiColor>(achievement).unwrap(), &expected);
     assert_eq!(app.world().resource::<TextChangeCount>().0, 0);
+}
+
+#[test]
+fn path_input_drops_unfocused_keys_and_clears_hidden_focus() {
+    use bevy::input::{keyboard::Key, ButtonState};
+    let mut app = App::new();
+    app.init_resource::<PathInput>()
+        .insert_resource(LunexTab(LunexTabId::Saves))
+        .init_resource::<ButtonInput<KeyCode>>()
+        .add_message::<KeyboardInput>()
+        .add_systems(Update, path_input_system);
+    let key = || KeyboardInput {
+        key_code: KeyCode::KeyC,
+        logical_key: Key::Character("c".into()),
+        state: ButtonState::Pressed,
+        text: Some("c".into()),
+        repeat: false,
+        window: Entity::PLACEHOLDER,
+    };
+    app.world_mut().write_message(key());
+    app.update();
+    app.world_mut().resource_mut::<PathInput>().focused = true;
+    app.update();
+    assert!(app.world().resource::<PathInput>().value.is_empty());
+    app.world_mut().write_message(key());
+    app.update();
+    assert_eq!(app.world().resource::<PathInput>().value, "c");
+    app.world_mut()
+        .resource_mut::<ButtonInput<KeyCode>>()
+        .press(KeyCode::SuperLeft);
+    app.world_mut().write_message(key());
+    app.update();
+    assert_eq!(
+        app.world().resource::<PathInput>().value,
+        "c",
+        "Cmd+C is not text input"
+    );
+    app.world_mut().resource_mut::<LunexTab>().0 = LunexTabId::Blocks;
+    app.update();
+    assert!(!app.world().resource::<PathInput>().focused);
+}
+
+#[test]
+fn visible_scroll_rows_must_inherit_hidden_tab_visibility() {
+    let mut app = App::new();
+    app.insert_resource(load_block_library())
+        .init_resource::<PaletteScroll>()
+        .init_resource::<AccumulatedMouseScroll>()
+        .init_resource::<bevy::picking::hover::HoverMap>()
+        .add_systems(Update, palette_scroll_system);
+    let parent = app.world_mut().spawn(Visibility::Hidden).id();
+    let row = app
+        .world_mut()
+        .spawn((
+            PaletteRow(0),
+            UiLayout::window().pack(),
+            Visibility::Hidden,
+            ChildOf(parent),
+        ))
+        .id();
+    app.update();
+    assert_eq!(
+        *app.world().get::<Visibility>(row).unwrap(),
+        Visibility::Inherited,
+        "Visible overrides a hidden ancestor and leaks rows from inactive tabs"
+    );
+}
+
+#[test]
+fn palette_reveals_keyboard_and_tutorial_selection_without_trapping_scroll() {
+    let mut app = App::new();
+    app.insert_resource(load_block_library())
+        .init_resource::<PaletteScroll>()
+        .init_resource::<AccumulatedMouseScroll>()
+        .init_resource::<bevy::picking::hover::HoverMap>()
+        .add_systems(Update, palette_scroll_system);
+    let selected = app
+        .world_mut()
+        .spawn((
+            PaletteRow(31),
+            UiLayout::window().pack(),
+            Visibility::Inherited,
+        ))
+        .id();
+    app.world_mut().resource_mut::<BlockLibrary>().current = 31;
+    app.update();
+    assert_eq!(
+        *app.world().get::<Visibility>(selected).unwrap(),
+        Visibility::Inherited
+    );
+    assert!(app.world().resource::<PaletteScroll>().0 > 0.0);
+    // Browsing away from an unchanged selection remains possible.
+    app.world_mut().resource_mut::<PaletteScroll>().0 = 0.0;
+    app.update();
+    assert_eq!(app.world().resource::<PaletteScroll>().0, 0.0);
+    app.world_mut().resource_mut::<BlockLibrary>().current = 32;
+    app.update();
+    assert!(app.world().resource::<PaletteScroll>().0 > 0.0);
+    app.world_mut().resource_mut::<BlockLibrary>().current = 0;
+    app.update();
+    assert_eq!(app.world().resource::<PaletteScroll>().0, 0.0);
+}
+
+#[test]
+fn hover_handler_does_not_emit_recursive_lunex_events() {
+    #[derive(EntityEvent)]
+    struct Enter {
+        entity: Entity,
+    }
+    #[derive(Resource, Default)]
+    struct Emissions(usize);
+    let mut app = App::new();
+    app.init_resource::<Emissions>();
+    app.add_observer(|_: On<bevy_lunex::UiHoverSet>, mut count: ResMut<Emissions>| count.0 += 1);
+    let parent = app
+        .world_mut()
+        .spawn(UiHover::new())
+        .observe(set_hover::<Enter, true>)
+        .id();
+    let child = app
+        .world_mut()
+        .spawn((UiHover::new(), ChildOf(parent)))
+        .id();
+    app.world_mut().trigger(Enter { entity: parent });
+    app.world_mut().flush();
+    assert_eq!(
+        app.world().resource::<Emissions>().0,
+        0,
+        "UiHoverSet duplication in Lunex 0.7 retains its original target and recurses"
+    );
+    assert!(app.world().get::<UiHover>(parent).unwrap().enable);
+    assert!(app.world().get::<UiHover>(child).unwrap().enable);
 }

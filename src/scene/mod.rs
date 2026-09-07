@@ -3,6 +3,7 @@
 //! 对应 PRD §3.2「固定主场景：蛇山 + 长江远景 + 可切换昼夜/天气」。
 //! Phase 2 升级：正式地形高度图、雾、天气系统。
 
+use crate::ui::input::{shortcuts_allowed, InputOwnership};
 use bevy::prelude::*;
 
 pub struct ScenePlugin;
@@ -137,6 +138,7 @@ const NIGHT_SKY: [f32; 3] = [0.03, 0.05, 0.13];
 const TRANSITION_SPEED: f32 = 0.4;
 
 fn day_night_system(
+    ownership: Option<Res<InputOwnership>>,
     mode: Res<crate::riverside::RiversideMode>,
     keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
@@ -149,7 +151,7 @@ fn day_night_system(
     mut lantern_lights: Query<&mut PointLight, With<crate::building::placement::LanternLight>>,
     mut fog: Query<&mut DistanceFog>,
 ) {
-    if keys.just_pressed(KeyCode::KeyT) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::KeyT) {
         sky.night = !sky.night;
     }
 

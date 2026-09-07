@@ -1,4 +1,5 @@
 //! Challenge selection/start controls and state-dependent labels.
+use super::set_hover;
 use super::{LunexTheme, TabBlocksRoot};
 use crate::building::blueprint::{Blueprint, BlueprintLibrary};
 use crate::building::challenge::{
@@ -55,7 +56,7 @@ pub(super) fn b3_challenge_menu_sync(
     }
     for mut v in &mut rows {
         *v = if menu.0 {
-            Visibility::Visible
+            Visibility::Inherited
         } else {
             Visibility::Hidden
         };
@@ -199,8 +200,8 @@ pub(super) fn spawn_challenge_section(
                 MeshMaterial2d(chal_btn_material),
                 Pickable::default(),
             ))
-            .observe(hover_set::<Pointer<Over>, true>)
-            .observe(hover_set::<Pointer<Out>, false>)
+            .observe(set_hover::<Pointer<Over>, true>)
+            .observe(set_hover::<Pointer<Out>, false>)
             .observe(challenge_button_click)
             .with_children(|btn| {
                 btn.spawn((
@@ -211,7 +212,7 @@ pub(super) fn spawn_challenge_section(
                         font_size: FontSize::Px(15.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(50.0)),
+                    UiTextSize::from(Ab(15.0)),
                     UiColor::new(vec![(UiBase::id(), theme.accent)]),
                     UiLayout::window()
                         .pos((Rl(50.0), Rl(50.0)))
@@ -240,8 +241,8 @@ pub(super) fn spawn_challenge_section(
                 Pickable::default(),
                 ChallengeStartButton,
             ))
-            .observe(hover_set::<Pointer<Over>, true>)
-            .observe(hover_set::<Pointer<Out>, false>)
+            .observe(set_hover::<Pointer<Over>, true>)
+            .observe(set_hover::<Pointer<Out>, false>)
             .observe(challenge_start_click)
             .with_children(|btn| {
                 btn.spawn((
@@ -252,7 +253,7 @@ pub(super) fn spawn_challenge_section(
                         font_size: FontSize::Px(15.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(50.0)),
+                    UiTextSize::from(Ab(15.0)),
                     UiColor::new(vec![(UiBase::id(), theme.text_main)]),
                     UiLayout::window()
                         .pos((Rl(50.0), Rl(50.0)))
@@ -271,7 +272,7 @@ pub(super) fn spawn_challenge_section(
                     font_size: FontSize::Px(14.0),
                     ..default()
                 },
-                UiTextSize::from(Rh(18.0)),
+                UiTextSize::from(Ab(14.0)),
                 UiColor::new(vec![(UiBase::id(), theme.text_main)]),
                 UiLayout::window()
                     .pos((Rl(4.0), Rh(76.0)))
@@ -303,8 +304,8 @@ pub(super) fn spawn_challenge_section(
                     Visibility::Hidden,
                     ChallengeMenuRow(i),
                 ))
-                .observe(hover_set::<Pointer<Over>, true>)
-                .observe(hover_set::<Pointer<Out>, false>)
+                .observe(set_hover::<Pointer<Over>, true>)
+                .observe(set_hover::<Pointer<Out>, false>)
                 .observe(challenge_menu_row_click)
                 .with_children(|row| {
                     row.spawn((
@@ -315,7 +316,7 @@ pub(super) fn spawn_challenge_section(
                             font_size: FontSize::Px(14.0),
                             ..default()
                         },
-                        UiTextSize::from(Rh(52.0)),
+                        UiTextSize::from(Ab(14.0)),
                         UiColor::new(vec![(UiBase::id(), theme.text_main)]),
                         UiLayout::window()
                             .pos((Rl(8.0), Rl(50.0)))

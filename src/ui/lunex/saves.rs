@@ -1,4 +1,5 @@
 //! Save-tab layout, path input, and observers forwarding to the existing save API.
+use super::set_hover;
 use super::{LunexTab, LunexTabId, LunexTheme, TabSavesRoot};
 use crate::building::block_defs::BlockLibrary;
 use crate::building::blueprint::Blueprint;
@@ -69,12 +70,26 @@ pub(super) fn save_list_system(
 /// 路径输入：聚焦时接收键盘（字符/退格/Esc/Enter）
 pub(super) fn path_input_system(
     mut input: ResMut<PathInput>,
+    tab: Option<Res<super::LunexTab>>,
+    modifiers: Option<Res<ButtonInput<KeyCode>>>,
     mut keys: MessageReader<KeyboardInput>,
     mut texts: Query<&mut Text2d, With<PathInputText>>,
     mut boxes: Query<&mut UiSelected, With<PathInputBox>>,
 ) {
-    if input.focused {
-        for msg in keys.read() {
+    if tab.is_some_and(|tab| tab.0 != super::LunexTabId::Saves) {
+        input.focused = false;
+    }
+    let modified = modifiers.is_some_and(|keys| {
+        keys.any_pressed([
+            KeyCode::ControlLeft,
+            KeyCode::ControlRight,
+            KeyCode::SuperLeft,
+            KeyCode::SuperRight,
+        ])
+    });
+    // Always drain: keys typed outside this input must never be replayed on focus.
+    for msg in keys.read() {
+        if input.focused && !modified {
             if msg.state != ButtonState::Pressed {
                 continue;
             }
@@ -284,8 +299,8 @@ pub(super) fn spawn_saves_tab(
                 MeshMaterial2d(save_mat),
                 Pickable::default(),
             ))
-            .observe(hover_set::<Pointer<Over>, true>)
-            .observe(hover_set::<Pointer<Out>, false>)
+            .observe(set_hover::<Pointer<Over>, true>)
+            .observe(set_hover::<Pointer<Out>, false>)
             .observe(save_button_click)
             .with_children(|b| {
                 b.spawn((
@@ -296,9 +311,9 @@ pub(super) fn spawn_saves_tab(
                         font_size: FontSize::Px(16.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(48.0)),
+                    UiTextSize::from(Ab(16.0)),
                     UiColor::new(vec![(UiBase::id(), theme.text_main)]),
-                    UiLayout::window().full().pack(),
+                    super::typography::centered_label_layout(),
                     Pickable::IGNORE,
                 ));
             });
@@ -319,8 +334,8 @@ pub(super) fn spawn_saves_tab(
                 MeshMaterial2d(json_mat),
                 Pickable::default(),
             ))
-            .observe(hover_set::<Pointer<Over>, true>)
-            .observe(hover_set::<Pointer<Out>, false>)
+            .observe(set_hover::<Pointer<Over>, true>)
+            .observe(set_hover::<Pointer<Out>, false>)
             .observe(json_button_click)
             .with_children(|b| {
                 b.spawn((
@@ -331,9 +346,9 @@ pub(super) fn spawn_saves_tab(
                         font_size: FontSize::Px(16.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(48.0)),
+                    UiTextSize::from(Ab(16.0)),
                     UiColor::new(vec![(UiBase::id(), theme.text_main)]),
-                    UiLayout::window().full().pack(),
+                    super::typography::centered_label_layout(),
                     Pickable::IGNORE,
                 ));
             });
@@ -354,8 +369,8 @@ pub(super) fn spawn_saves_tab(
                 MeshMaterial2d(share_mat),
                 Pickable::default(),
             ))
-            .observe(hover_set::<Pointer<Over>, true>)
-            .observe(hover_set::<Pointer<Out>, false>)
+            .observe(set_hover::<Pointer<Over>, true>)
+            .observe(set_hover::<Pointer<Out>, false>)
             .observe(share_button_click)
             .with_children(|b| {
                 b.spawn((
@@ -366,9 +381,9 @@ pub(super) fn spawn_saves_tab(
                         font_size: FontSize::Px(16.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(48.0)),
+                    UiTextSize::from(Ab(16.0)),
                     UiColor::new(vec![(UiBase::id(), theme.text_main)]),
-                    UiLayout::window().full().pack(),
+                    super::typography::centered_label_layout(),
                     Pickable::IGNORE,
                 ));
             });
@@ -390,8 +405,8 @@ pub(super) fn spawn_saves_tab(
                 MeshMaterial2d(load_mat),
                 Pickable::default(),
             ))
-            .observe(hover_set::<Pointer<Over>, true>)
-            .observe(hover_set::<Pointer<Out>, false>)
+            .observe(set_hover::<Pointer<Over>, true>)
+            .observe(set_hover::<Pointer<Out>, false>)
             .observe(load_slot_button_click)
             .with_children(|b| {
                 b.spawn((
@@ -402,9 +417,9 @@ pub(super) fn spawn_saves_tab(
                         font_size: FontSize::Px(16.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(48.0)),
+                    UiTextSize::from(Ab(16.0)),
                     UiColor::new(vec![(UiBase::id(), theme.text_main)]),
-                    UiLayout::window().full().pack(),
+                    super::typography::centered_label_layout(),
                     Pickable::IGNORE,
                 ));
             });
@@ -425,8 +440,8 @@ pub(super) fn spawn_saves_tab(
                 MeshMaterial2d(il_mat),
                 Pickable::default(),
             ))
-            .observe(hover_set::<Pointer<Over>, true>)
-            .observe(hover_set::<Pointer<Out>, false>)
+            .observe(set_hover::<Pointer<Over>, true>)
+            .observe(set_hover::<Pointer<Out>, false>)
             .observe(import_latest_button_click)
             .with_children(|b| {
                 b.spawn((
@@ -437,9 +452,9 @@ pub(super) fn spawn_saves_tab(
                         font_size: FontSize::Px(16.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(48.0)),
+                    UiTextSize::from(Ab(16.0)),
                     UiColor::new(vec![(UiBase::id(), theme.text_main)]),
-                    UiLayout::window().full().pack(),
+                    super::typography::centered_label_layout(),
                     Pickable::IGNORE,
                 ));
             });
@@ -452,7 +467,7 @@ pub(super) fn spawn_saves_tab(
                     font_size: FontSize::Px(17.0),
                     ..default()
                 },
-                UiTextSize::from(Rh(2.8)),
+                UiTextSize::from(Ab(17.0)),
                 UiColor::new(vec![(UiBase::id(), theme.accent)]),
                 UiLayout::window()
                     .pos((Rl(4.0), Rh(36.0)))
@@ -468,7 +483,7 @@ pub(super) fn spawn_saves_tab(
                     font_size: FontSize::Px(15.0),
                     ..default()
                 },
-                UiTextSize::from(Rh(2.6)),
+                UiTextSize::from(Ab(15.0)),
                 UiColor::new(vec![(UiBase::id(), theme.text_main)]),
                 UiLayout::window()
                     .pos((Rl(4.0), Rh(41.0)))
@@ -506,7 +521,7 @@ pub(super) fn spawn_saves_tab(
                         font_size: FontSize::Px(15.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(46.0)),
+                    UiTextSize::from(Ab(15.0)),
                     UiColor::new(vec![(UiBase::id(), theme.text_main)]),
                     UiLayout::window()
                         .pos((Rl(6.0), Rl(50.0)))
@@ -533,8 +548,8 @@ pub(super) fn spawn_saves_tab(
                 MeshMaterial2d(imp_mat),
                 Pickable::default(),
             ))
-            .observe(hover_set::<Pointer<Over>, true>)
-            .observe(hover_set::<Pointer<Out>, false>)
+            .observe(set_hover::<Pointer<Over>, true>)
+            .observe(set_hover::<Pointer<Out>, false>)
             .observe(path_import_click)
             .with_children(|b| {
                 b.spawn((
@@ -545,9 +560,9 @@ pub(super) fn spawn_saves_tab(
                         font_size: FontSize::Px(16.0),
                         ..default()
                     },
-                    UiTextSize::from(Rh(48.0)),
+                    UiTextSize::from(Ab(16.0)),
                     UiColor::new(vec![(UiBase::id(), theme.text_main)]),
-                    UiLayout::window().full().pack(),
+                    super::typography::centered_label_layout(),
                     Pickable::IGNORE,
                 ));
             });

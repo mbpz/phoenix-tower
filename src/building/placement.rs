@@ -7,6 +7,7 @@
 //!   期望完全一致才允许放置（幽灵红/绿反馈），完成度实时计算（ADR-005）；
 //! - 完整建筑与 20 步撤销历史独立维护（见 world 模块）。
 
+use crate::ui::input::{keyboard_allowed, shortcuts_allowed, InputOwnership};
 use bevy::pbr::{MeshMaterial3d, StandardMaterial};
 use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
@@ -24,14 +25,17 @@ use crate::stability::RemoveMode;
 
 pub struct PlacementPlugin;
 
+#[derive(Message)]
+pub(crate) struct BlueprintPlacementUndone;
+
 impl Plugin for PlacementPlugin {
     fn build(&self, app: &mut App) {
         let (blueprint, blueprint_library) = load_blueprint_library();
-        app.insert_resource(load_block_library())
+        app.add_message::<BlueprintPlacementUndone>()
+            .insert_resource(load_block_library())
             .insert_resource(blueprint)
             .insert_resource(blueprint_library)
             .insert_resource(PlacedBlocks::default())
-            .insert_resource(ClickState::default())
             .insert_resource(BlueprintAlpha::default())
             .add_systems(Startup, setup_block_assets)
             .add_systems(
@@ -51,8 +55,6 @@ impl Plugin for PlacementPlugin {
 
 /// 网格尺寸：1 单位 = 1 格。
 const GRID: f32 = 1.0;
-/// 点击 / 拖拽判定阈值（逻辑像素；10px 兼容触控板按下时的微动）
-const CLICK_DRAG_THRESHOLD: f32 = 10.0;
 /// 蓝图模式 y 扫描上限（防失控循环）
 const MAX_BLUEPRINT_Y: i32 = 64;
 
@@ -84,13 +86,6 @@ pub struct BlockRenderAssets {
 
 // 兼容既有调用路径；数据变更集中在 world 模块。
 pub use super::world::{PlacedBlocks, PlacedRecord};
-
-/// 点击状态：用于点击 vs 拖拽消歧。
-#[derive(Resource, Default)]
-struct ClickState {
-    pressed_at: Option<Vec2>,
-    placed_this_press: bool,
-}
 
 /// 幽灵预览标记
 #[derive(Component)]
@@ -403,12 +398,13 @@ pub(crate) fn top_block_index_at(records: &[PlacedRecord], col: (i32, i32)) -> O
 
 /// M 键切换蓝图模式（幽灵实体由 reconcile_blueprint_ghosts 对账生成/销毁）。
 fn toggle_blueprint(
+    ownership: Option<Res<InputOwnership>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut blueprint: ResMut<Blueprint>,
     stack: Res<PlacedBlocks>,
     library: Res<BlockLibrary>,
 ) {
-    if keys.just_pressed(KeyCode::KeyM) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::KeyM) {
         blueprint.active = !blueprint.active;
         if blueprint.active {
             refresh_completion(&stack, &library, &mut blueprint);
@@ -462,7 +458,11 @@ fn reconcile_blueprint_ghosts(
 }
 
 /// 积木选择：数字键 1-9 直接选择；Q/E 循环切换；R 键旋转（90°步进）。
-fn select_block(keys: Res<ButtonInput<KeyCode>>, mut library: ResMut<BlockLibrary>) {
+fn select_block(
+    ownership: Option<Res<InputOwnership>>,
+    keys: Res<ButtonInput<KeyCode>>,
+    mut library: ResMut<BlockLibrary>,
+) {
     const DIGITS: [KeyCode; 9] = [
         KeyCode::Digit1,
         KeyCode::Digit2,
@@ -475,19 +475,22 @@ fn select_block(keys: Res<ButtonInput<KeyCode>>, mut library: ResMut<BlockLibrar
         KeyCode::Digit9,
     ];
     for (i, key) in DIGITS.iter().enumerate() {
-        if keys.just_pressed(*key) && i < library.defs.len() {
+        if shortcuts_allowed(&keys, ownership.as_deref())
+            && keys.just_pressed(*key)
+            && i < library.defs.len()
+        {
             library.current = i;
             return;
         }
     }
     let len = library.defs.len();
-    if keys.just_pressed(KeyCode::KeyQ) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::KeyQ) {
         library.current = (library.current + len - 1) % len;
     }
-    if keys.just_pressed(KeyCode::KeyE) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::KeyE) {
         library.current = (library.current + 1) % len;
     }
-    if keys.just_pressed(KeyCode::KeyR) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::KeyR) {
         library.rotation = (library.rotation + 1) % 4;
     }
 }
@@ -579,31 +582,33 @@ fn update_ghost_preview(
 /// - 撤销：Backspace 或 Ctrl/Cmd+Z —— 移除最后一次放置，移入重做栈
 /// - 重做：Ctrl/Cmd+Y —— 重建上次撤销的积木
 /// - 左键点击（非拖拽）：在幽灵所在位置放置当前积木（占用/蓝图匹配校验）
-fn handle_place_and_undo(
+pub(crate) fn handle_place_and_undo(
     mut commands: Commands,
-    mut click: ResMut<ClickState>,
+    ownership: Option<Res<InputOwnership>>,
+    mut undone: MessageWriter<BlueprintPlacementUndone>,
     windows: Query<&Window, With<PrimaryWindow>>,
     cameras: PlacementCameras<'_, '_>,
     library: Res<BlockLibrary>,
     render: Res<BlockRenderAssets>,
     audio: Res<AudioAssets>,
-    mouse: Res<ButtonInput<MouseButton>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut stack: ResMut<PlacedBlocks>,
     mut blueprint: ResMut<Blueprint>,
     mut challenge: ResMut<Challenge>,
     remove: Res<RemoveMode>,
-    hover_map: Res<bevy::picking::hover::HoverMap>,
-    ui_nodes: Query<Entity, With<bevy_lunex::UiLayout>>,
 ) {
     let modifier = keys.pressed(KeyCode::ControlLeft)
         || keys.pressed(KeyCode::ControlRight)
         || keys.pressed(KeyCode::SuperLeft)
         || keys.pressed(KeyCode::SuperRight);
+    let shift = keys.pressed(KeyCode::ShiftLeft) || keys.pressed(KeyCode::ShiftRight);
     let rot_override = challenge.def.rotation_locked && challenge.is_active();
 
     // 撤销
-    if keys.just_pressed(KeyCode::Backspace) || (modifier && keys.just_pressed(KeyCode::KeyZ)) {
+    if keyboard_allowed(ownership.as_deref())
+        && (keys.just_pressed(KeyCode::Backspace)
+            || (modifier && !shift && keys.just_pressed(KeyCode::KeyZ)))
+    {
         if let Some(record) = stack.undo() {
             commands.entity(record.entity).despawn();
             // 挑战配额退返
@@ -611,6 +616,7 @@ fn handle_place_and_undo(
                 challenge.refund(&record.def_id);
             }
             if blueprint.active {
+                undone.write(BlueprintPlacementUndone);
                 refresh_completion(&stack, &library, &mut blueprint);
             }
         }
@@ -618,7 +624,10 @@ fn handle_place_and_undo(
     }
 
     // 重做：重建实体并重新占用（挑战中需配额足够）
-    if modifier && keys.just_pressed(KeyCode::KeyY) {
+    if keyboard_allowed(ownership.as_deref())
+        && modifier
+        && (keys.just_pressed(KeyCode::KeyY) || (shift && keys.just_pressed(KeyCode::KeyZ)))
+    {
         let can_redo = stack
             .redo
             .last()
@@ -645,81 +654,50 @@ fn handle_place_and_undo(
         return;
     }
 
-    let cursor = windows.single().ok().and_then(|w| w.cursor_position());
-
-    if mouse.just_pressed(MouseButton::Left) {
-        click.pressed_at = cursor;
-        click.placed_this_press = false;
+    if !ownership.is_some_and(|input| input.world_click()) {
+        return;
     }
-
-    if mouse.just_released(MouseButton::Left) {
-        let dragged = match (click.pressed_at, cursor) {
-            (Some(a), Some(b)) => a.distance(b) > CLICK_DRAG_THRESHOLD,
-            _ => true,
-        };
-        if !dragged && !click.placed_this_press {
-            // A3：指针悬停在 Lunex UI 节点上时，点击不落到 3D 场景
-            // （HoverMap 在 PreUpdate 更新，本系统运行于 Update，读到的即本帧状态）
-            let over_ui = hover_map
-                .get(&bevy::picking::pointer::PointerId::Mouse)
-                .is_some_and(|hits| hits.keys().any(|e| ui_nodes.contains(*e)));
-            if over_ui {
-                click.pressed_at = None;
-                return;
-            }
-            if let Some(col) = cursor_column(&windows, &cameras) {
-                // 拆除模式：移除光标列最顶部的积木
-                if remove.active {
-                    if let Some(idx) = top_block_index_at(&stack.records, col) {
-                        let record = stack.remove(idx);
-                        commands.entity(record.entity).despawn();
-                        if blueprint.active {
-                            refresh_completion(&stack, &library, &mut blueprint);
-                        }
-                        click.placed_this_press = true;
-                    }
-                    click.pressed_at = None;
-                    return;
+    if let Some(col) = cursor_column(&windows, &cameras) {
+        // 拆除模式：移除光标列最顶部的积木
+        if remove.active {
+            if let Some(idx) = top_block_index_at(&stack.records, col) {
+                let record = stack.remove(idx);
+                commands.entity(record.entity).despawn();
+                if blueprint.active {
+                    refresh_completion(&stack, &library, &mut blueprint);
                 }
+            }
+            return;
+        }
 
-                let def = library.current_def();
-                let rot = if rot_override { 0 } else { library.rotation };
-                if let Some(anchor) = placement_anchor(col, def, rot, &stack, &blueprint) {
-                    let cells = footprint_cells(anchor, def, rot);
-                    let free = cells.iter().all(|c| !stack.occupied.contains(c));
-                    let quota_ok = challenge.can_place(&def.id);
-                    if free && quota_ok {
-                        let entity = spawn_block_entity(
-                            &mut commands,
-                            &library,
-                            &render,
-                            &def.id,
-                            anchor,
-                            rot,
-                        );
-                        if challenge.is_active() {
-                            challenge.consume(&def.id);
-                        }
-                        stack.place(PlacedRecord {
-                            entity,
-                            def_id: def.id.clone(),
-                            anchor,
-                            rot,
-                            cells,
-                        });
-                        click.placed_this_press = true;
+        let def = library.current_def();
+        let rot = if rot_override { 0 } else { library.rotation };
+        if let Some(anchor) = placement_anchor(col, def, rot, &stack, &blueprint) {
+            let cells = footprint_cells(anchor, def, rot);
+            let free = cells.iter().all(|c| !stack.occupied.contains(c));
+            let quota_ok = challenge.can_place(&def.id);
+            if free && quota_ok {
+                let entity =
+                    spawn_block_entity(&mut commands, &library, &render, &def.id, anchor, rot);
+                if challenge.is_active() {
+                    challenge.consume(&def.id);
+                }
+                stack.place(PlacedRecord {
+                    entity,
+                    def_id: def.id.clone(),
+                    anchor,
+                    rot,
+                    cells,
+                });
 
-                        // 放置音效（B-19）：按积木分类
-                        play_placement_sound(&mut commands, &audio, sound_kind_for(&def.category));
+                // 放置音效（B-19）：按积木分类
+                play_placement_sound(&mut commands, &audio, sound_kind_for(&def.category));
 
-                        if blueprint.active {
-                            refresh_completion(&stack, &library, &mut blueprint);
-                        }
-                    }
+                if blueprint.active {
+                    refresh_completion(&stack, &library, &mut blueprint);
                 }
             }
         }
-        click.pressed_at = None;
     }
 }
 
@@ -879,7 +857,7 @@ mod tests {
                 place_stone: Handle::default(),
                 bell_chime: Handle::default(),
             })
-            .init_resource::<ClickState>()
+            .add_message::<BlueprintPlacementUndone>()
             .init_resource::<RemoveMode>()
             .init_resource::<ButtonInput<KeyCode>>()
             .init_resource::<ButtonInput<MouseButton>>()
@@ -895,6 +873,82 @@ mod tests {
             input.press(*key);
         }
         app.update();
+    }
+
+    #[test]
+    fn focused_path_blocks_world_history_and_selection_hotkeys() {
+        use crate::ui::input::InputOwnershipPlugin;
+        use crate::ui::lunex::{LunexTab, LunexTabId, PathInput};
+
+        let mut app = history_input_app();
+        app.add_plugins(InputOwnershipPlugin)
+            .insert_resource(PathInput {
+                value: "/tmp/castle.ptw".into(),
+                focused: true,
+            })
+            .insert_resource(LunexTab(LunexTabId::Saves))
+            .add_systems(Update, select_block);
+        let original = app.world().resource::<PlacedBlocks>().records[0].entity;
+        let selected = app.world().resource::<BlockLibrary>().current;
+        let rotation = app.world().resource::<BlockLibrary>().rotation;
+        for keys in [
+            vec![KeyCode::Backspace],
+            vec![KeyCode::SuperLeft, KeyCode::KeyZ],
+            vec![KeyCode::KeyE],
+            vec![KeyCode::KeyR],
+        ] {
+            press_history_keys(&mut app, &keys);
+            assert!(app.world().get_entity(original).is_ok());
+            assert!(app.world().resource::<PlacedBlocks>().redo.is_empty());
+            assert_eq!(app.world().resource::<BlockLibrary>().current, selected);
+            assert_eq!(app.world().resource::<BlockLibrary>().rotation, rotation);
+        }
+        app.world_mut().resource_mut::<PathInput>().focused = false;
+        press_history_keys(&mut app, &[KeyCode::Backspace]);
+        assert!(app.world().get_entity(original).is_err());
+        app.world_mut().resource_mut::<PathInput>().focused = true;
+        for keys in [
+            vec![KeyCode::SuperLeft, KeyCode::KeyY],
+            vec![KeyCode::SuperLeft, KeyCode::ShiftLeft, KeyCode::KeyZ],
+            vec![KeyCode::SuperRight, KeyCode::ShiftRight, KeyCode::KeyZ],
+        ] {
+            press_history_keys(&mut app, &keys);
+            assert!(app.world().resource::<PlacedBlocks>().records.is_empty());
+            assert_eq!(app.world().resource::<PlacedBlocks>().redo.len(), 1);
+        }
+    }
+
+    #[test]
+    fn command_shift_z_redoes_without_undoing_and_restores_quota() {
+        for command in [KeyCode::SuperLeft, KeyCode::SuperRight] {
+            for shift in [KeyCode::ShiftLeft, KeyCode::ShiftRight] {
+                let mut app = history_input_app();
+                let original = app.world().resource::<PlacedBlocks>().records[0].entity;
+                let revision = app.world().resource::<PlacedBlocks>().revision;
+
+                // An empty redo stack must not turn Cmd+Shift+Z into undo.
+                press_history_keys(&mut app, &[command, shift, KeyCode::KeyZ]);
+                assert!(app.world().get_entity(original).is_ok());
+                assert_eq!(app.world().resource::<PlacedBlocks>().revision, revision);
+                assert_eq!(app.world().resource::<Challenge>().quota_left["taiji"], 0);
+
+                press_history_keys(&mut app, &[command, KeyCode::KeyZ]);
+                assert!(app.world().get_entity(original).is_err());
+                assert_eq!(app.world().resource::<Challenge>().quota_left["taiji"], 1);
+
+                press_history_keys(&mut app, &[command, shift, KeyCode::KeyZ]);
+                let stack = app.world().resource::<PlacedBlocks>();
+                assert_eq!(stack.records.len(), 1);
+                assert!(stack.redo.is_empty());
+                assert_ne!(stack.records[0].entity, original);
+                assert!(app
+                    .world()
+                    .get::<PlacedBlock>(stack.records[0].entity)
+                    .is_some());
+                assert_eq!(stack.occupied.len(), stack.records[0].cells.len());
+                assert_eq!(app.world().resource::<Challenge>().quota_left["taiji"], 0);
+            }
+        }
     }
 
     #[test]
@@ -915,6 +969,27 @@ mod tests {
             .is_some());
         assert_eq!(stack.occupied.len(), stack.records[0].cells.len());
         assert_eq!(app.world().resource::<Challenge>().quota_left["taiji"], 0);
+    }
+
+    #[test]
+    fn only_successful_blueprint_undo_emits_activity() {
+        let mut app = history_input_app();
+        app.world_mut().resource_mut::<Blueprint>().active = true;
+        let mut messages = bevy::ecs::message::MessageCursor::<BlueprintPlacementUndone>::default();
+        press_history_keys(&mut app, &[KeyCode::Backspace]);
+        assert_eq!(
+            messages
+                .read(app.world().resource::<Messages<BlueprintPlacementUndone>>())
+                .count(),
+            1
+        );
+        press_history_keys(&mut app, &[KeyCode::Backspace]);
+        assert_eq!(
+            messages
+                .read(app.world().resource::<Messages<BlueprintPlacementUndone>>())
+                .count(),
+            0
+        );
     }
 
     #[test]

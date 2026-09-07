@@ -5,6 +5,7 @@
 //! 说明：积木名称与文化描述属内容（博物馆式标签），保持中文；
 //! 界面镀铬（HUD/面板/教程/成就）双语化。
 
+use crate::ui::input::{shortcuts_allowed, InputOwnership};
 use bevy::prelude::*;
 
 #[derive(Clone, Copy, PartialEq, Eq, Default, Debug)]
@@ -30,8 +31,12 @@ impl Plugin for I18nPlugin {
 }
 
 /// L 键切换中/英。
-fn toggle_lang(keys: Res<ButtonInput<KeyCode>>, mut locale: ResMut<Locale>) {
-    if keys.just_pressed(KeyCode::KeyL) {
+fn toggle_lang(
+    ownership: Option<Res<InputOwnership>>,
+    keys: Res<ButtonInput<KeyCode>>,
+    mut locale: ResMut<Locale>,
+) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::KeyL) {
         locale.lang = match locale.lang {
             Lang::Zh => Lang::En,
             Lang::En => Lang::Zh,

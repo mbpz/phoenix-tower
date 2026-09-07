@@ -42,7 +42,7 @@ pub(super) fn ui_probe_diagnostic(
     mut done: Local<bool>,
     roots: Query<&Dimension, (With<UiLayoutRoot>, With<UiFetchFromCamera<0>>)>,
     banners: BannerMeshQuery<'_, '_>,
-    texts: Query<(&Text2d, &TextLayoutInfo), With<UiTextSize>>,
+    texts: Query<(&Text2d, &TextLayoutInfo, &Dimension, &Transform), With<UiTextSize>>,
     probes: Text3dProbeQuery<'_, '_>,
     palette: Query<(&PaletteRow, &UiSelected, &Visibility)>,
     theme_texts: Query<&Text2d, With<ThemeButtonText>>,
@@ -71,8 +71,11 @@ pub(super) fn ui_probe_diagnostic(
             mat.is_some()
         );
     }
-    for (t, layout) in &texts {
-        info!("🧪 lunex text \"{}\" layout={:?}", t.0, layout.size);
+    for (t, layout, dimension, transform) in &texts {
+        info!(
+            "🧪 lunex text \"{}\" layout={:?} box={:?} scale={:?}",
+            t.0, layout.size, dimension.0, transform.scale
+        );
     }
     for (e, tf, mesh, dim) in &probes {
         info!(

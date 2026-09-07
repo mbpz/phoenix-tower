@@ -19,6 +19,7 @@ mod layout;
 mod palette;
 mod probes;
 mod saves;
+mod typography;
 
 // Preserve the existing ui::lunex public component/resource paths. Feature systems
 // are only pub(super), so these exports do not widen their visibility.
@@ -61,6 +62,12 @@ impl Plugin for LunexUiPlugin {
             .init_resource::<OpacityDragging>()
             .add_plugins(UiLunexPlugins)
             .add_systems(
+                PostUpdate,
+                typography::sync_text_scale
+                    .after(bevy_lunex::system_text_size_from_dimension)
+                    .in_set(bevy_lunex::UiSystems::PostCompute),
+            )
+            .add_systems(
                 Startup,
                 (spawn_ui_camera, spawn_hud_root, spawn_text3d_probe),
             )
@@ -99,3 +106,19 @@ impl Plugin for LunexUiPlugin {
 
 #[cfg(test)]
 mod tests;
+
+/// Avoid Lunex 0.7's UiHoverSet duplicator: it copies the event to children
+/// without changing its target, recursively triggering the parent forever.
+/// Apply the state directly, including descendants, without queuing events.
+fn set_hover<E: EntityEvent, const ENABLE: bool>(
+    event: On<E>,
+    children: Query<&Children>,
+    mut hovers: Query<&mut UiHover>,
+) {
+    let target = event.event_target();
+    for entity in std::iter::once(target).chain(children.iter_descendants(target)) {
+        if let Ok(mut hover) = hovers.get_mut(entity) {
+            hover.enable = ENABLE;
+        }
+    }
+}

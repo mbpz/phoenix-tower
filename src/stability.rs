@@ -7,6 +7,7 @@
 //! 设计（ADR-002）：物理仅用于测试变体，正常放置/撤销保持确定性；
 //! 测试结束按记录重建原建筑（网格数据不变，仅实体句柄重建）。
 
+use crate::ui::input::{shortcuts_allowed, InputOwnership};
 use avian3d::prelude::*;
 use bevy::prelude::*;
 
@@ -71,6 +72,7 @@ fn setup_ground_collider(mut commands: Commands) {
 
 /// X 切换拆除模式；G 启动/复原重力测试。
 fn toggle_modes(
+    ownership: Option<Res<InputOwnership>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut remove: ResMut<RemoveMode>,
     mut test: ResMut<StabilityTest>,
@@ -80,12 +82,12 @@ fn toggle_modes(
     render: Res<BlockRenderAssets>,
     placed_query: Query<Entity, With<PlacedBlock>>,
 ) {
-    if keys.just_pressed(KeyCode::KeyX) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::KeyX) {
         remove.active = !remove.active;
         info!("🔧 拆除模式{}", if remove.active { "开启" } else { "关闭" });
     }
 
-    if keys.just_pressed(KeyCode::KeyG) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::KeyG) {
         match test.state {
             TestState::Idle => start_gravity_test(&mut test, &mut stack, &library, &mut commands),
             TestState::Running => {} // 测试中忽略

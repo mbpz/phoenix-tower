@@ -5,6 +5,7 @@
 //! - 当前步骤目标格子全部正确放置后自动推进；全部完成或按 N 跳过
 //! - 步骤完成判定为纯函数（step_complete），单元测试覆盖
 
+use crate::ui::input::{shortcuts_allowed, InputOwnership};
 use std::collections::HashMap;
 
 use bevy::prelude::*;
@@ -111,6 +112,7 @@ pub fn placed_map(stack: &PlacedBlocks) -> HashMap<IVec3, String> {
 
 /// 教程推进：强制蓝图模式、按步骤自动选中积木、完成检测、跳过（N 键）。
 fn tutorial_system(
+    ownership: Option<Res<InputOwnership>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut tutorial: ResMut<Tutorial>,
     mut blueprint: ResMut<Blueprint>,
@@ -127,7 +129,7 @@ fn tutorial_system(
     }
 
     // N 键跳过教程
-    if keys.just_pressed(KeyCode::KeyN) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::KeyN) {
         tutorial.active = false;
         info!("🎓 教程已跳过，自由模式开放");
         return;

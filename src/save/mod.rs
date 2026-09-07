@@ -7,6 +7,7 @@
 //!
 //! 快捷键：F5 保存 .ptw / F6 导出 .json / F9 读取 .ptw
 
+use crate::ui::input::{shortcuts_allowed, InputOwnership};
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -205,6 +206,7 @@ pub fn apply_save(
 }
 
 fn handle_save_load(
+    ownership: Option<Res<InputOwnership>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut commands: Commands,
     mut stack: ResMut<PlacedBlocks>,
@@ -214,19 +216,19 @@ fn handle_save_load(
     mut challenge: ResMut<Challenge>,
     placed_query: Query<Entity, With<PlacedBlock>>,
 ) {
-    if keys.just_pressed(KeyCode::F5) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::F5) {
         if let Err(e) = save_slot(&stack, &blueprint) {
             error!("保存失败: {e}");
         }
     }
 
-    if keys.just_pressed(KeyCode::F6) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::F6) {
         if let Err(e) = export_json(&stack, &blueprint) {
             error!("JSON 导出失败: {e}");
         }
     }
 
-    if keys.just_pressed(KeyCode::F9) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::F9) {
         if let Err(e) = load_slot(
             &mut commands,
             &mut stack,
@@ -241,14 +243,14 @@ fn handle_save_load(
     }
 
     // F7：导出分享副本（时间戳命名，便于分发）
-    if keys.just_pressed(KeyCode::F7) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::F7) {
         if let Err(e) = share_export(&stack, &blueprint) {
             error!("分享导出失败: {e}");
         }
     }
 
     // F8：导入 saves/ 下最新的 .ptw（分享导入快捷方式）
-    if keys.just_pressed(KeyCode::F8) {
+    if shortcuts_allowed(&keys, ownership.as_deref()) && keys.just_pressed(KeyCode::F8) {
         if let Err(e) = import_latest(
             &mut commands,
             &mut stack,
