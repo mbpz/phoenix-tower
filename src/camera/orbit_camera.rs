@@ -25,7 +25,8 @@ impl Plugin for OrbitCameraPlugin {
                     overview_shortcut,
                     orbit_camera_system,
                 )
-                    .chain(),
+                    .chain()
+                    .after(crate::building::tutorial::tutorial_system),
             );
     }
 }
@@ -222,13 +223,25 @@ fn orbit_camera_system(
     mouse_scroll: Res<AccumulatedMouseScroll>,
 ) {
     // Bevy 0.19：鼠标位移/滚轮为逐帧累加资源（每帧自动清零）
-    let drag_delta = mouse_motion.delta;
-    let orbit_drag = mouse_buttons.pressed(MouseButton::Left)
-        && ownership
-            .as_deref()
-            .is_none_or(InputOwnership::orbit_allowed);
-    let pan_drag = mouse_buttons.pressed(MouseButton::Right)
-        && ownership.as_deref().is_none_or(InputOwnership::pan_allowed);
+    let native_motion = ownership.as_deref().and_then(InputOwnership::frame_motion);
+    let orbit_delta = native_motion.map_or(mouse_motion.delta, |motion| motion.0);
+    let pan_delta = native_motion.map_or(mouse_motion.delta, |motion| motion.1);
+    let orbit_drag = native_motion.map_or_else(
+        || {
+            mouse_buttons.pressed(MouseButton::Left)
+                && ownership
+                    .as_deref()
+                    .is_none_or(InputOwnership::orbit_allowed)
+        },
+        |motion| motion.0 != Vec2::ZERO,
+    );
+    let pan_drag = native_motion.map_or_else(
+        || {
+            mouse_buttons.pressed(MouseButton::Right)
+                && ownership.as_deref().is_none_or(InputOwnership::pan_allowed)
+        },
+        |motion| motion.1 != Vec2::ZERO,
+    );
     let scroll = if ownership
         .as_deref()
         .is_none_or(InputOwnership::zoom_allowed)
@@ -244,8 +257,9 @@ fn orbit_camera_system(
     } else {
         0.0
     };
-    let input_active =
-        ((orbit_drag || pan_drag) && drag_delta.length_squared() > 0.0) || scroll != 0.0;
+    let input_active = (orbit_drag && orbit_delta != Vec2::ZERO)
+        || (pan_drag && pan_delta != Vec2::ZERO)
+        || scroll != 0.0;
 
     // 观赏自动驾驶（PRD §3.2）：无输入时朝目标平滑过渡；玩家输入即接管
     if let Some(pilot) = orbit.autopilot {
@@ -267,8 +281,8 @@ fn orbit_camera_system(
     }
 
     if orbit_drag {
-        orbit.yaw -= drag_delta.x * ORBIT_SPEED;
-        orbit.pitch = (orbit.pitch + drag_delta.y * ORBIT_SPEED).clamp(PITCH_MIN, PITCH_MAX);
+        orbit.yaw -= orbit_delta.x * ORBIT_SPEED;
+        orbit.pitch = (orbit.pitch + orbit_delta.y * ORBIT_SPEED).clamp(PITCH_MIN, PITCH_MAX);
     }
 
     if pan_drag {
@@ -277,7 +291,7 @@ fn orbit_camera_system(
         let right = forward.cross(Vec3::Y).normalize_or_zero();
         let up = right.cross(forward).normalize_or_zero();
         let distance = orbit.distance;
-        orbit.target += (right * drag_delta.x + up * drag_delta.y) * PAN_SPEED * distance;
+        orbit.target += (right * pan_delta.x + up * pan_delta.y) * PAN_SPEED * distance;
     }
 
     orbit.distance = (orbit.distance * (-scroll * ZOOM_SPEED).exp()).clamp(DIST_MIN, DIST_MAX);
@@ -288,13 +302,25 @@ fn orbit_camera_system(
     }
 }
 
-/// 蓝图完成（≥95%）上升沿：启用观赏视角自动驾驶。
+/// Reveal the full tower once when guided construction ends; completion enables viewing autopilot.
 fn completion_autopilot_system(
     blueprint: Res<crate::building::blueprint::Blueprint>,
     mut orbit: ResMut<OrbitCamera>,
     mut prev_completed: Local<bool>,
+    tutorial: Option<Res<crate::building::tutorial::Tutorial>>,
+    mut prev_tutorial_active: Local<bool>,
     windows: Query<&Window, With<bevy::window::PrimaryWindow>>,
 ) {
+    let tutorial_active = tutorial.is_some_and(|tutorial| tutorial.active);
+    if *prev_tutorial_active && !tutorial_active && blueprint.active {
+        let aspect = windows
+            .single()
+            .ok()
+            .map(|w| w.width() / w.height().max(1.0))
+            .unwrap_or(16.0 / 9.0);
+        frame_cells(&mut orbit, &blueprint.cell_list, aspect);
+    }
+    *prev_tutorial_active = tutorial_active;
     if blueprint.completed && !*prev_completed {
         let riverside = blueprint.def.id == "riverside";
         let mut overview = OrbitCamera {
@@ -339,6 +365,45 @@ pub fn autopilot_step(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn tutorial_exit_frames_full_blueprint_once_without_overriding_later_input() {
+        for finished in [false, true] {
+            let mut app = App::new();
+            let mut bp = crate::building::blueprint::load_blueprint_library().0;
+            bp.active = true;
+            let mut expected = OrbitCamera::default();
+            frame_cells(&mut expected, &bp.cell_list, 16.0 / 9.0);
+            app.insert_resource(bp)
+                .insert_resource(crate::building::tutorial::load_tutorial())
+                .init_resource::<OrbitCamera>()
+                .add_systems(Startup, spawn_orbit_camera)
+                .add_systems(Update, completion_autopilot_system);
+            app.update();
+            let initial = app.world().resource::<OrbitCamera>().distance;
+            assert!(initial < expected.distance);
+            let mut tutorial = app
+                .world_mut()
+                .resource_mut::<crate::building::tutorial::Tutorial>();
+            tutorial.active = false;
+            if finished {
+                tutorial.step = tutorial.steps.len();
+            }
+            app.update();
+            let orbit = app.world().resource::<OrbitCamera>();
+            assert_eq!(
+                orbit.target, expected.target,
+                "tutorial exit must reveal the tower"
+            );
+            assert!((orbit.distance - expected.distance).abs() < 0.0001);
+            app.world_mut().resource_mut::<OrbitCamera>().target = Vec3::splat(9.0);
+            app.update();
+            assert_eq!(
+                app.world().resource::<OrbitCamera>().target,
+                Vec3::splat(9.0)
+            );
+        }
+    }
 
     #[test]
     fn completion_overview_recenters_tutorial_and_keeps_tower_in_frame() {

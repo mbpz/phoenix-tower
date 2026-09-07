@@ -112,7 +112,7 @@ pub fn placed_map(stack: &PlacedBlocks) -> HashMap<IVec3, String> {
 }
 
 /// 教程推进：强制蓝图模式、按步骤自动选中积木、完成检测、跳过（N 键）。
-fn tutorial_system(
+pub(crate) fn tutorial_system(
     ownership: Option<Res<InputOwnership>>,
     keys: Res<ButtonInput<KeyCode>>,
     mut tutorial: ResMut<Tutorial>,
@@ -151,7 +151,9 @@ fn tutorial_system(
 
     // 当前步骤自动选中目标积木（含首次激活）
     if let Some(&idx) = library.by_id.get(&tutorial.steps[tutorial.step].block_id) {
-        library.current = idx;
+        if library.current != idx {
+            library.current = idx;
+        }
     }
 
     // 完成检测
@@ -274,6 +276,40 @@ mod tests {
             app.world().resource::<BlockLibrary>().current_def().id,
             "datiji"
         );
+    }
+
+    #[test]
+    fn idle_tutorial_does_not_dirty_block_library_but_repairs_selection() {
+        #[derive(Resource, Default)]
+        struct LibraryChanged(bool);
+        fn observe(library: Res<BlockLibrary>, mut changed: ResMut<LibraryChanged>) {
+            changed.0 = library.is_changed();
+        }
+        let mut app = App::new();
+        app.insert_resource(load_tutorial())
+            .insert_resource(crate::building::blueprint::load_blueprint_library().0)
+            .insert_resource(crate::building::block_defs::load_block_library())
+            .init_resource::<PlacedBlocks>()
+            .init_resource::<ButtonInput<KeyCode>>()
+            .init_resource::<LibraryChanged>()
+            .add_systems(Update, (tutorial_system, observe).chain());
+        app.update();
+        assert_eq!(
+            app.world().resource::<BlockLibrary>().current_def().id,
+            "datiji"
+        );
+        app.update();
+        assert!(!app.world().resource::<LibraryChanged>().0);
+        let other = app.world().resource::<BlockLibrary>().by_id["hongzhu4"];
+        app.world_mut().resource_mut::<BlockLibrary>().current = other;
+        app.update();
+        assert_eq!(
+            app.world().resource::<BlockLibrary>().current_def().id,
+            "datiji"
+        );
+        assert!(app.world().resource::<LibraryChanged>().0);
+        app.update();
+        assert!(!app.world().resource::<LibraryChanged>().0);
     }
 
     #[test]

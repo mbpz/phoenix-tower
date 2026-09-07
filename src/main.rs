@@ -11,6 +11,7 @@ mod building;
 mod camera;
 mod game_state;
 mod i18n;
+mod performance;
 mod riverside;
 mod riverside_environment;
 mod save;
@@ -55,6 +56,7 @@ fn main() {
             ..default()
         }))
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        .add_plugins(performance::PerformancePlugin)
         .init_state::<GameState>()
         .add_plugins((
             OrbitCameraPlugin,

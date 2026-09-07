@@ -143,8 +143,8 @@ fn day_night_system(
     keys: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
     mut sky: ResMut<SkyState>,
-    mut clear: ResMut<ClearColor>,
-    mut ambient: ResMut<GlobalAmbientLight>,
+    clear: ResMut<ClearColor>,
+    ambient: ResMut<GlobalAmbientLight>,
     mut sun: Query<&mut DirectionalLight>,
     render: Res<crate::building::placement::BlockRenderAssets>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -165,15 +165,21 @@ fn day_night_system(
     let t = sky.t;
     let lerp = |a: f32, b: f32| a + (b - a) * t;
 
-    if let Ok(mut light) = sun.single_mut() {
-        light.illuminance = lerp(if mode.0 { 5000.0 } else { DAY_SUN }, NIGHT_SUN);
+    if let Ok(light) = sun.single_mut() {
+        light
+            .map_unchanged(|light| &mut light.illuminance)
+            .set_if_neq(lerp(if mode.0 { 5000.0 } else { DAY_SUN }, NIGHT_SUN));
     }
-    ambient.brightness = lerp(if mode.0 { 450.0 } else { DAY_AMB }, NIGHT_AMB);
-    clear.0 = Color::srgb(
-        lerp(DAY_SKY[0], NIGHT_SKY[0]),
-        lerp(DAY_SKY[1], NIGHT_SKY[1]),
-        lerp(DAY_SKY[2], NIGHT_SKY[2]),
-    );
+    ambient
+        .map_unchanged(|ambient| &mut ambient.brightness)
+        .set_if_neq(lerp(if mode.0 { 450.0 } else { DAY_AMB }, NIGHT_AMB));
+    clear
+        .map_unchanged(|clear| &mut clear.0)
+        .set_if_neq(Color::srgb(
+            lerp(DAY_SKY[0], NIGHT_SKY[0]),
+            lerp(DAY_SKY[1], NIGHT_SKY[1]),
+            lerp(DAY_SKY[2], NIGHT_SKY[2]),
+        ));
 
     // 夜景辉光：灯笼（暖红）与宝顶（暖金）随入夜增强
     let glow: &[(&str, [f32; 3])] = &[
@@ -183,22 +189,114 @@ fn day_night_system(
     for (id, [r, g, b]) in glow {
         if let Some((_, handle)) = render.per_def.get(*id) {
             if let Some(mut m) = materials.get_mut(handle) {
-                m.emissive = LinearRgba::new(r * t, g * t, b * t, 0.0);
+                let emissive = LinearRgba::new(r * t, g * t, b * t, 0.0);
+                // AssetMut records a modification on mutable dereference.
+                if m.emissive != emissive {
+                    m.emissive = emissive;
+                }
             }
         }
     }
     // 灯笼点光源强度随入夜增强
-    for mut light in &mut lantern_lights {
-        light.intensity = t * 350.0;
+    for light in &mut lantern_lights {
+        light
+            .map_unchanged(|light| &mut light.intensity)
+            .set_if_neq(t * 350.0);
     }
     // 雾色昼夜联动：白天浅蓝薄雾 → 夜晚深蓝
     const DAY_FOG: [f32; 3] = [0.78, 0.82, 0.9];
     const NIGHT_FOG: [f32; 3] = [0.05, 0.08, 0.16];
-    for mut f in &mut fog {
-        f.color = Color::srgb(
-            lerp(DAY_FOG[0], NIGHT_FOG[0]),
-            lerp(DAY_FOG[1], NIGHT_FOG[1]),
-            lerp(DAY_FOG[2], NIGHT_FOG[2]),
+    for f in &mut fog {
+        f.map_unchanged(|fog| &mut fog.color)
+            .set_if_neq(Color::srgb(
+                lerp(DAY_FOG[0], NIGHT_FOG[0]),
+                lerp(DAY_FOG[1], NIGHT_FOG[1]),
+                lerp(DAY_FOG[2], NIGHT_FOG[2]),
+            ));
+    }
+}
+
+#[cfg(test)]
+mod performance_tests {
+    use super::*;
+    use crate::building::placement::BlockRenderAssets;
+    use std::time::Duration;
+
+    #[derive(Resource, Default)]
+    struct ChangedEnvironment(usize);
+
+    fn watch_changes(
+        mut count: ResMut<ChangedEnvironment>,
+        sky: Res<SkyState>,
+        clear: Res<ClearColor>,
+        ambient: Res<GlobalAmbientLight>,
+        lights: Query<(), Changed<DirectionalLight>>,
+        fog: Query<(), Changed<DistanceFog>>,
+    ) {
+        count.0 = usize::from(sky.is_changed())
+            + usize::from(clear.is_changed())
+            + usize::from(ambient.is_changed())
+            + lights.iter().count()
+            + fog.iter().count();
+    }
+
+    fn scene_app() -> App {
+        let mut app = App::new();
+        app.init_resource::<ButtonInput<KeyCode>>()
+            .init_resource::<Time>()
+            .init_resource::<SkyState>()
+            .init_resource::<ClearColor>()
+            .init_resource::<GlobalAmbientLight>()
+            .init_resource::<Assets<StandardMaterial>>()
+            .init_resource::<ChangedEnvironment>()
+            .insert_resource(crate::riverside::RiversideMode(false))
+            .insert_resource(BlockRenderAssets {
+                per_def: Default::default(),
+                blueprint_materials: Default::default(),
+                ghost_material: default(),
+                ghost_bad_material: default(),
+                blueprint_unit_mesh: default(),
+            })
+            .add_systems(Update, (day_night_system, watch_changes).chain());
+        app.world_mut().spawn(DirectionalLight::default());
+        app.world_mut().spawn(DistanceFog::default());
+        app
+    }
+
+    #[test]
+    fn settled_environment_does_not_dirty_render_state_every_frame() {
+        let mut app = scene_app();
+        app.update();
+        app.update();
+        assert_eq!(app.world().resource::<ChangedEnvironment>().0, 0);
+    }
+
+    #[test]
+    fn night_transition_and_new_lights_still_update_after_settling() {
+        let mut app = scene_app();
+        app.update();
+        app.world_mut().resource_mut::<SkyState>().night = true;
+        app.world_mut()
+            .resource_mut::<Time>()
+            .advance_by(Duration::from_secs(1));
+        app.update();
+        assert!((app.world().resource::<SkyState>().t - 0.4).abs() < 1e-5);
+        app.update();
+        app.update();
+        assert_eq!(app.world().resource::<SkyState>().t, 1.0);
+        app.update();
+        assert_eq!(app.world().resource::<ChangedEnvironment>().0, 0);
+        let lamp = app
+            .world_mut()
+            .spawn((
+                PointLight::default(),
+                crate::building::placement::LanternLight,
+            ))
+            .id();
+        app.update();
+        assert_eq!(
+            app.world().get::<PointLight>(lamp).unwrap().intensity,
+            350.0
         );
     }
 }

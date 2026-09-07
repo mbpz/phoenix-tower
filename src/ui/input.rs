@@ -17,6 +17,10 @@ impl Plugin for InputOwnershipPlugin {
                     .after(PickingSystems::Last)
                     .after(bevy::input::InputSystems),
             );
+        // Opt-in native QA: observe delivery and ownership without logging text.
+        if std::env::var("PHOENIX_INPUT_PROBE").as_deref() == Ok("1") {
+            app.add_systems(Last, log_input_probe);
+        }
     }
 }
 
@@ -28,6 +32,7 @@ pub struct InputOwnership {
     left: PointerGesture,
     right: PointerGesture,
     world_click: bool,
+    motion: Option<(Vec2, Vec2)>,
 }
 
 /// Logical pixels; latch a drag once crossed, even when it returns to its origin.
@@ -91,6 +96,10 @@ impl InputOwnership {
             .update(mouse, MouseButton::Right, cursor, over_ui);
     }
 
+    pub(crate) fn frame_motion(&self) -> Option<(Vec2, Vec2)> {
+        self.motion
+    }
+
     pub fn world_click(&self) -> bool {
         self.world_click
     }
@@ -138,6 +147,87 @@ pub(crate) fn shortcuts_allowed(
         .any(|key| modifier_active(keys, key))
 }
 
+/// Preserve event order when a press, motion and release share one render frame.
+#[derive(Default)]
+struct NativePointerPath {
+    reader: bevy::ecs::message::MessageCursor<bevy::window::WindowEvent>,
+    cursor: Option<Vec2>,
+    held: ButtonInput<MouseButton>,
+    enabled: bool,
+}
+
+impl NativePointerPath {
+    fn update(
+        &mut self,
+        input: &mut InputOwnership,
+        events: &Messages<bevy::window::WindowEvent>,
+        window: Entity,
+        fallback_ui: bool,
+        hit: &super::picking::UiCursorHitTest,
+    ) -> bool {
+        use bevy::{input::ButtonState, window::WindowEvent};
+        let events: Vec<_> = self.reader.read(events).collect();
+        self.enabled |= events.iter().any(|event| {
+            matches!(event,
+            WindowEvent::CursorMoved(e) if e.window == window)
+        }) || events
+            .iter()
+            .any(|event| matches!(event, WindowEvent::MouseButtonInput(e) if e.window == window));
+        if !self.enabled {
+            return false;
+        }
+        let over_ui = |cursor: Option<Vec2>| {
+            cursor
+                .and_then(|pos| hit.contains(window, pos))
+                .unwrap_or(fallback_ui)
+        };
+        input.update_pointer(&self.held, self.cursor, over_ui(self.cursor));
+        let mut click = false;
+        let mut motion = (Vec2::ZERO, Vec2::ZERO);
+        for event in events {
+            match event {
+                WindowEvent::CursorMoved(e) if e.window == window => {
+                    let previous = self.cursor;
+                    self.cursor = Some(e.position);
+                    input.update_pointer(&self.held, self.cursor, over_ui(self.cursor));
+                    let delta = previous.map_or(Vec2::ZERO, |p| e.position - p);
+                    if self.held.pressed(MouseButton::Left) && input.orbit_allowed() {
+                        motion.0 += delta;
+                    }
+                    if self.held.pressed(MouseButton::Right) && input.pan_allowed() {
+                        motion.1 += delta;
+                    }
+                }
+                WindowEvent::MouseButtonInput(e) if e.window == window => {
+                    match e.state {
+                        ButtonState::Pressed => self.held.press(e.button),
+                        ButtonState::Released => self.held.release(e.button),
+                    }
+                    input.update_pointer(&self.held, self.cursor, over_ui(self.cursor));
+                    click |= input.world_click();
+                    self.held.clear();
+                }
+                WindowEvent::CursorLeft(e) if e.window == window => {
+                    self.cursor = None;
+                    input.update_pointer(&self.held, None, true);
+                }
+                WindowEvent::WindowFocused(e) if e.window == window && !e.focused => {
+                    self.held.reset_all();
+                    self.cursor = None;
+                    input.left = PointerGesture::default();
+                    input.right = PointerGesture::default();
+                    click = false;
+                    motion = (Vec2::ZERO, Vec2::ZERO);
+                }
+                _ => {}
+            }
+        }
+        input.world_click = click;
+        input.motion = Some(motion);
+        true
+    }
+}
+
 fn update_ownership(
     mut ownership: ResMut<InputOwnership>,
     mut path: Option<ResMut<PathInput>>,
@@ -147,7 +237,10 @@ fn update_ownership(
     ui_nodes: Query<Entity, With<UiLayout>>,
     path_boxes: Query<(), With<PathInputBox>>,
     parents: Query<&ChildOf>,
-    windows: Query<&Window, With<PrimaryWindow>>,
+    windows: Query<(Entity, &Window), With<PrimaryWindow>>,
+    events: Option<Res<Messages<bevy::window::WindowEvent>>>,
+    mut native: Local<NativePointerPath>,
+    hit: super::picking::UiCursorHitTest,
 ) {
     // Release text focus before taking the frame's keyboard-ownership snapshot.
     // Text/decoration hits may target descendants rather than the input box itself.
@@ -177,17 +270,73 @@ fn update_ownership(
         map.get(&PointerId::Mouse)
             .is_some_and(|hits| hits.keys().any(|entity| ui_nodes.contains(*entity)))
     });
-    let window = windows.single().ok();
+    let primary = windows.single().ok();
+    let window = primary.map(|(_, w)| w);
     let cursor = window
         .filter(|window| window.focused)
         .and_then(Window::cursor_position);
     if let Some(mouse) = mouse {
-        ownership.update_pointer(&mouse, cursor, over_ui);
+        ownership.motion = None;
+        let native_handled = primary
+            .zip(events.as_deref())
+            .is_some_and(|((entity, _), events)| {
+                native.update(&mut ownership, events, entity, over_ui, &hit)
+            });
+        if !native_handled {
+            ownership.update_pointer(&mouse, cursor, over_ui);
+        }
+        ownership.over_ui = over_ui;
         if window.is_some_and(|window| !window.focused) {
             ownership.left = PointerGesture::default();
             ownership.right = PointerGesture::default();
             ownership.world_click = false;
+            ownership.motion = Some((Vec2::ZERO, Vec2::ZERO));
+            native.held.reset_all();
+            native.cursor = None;
         }
+    }
+}
+
+/// Diagnostic only: never mutates gameplay or records typed text/key names.
+fn log_input_probe(
+    input: Res<InputOwnership>,
+    keys: Res<ButtonInput<KeyCode>>,
+    mouse: Res<ButtonInput<MouseButton>>,
+    windows: Query<&Window, With<PrimaryWindow>>,
+    stack: Option<Res<crate::building::placement::PlacedBlocks>>,
+    camera: Option<Res<crate::camera::orbit_camera::OrbitCamera>>,
+    scroll: Option<Res<bevy::input::mouse::AccumulatedMouseScroll>>,
+    mut previous_focus: Local<Option<bool>>,
+) {
+    let Ok(window) = windows.single() else {
+        return;
+    };
+    let focus_changed = *previous_focus != Some(window.focused);
+    *previous_focus = Some(window.focused);
+    let key_presses = keys.get_just_pressed().count();
+    let key_releases = keys.get_just_released().count();
+    let left_down = mouse.just_pressed(MouseButton::Left);
+    let left_up = mouse.just_released(MouseButton::Left);
+    let motion = input.frame_motion().unwrap_or_default();
+    let scroll_delta = scroll.as_ref().map_or(Vec2::ZERO, |scroll| scroll.delta);
+    if focus_changed
+        || key_presses > 0
+        || key_releases > 0
+        || left_down
+        || left_up
+        || motion != (Vec2::ZERO, Vec2::ZERO)
+        || scroll_delta != Vec2::ZERO
+    {
+        info!(
+            "INPUT_PROBE focused={} keyboard_captured={} over_ui={} left_down={} left_up={} world_click={} orbit={} key_presses={} key_releases={} history_modifier={} shift={} pieces={} cursor={:?} scale={} motion={:?} scroll={:?} camera={:?}",
+            window.focused, input.keyboard_captured, input.over_ui, left_down, left_up,
+            input.world_click(), input.orbit_allowed(), key_presses, key_releases,
+            [KeyCode::ControlLeft, KeyCode::ControlRight, KeyCode::SuperLeft, KeyCode::SuperRight]
+                .into_iter().any(|key| modifier_active(&keys, key)),
+            [KeyCode::ShiftLeft, KeyCode::ShiftRight].into_iter().any(|key| modifier_active(&keys, key)),
+            stack.as_ref().map_or(0, |stack| stack.records.len()), window.cursor_position(), window.scale_factor(),
+            motion, scroll_delta, camera.as_ref().map(|camera| (camera.yaw, camera.pitch, camera.distance)),
+        );
     }
 }
 
@@ -302,6 +451,138 @@ mod tests {
         frame(&mut input, &mouse, Vec2::X, true);
         assert!(!input.world_click());
         assert!(!input.zoom_allowed());
+    }
+
+    #[test]
+    fn same_frame_native_drag_is_not_a_click_even_when_it_returns_to_origin() {
+        use bevy::input::{mouse::MouseButtonInput, ButtonState};
+        use bevy::window::{CursorMoved, WindowEvent};
+        for end in [Vec2::new(130.0, 100.0), Vec2::new(101.0, 100.0)] {
+            let mut app = focused_path_app();
+            app.add_message::<WindowEvent>();
+            let window = app
+                .world_mut()
+                .spawn((Window::default(), PrimaryWindow))
+                .id();
+            for event in [
+                WindowEvent::CursorMoved(CursorMoved {
+                    window,
+                    position: Vec2::splat(100.0),
+                    delta: None,
+                }),
+                WindowEvent::MouseButtonInput(MouseButtonInput {
+                    window,
+                    button: MouseButton::Left,
+                    state: ButtonState::Pressed,
+                }),
+                WindowEvent::CursorMoved(CursorMoved {
+                    window,
+                    position: Vec2::new(130.0, 100.0),
+                    delta: Some(Vec2::new(30.0, 0.0)),
+                }),
+                WindowEvent::CursorMoved(CursorMoved {
+                    window,
+                    position: end,
+                    delta: None,
+                }),
+                WindowEvent::MouseButtonInput(MouseButtonInput {
+                    window,
+                    button: MouseButton::Left,
+                    state: ButtonState::Released,
+                }),
+            ] {
+                app.world_mut().write_message(event);
+            }
+            app.world_mut()
+                .query::<&mut Window>()
+                .single_mut(app.world_mut())
+                .unwrap()
+                .set_cursor_position(Some(end));
+            let mut mouse = app.world_mut().resource_mut::<ButtonInput<MouseButton>>();
+            mouse.press(MouseButton::Left);
+            mouse.release(MouseButton::Left);
+            app.update();
+            let input = app.world().resource::<InputOwnership>();
+            assert!(
+                !input.world_click(),
+                "A full-frame drag must not place at its final point"
+            );
+            assert!(
+                input.left.dragged,
+                "Latch the maximum excursion, not only final delta"
+            );
+            assert_eq!(
+                input.frame_motion(),
+                Some((end - Vec2::splat(100.0), Vec2::ZERO))
+            );
+            app.update();
+            let input = app.world().resource::<InputOwnership>();
+            assert!(!input.world_click());
+            assert_eq!(input.frame_motion(), Some((Vec2::ZERO, Vec2::ZERO)));
+        }
+    }
+
+    #[test]
+    fn native_path_preserves_ui_press_origin_and_short_world_clicks() {
+        use bevy::input::{mouse::MouseButtonInput, ButtonState};
+        use bevy::window::{CursorMoved, WindowEvent};
+        for (start, end, world_click, dragged) in [
+            (100.0, 180.0, false, true),
+            (149.0, 151.0, false, false),
+            (180.0, 181.0, true, false),
+        ] {
+            let (mut app, _) = super::super::picking::tests::picking_app();
+            super::super::picking::tests::node(&mut app, 10.0, true, Pickable::default());
+            app.init_resource::<InputOwnership>()
+                .init_resource::<ButtonInput<MouseButton>>()
+                .add_message::<WindowEvent>()
+                .add_systems(PreUpdate, update_ownership.after(PickingSystems::Backend));
+            let window = app
+                .world_mut()
+                .query_filtered::<Entity, With<PrimaryWindow>>()
+                .single(app.world())
+                .unwrap();
+            let mut native_window = Window::default();
+            native_window.set_cursor_position(Some(Vec2::new(end, 100.0)));
+            app.world_mut().entity_mut(window).insert(native_window);
+            for event in [
+                WindowEvent::CursorMoved(CursorMoved {
+                    window,
+                    position: Vec2::new(start, 100.0),
+                    delta: None,
+                }),
+                WindowEvent::MouseButtonInput(MouseButtonInput {
+                    window,
+                    button: MouseButton::Left,
+                    state: ButtonState::Pressed,
+                }),
+                WindowEvent::CursorMoved(CursorMoved {
+                    window,
+                    position: Vec2::new(end, 100.0),
+                    delta: None,
+                }),
+                WindowEvent::MouseButtonInput(MouseButtonInput {
+                    window,
+                    button: MouseButton::Left,
+                    state: ButtonState::Released,
+                }),
+            ] {
+                app.world_mut().write_message(event);
+            }
+            app.update();
+            let input = app.world().resource::<InputOwnership>();
+            assert_eq!(input.world_click(), world_click, "{start}->{end}");
+            assert_eq!(input.left.dragged, dragged);
+            assert_eq!(
+                input.frame_motion(),
+                Some((Vec2::ZERO, Vec2::ZERO)),
+                "UI-origin movement must not rotate"
+            );
+            app.update();
+            let input = app.world().resource::<InputOwnership>();
+            assert!(!input.world_click());
+            assert_eq!(input.frame_motion(), Some((Vec2::ZERO, Vec2::ZERO)));
+        }
     }
 
     fn focused_path_app() -> App {

@@ -110,36 +110,15 @@ fn source_camera_picking(
                     return None;
                 }
 
-                // Transform cursor line segment to node coordinate system
-                let world_to_node = node_transform.affine().inverse();
-                let cursor_start_node = world_to_node.transform_point3(cursor_ray_world.origin);
-                let cursor_end_node = world_to_node.transform_point3(cursor_ray_end);
+                let cursor_pos_sprite = node_cursor_position(
+                    cursor_ray_world.origin,
+                    cursor_ray_end,
+                    dimension,
+                    node_transform,
+                )?;
+                blocked = pickable.map(|p| p.should_block_lower).unwrap_or(true);
 
-                // Find where the cursor segment intersects the plane Z=0 (which is the node's
-                // plane in node-local space). It may not intersect if, for example, we're
-                // viewing the node side-on
-                if cursor_start_node.z == cursor_end_node.z {
-                    // Cursor ray is parallel to the node and misses it
-                    return None;
-                }
-                let lerp_factor = f32::inverse_lerp(cursor_start_node.z, cursor_end_node.z, 0.0);
-                if !(0.0..=1.0).contains(&lerp_factor) {
-                    // Lerp factor is out of range, meaning that while an infinite line cast by
-                    // the cursor would intersect the node, the node is not between the
-                    // camera's near and far planes
-                    return None;
-                }
-                // Otherwise we can interpolate the xy of the start and end positions by the
-                // lerp factor to get the cursor position in node space!
-                let cursor_pos_sprite = cursor_start_node.lerp(cursor_end_node, lerp_factor).xy();
-
-                let rect = Rect::from_center_size(Vec2::ZERO, **dimension);
-                let is_cursor_in_sprite = rect.contains(cursor_pos_sprite);
-
-                blocked =
-                    is_cursor_in_sprite && pickable.map(|p| p.should_block_lower).unwrap_or(true);
-
-                is_cursor_in_sprite.then(|| {
+                Some({
                     let hit_pos_world =
                         node_transform.transform_point(cursor_pos_sprite.extend(0.0));
                     // Transform point from world to camera space to get the Z distance
@@ -167,13 +146,95 @@ fn source_camera_picking(
     }
 }
 
+/// Shared exact node-plane hit geometry for picking and ordered native input.
+fn node_cursor_position(
+    start: Vec3,
+    end: Vec3,
+    dimension: &Dimension,
+    transform: &GlobalTransform,
+) -> Option<Vec2> {
+    if transform.affine().is_nan() {
+        return None;
+    }
+    let inverse = transform.affine().inverse();
+    let start = inverse.transform_point3(start);
+    let end = inverse.transform_point3(end);
+    if start.z == end.z {
+        return None;
+    }
+    let factor = f32::inverse_lerp(start.z, end.z, 0.0);
+    if !(0.0..=1.0).contains(&factor) {
+        return None;
+    }
+    let point = start.lerp(end, factor).xy();
+    Rect::from_center_size(Vec2::ZERO, **dimension)
+        .contains(point)
+        .then_some(point)
+}
+
+#[derive(bevy::ecs::system::SystemParam)]
+pub(super) struct UiCursorHitTest<'w, 's> {
+    cameras: Query<
+        'w,
+        's,
+        (
+            &'static Camera,
+            &'static RenderTarget,
+            &'static GlobalTransform,
+            &'static Projection,
+        ),
+        With<UiSourceCamera<0>>,
+    >,
+    nodes: Query<
+        'w,
+        's,
+        (
+            &'static Dimension,
+            &'static GlobalTransform,
+            &'static ViewVisibility,
+        ),
+        With<UiLayout>,
+    >,
+}
+
+impl UiCursorHitTest<'_, '_> {
+    /// Resolve the press origin, not the final hover point of a coalesced frame.
+    pub(super) fn contains(&self, window: Entity, position: Vec2) -> Option<bool> {
+        let (camera, _, transform, Projection::Orthographic(projection)) = self
+            .cameras
+            .iter()
+            .find(|(camera, target, _, projection)| {
+                camera.is_active
+                    && matches!(projection, Projection::Orthographic(_))
+                    && target.normalize(Some(window))
+                        == RenderTarget::Window(bevy::window::WindowRef::Entity(window))
+                            .normalize(Some(window))
+            })?
+        else {
+            return None;
+        };
+        let origin = camera
+            .logical_viewport_rect()
+            .map(|r| r.min)
+            .unwrap_or_default();
+        let ray = camera
+            .viewport_to_world(transform, position - origin)
+            .ok()?;
+        let end = ray.origin + ray.direction * (projection.far - projection.near);
+        Some(self.nodes.iter().any(|(dimension, transform, visibility)| {
+            visibility.get()
+                && node_cursor_position(ray.origin, end, dimension, transform).is_some()
+        }))
+    }
+}
+
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use bevy::camera::{CameraProjection, ComputedCameraValues, RenderTargetInfo};
     use bevy::picking::pointer::Location;
 
-    fn picking_app() -> (App, Entity) {
+    pub(crate) fn picking_app() -> (App, Entity) {
         let mut app = App::new();
         app.add_plugins(SourceCameraPickingPlugin);
         let window = app.world_mut().spawn(PrimaryWindow).id();
@@ -226,7 +287,7 @@ mod tests {
         (app, ui_camera)
     }
 
-    fn node(app: &mut App, z: f32, visible: bool, pickable: Pickable) -> Entity {
+    pub(crate) fn node(app: &mut App, z: f32, visible: bool, pickable: Pickable) -> Entity {
         app.world_mut()
             .spawn((
                 UiLayout::window().pack(),

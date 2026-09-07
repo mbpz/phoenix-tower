@@ -184,14 +184,16 @@ fn update_hint(
     let keys_line = match lang {
         Lang::Zh => {
             "左键:放置  左拖:旋转  右拖:平移  滚轮:缩放  Home:全景\n\
-         撤销:⌘Z / Ctrl+Z  重做:⌘⇧Z / Ctrl+Y（20 步）\n\
+         撤销:Backspace / Cmd+Z / Ctrl+Z\n\
+         重做:Cmd+Shift+Z / Ctrl+Y（20 步）\n\
          1-9:选积木  Q/E:切换  R:旋转90°  X:拆除  M:蓝图/自由\n\
          L:中/英  K:知识提示  T:昼夜  G:重力测试  C:挑战\n\
          F2:截图  F5:保存  F6:JSON  F7:分享  F8:导入  F9:槽位"
         }
         Lang::En => {
             "LMB:place  LMB-drag:orbit  RMB-drag:pan  wheel:zoom  Home:overview\n\
-         undo:Backspace/Ctrl+Z  redo:Ctrl+Y (20)\n\
+         undo:Backspace / Cmd+Z / Ctrl+Z\n\
+         redo:Cmd+Shift+Z / Ctrl+Y (20)\n\
          1-9:blocks  Q/E:cycle  R:rotate  X:remove  M:blueprint/free\n\
          L:zh/en  K:knowledge  T:day/night  G:physics  C:challenge\n\
          F2:shot  F5:save  F6:JSON  F7:share  F8:import  F9:slot"
@@ -403,6 +405,24 @@ mod tests {
                     previous_height = layout.size.height;
                 }
             }
+        }
+    }
+
+    #[test]
+    fn expanded_help_lists_readable_mac_and_fallback_history_keys() {
+        for lang in [Lang::Zh, Lang::En] {
+            let (mut app, entity) = app();
+            app.insert_resource(HelpVisible(true));
+            app.world_mut().resource_mut::<Locale>().lang = lang;
+            app.update();
+            let text = &app.world().get::<Text>(entity).unwrap().0;
+            for key in ["Backspace", "Cmd+Z", "Cmd+Shift+Z", "Ctrl+Z", "Ctrl+Y"] {
+                assert!(text.contains(key), "Missing {key}: {text}");
+            }
+            assert!(
+                !text.contains(['⌘', '⇧']),
+                "Use font-supported key names: {text}"
+            );
         }
     }
 
