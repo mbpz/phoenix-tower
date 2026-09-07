@@ -8,7 +8,7 @@
 //! 参数均收敛在有界范围内，保证古建对称美学下视角始终稳定。
 
 use crate::ui::input::InputOwnership;
-use bevy::input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll};
+use bevy::input::mouse::{AccumulatedMouseMotion, AccumulatedMouseScroll, MouseScrollUnit};
 use bevy::prelude::*;
 
 pub struct OrbitCameraPlugin;
@@ -233,7 +233,14 @@ fn orbit_camera_system(
         .as_deref()
         .is_none_or(InputOwnership::zoom_allowed)
     {
-        mouse_scroll.delta.y
+        // Trackpads report pixels, not wheel lines. Reuse Bevy's approximate
+        // conversion instead of applying line sensitivity to every pixel.
+        match mouse_scroll.unit {
+            MouseScrollUnit::Line => mouse_scroll.delta.y,
+            MouseScrollUnit::Pixel => {
+                mouse_scroll.delta.y / MouseScrollUnit::SCROLL_UNIT_CONVERSION_FACTOR
+            }
+        }
     } else {
         0.0
     };
@@ -448,6 +455,35 @@ mod tests {
         app.update();
         let mut cameras = app.world_mut().query_filtered::<&Msaa, With<Camera3d>>();
         assert_eq!(*cameras.single(app.world()).unwrap(), Msaa::Off);
+    }
+
+    #[test]
+    fn pixel_scroll_preserves_line_zoom_sensitivity() {
+        use bevy::input::mouse::MouseScrollUnit;
+        let distance_after = |unit, delta| {
+            let mut app = App::new();
+            app.init_resource::<OrbitCamera>()
+                .init_resource::<Time>()
+                .init_resource::<ButtonInput<MouseButton>>()
+                .init_resource::<AccumulatedMouseMotion>()
+                .insert_resource(AccumulatedMouseScroll {
+                    unit,
+                    delta: Vec2::new(0.0, delta),
+                })
+                .add_systems(Update, orbit_camera_system);
+            app.update();
+            app.world().resource::<OrbitCamera>().distance
+        };
+        for lines in [-1.0, 1.0] {
+            let wheel = distance_after(MouseScrollUnit::Line, lines);
+            let touchpad = distance_after(
+                MouseScrollUnit::Pixel,
+                lines * MouseScrollUnit::SCROLL_UNIT_CONVERSION_FACTOR,
+            );
+            assert!((wheel - touchpad).abs() < 0.001,
+                "equivalent scroll must not jump to zoom limits: wheel={wheel}, touchpad={touchpad}");
+            assert!(touchpad > DIST_MIN && touchpad < DIST_MAX);
+        }
     }
 
     #[test]
