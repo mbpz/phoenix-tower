@@ -210,7 +210,7 @@ fn knowledge_card_updates_text_and_hides_when_cleared() {
         *app.world().get::<Visibility>(root).unwrap(),
         Visibility::Inherited
     );
-    assert_eq!(app.world().get::<Text2d>(name).unwrap().0, "📖 斗拱");
+    assert_eq!(app.world().get::<Text2d>(name).unwrap().0, "斗拱");
     assert_eq!(app.world().get::<Text2d>(desc).unwrap().0, "承托屋檐");
     app.world_mut().resource_mut::<KnowledgeHints>().card = None;
     app.update();
@@ -219,7 +219,7 @@ fn knowledge_card_updates_text_and_hides_when_cleared() {
         Visibility::Hidden
     );
     // Clearing the card hides it without clearing the old label.
-    assert_eq!(app.world().get::<Text2d>(name).unwrap().0, "📖 斗拱");
+    assert_eq!(app.world().get::<Text2d>(name).unwrap().0, "斗拱");
 }
 
 #[test]

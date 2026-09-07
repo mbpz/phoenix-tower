@@ -206,6 +206,12 @@ class ProcessTests(unittest.TestCase):
         self.assertEqual(result['status'], 'failed')
         self.assertEqual(result['fps']['count'], 0)
 
+    def test_default_player_entry_and_historic_smoke_are_distinct(self):
+        from verify_runtime import game_command
+        self.assertEqual(game_command(parse_args([]))[-1], '--tower')
+        args = parse_args(['--riverside'])
+        self.assertEqual(game_command(args), [str(args.binary)])
+
     def test_riverside_fps_measurement_requires_post_warmup_samples(self):
         code = (f'import time; print({UI!r}); '
                 'print("RIVERSIDE_READY blocks=8 editable=true"); time.sleep(10)')

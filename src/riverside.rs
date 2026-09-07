@@ -1,4 +1,4 @@
-//! Opt-in editable diorama. No separate world, save format, or physics rules.
+//! Default editable courtyard. No separate world, save format, or physics rules.
 
 use bevy::prelude::*;
 
@@ -17,9 +17,9 @@ use crate::camera::orbit_camera::OrbitCamera;
 pub struct RiversideMode(pub bool);
 
 impl RiversideMode {
-    pub fn requested(showcase: bool, loading: bool, stress: bool) -> Self {
+    pub fn requested(legacy_tower: bool, loading: bool, stress: bool) -> Self {
         // Explicit automation/import modes take priority over demonstration data.
-        Self(showcase && !loading && !stress)
+        Self(!legacy_tower && !loading && !stress)
     }
 }
 
@@ -36,7 +36,7 @@ pub fn model_path(id: &str) -> Option<&'static str> {
 }
 
 // Anchors, not mesh transforms: all placement paths retain the same footprint.
-const SAMPLE: [(&str, [i32; 3]); 8] = [
+pub(crate) const SAMPLE: [(&str, [i32; 3]); 8] = [
     ("datiji", [-3, 0, -3]),
     ("hongzhu4", [-2, 2, -2]),
     ("hongzhu4", [2, 2, -2]),
@@ -284,12 +284,13 @@ mod tests {
     }
 
     #[test]
-    fn sample_never_takes_precedence_over_load_or_stress() {
-        assert!(RiversideMode::requested(true, false, false).0);
+    fn default_courtyard_preserves_explicit_tower_load_and_stress_entries() {
+        assert!(RiversideMode::requested(false, false, false).0);
         for (show, load, stress) in [
-            (false, false, false),
-            (true, true, false),
-            (true, false, true),
+            (true, false, false),
+            (false, true, false),
+            (false, false, true),
+            (false, true, true),
             (true, true, true),
         ] {
             assert!(!RiversideMode::requested(show, load, stress).0);

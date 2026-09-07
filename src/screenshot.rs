@@ -108,23 +108,27 @@ fn screenshot_trigger(
     }
 }
 
+type MainCameraView<'w, 's> = Query<
+    'w,
+    's,
+    (&'static Transform, &'static DistanceFog),
+    (With<Camera3d>, Without<CaptureCamera>),
+>;
+
 /// 武装帧：同步主相机视角、激活离屏相机、发送截图命令；次帧停用。
 fn arm_capture_camera(
     mut capture: ResMut<CaptureState>,
-    mut capture_cam: Query<(&mut Camera, &mut Transform), With<CaptureCamera>>,
-    main_cam: Query<&Transform, (With<Camera3d>, Without<CaptureCamera>)>,
+    mut capture_cam: Query<(&mut Camera, &mut Transform, &mut DistanceFog), With<CaptureCamera>>,
+    main_cam: MainCameraView,
     mut commands: Commands,
     mut prev_armed: Local<bool>,
 ) {
-    // 每帧同步视角（截图与玩家所见一致）
-    if let (Ok(mut cap), Ok(main)) = (capture_cam.single_mut(), main_cam.single()) {
-        *cap.1 = *main;
-    }
-
     let armed = capture.armed;
     if armed && !*prev_armed {
         // 武装帧：激活离屏相机并发送截图命令
-        if let Ok(mut cap) = capture_cam.single_mut() {
+        if let (Ok(mut cap), Ok(main)) = (capture_cam.single_mut(), main_cam.single()) {
+            *cap.1 = *main.0;
+            *cap.2 = main.1.clone();
             cap.0.is_active = true;
         }
         let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("saves");
@@ -152,5 +156,48 @@ fn arm_capture_camera(
     *prev_armed = armed;
     if armed {
         capture.armed = false; // 一次性
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[derive(Resource, Default)]
+    struct CaptureChanges(usize);
+
+    #[test]
+    fn inactive_capture_does_not_rewrite_its_transform_each_frame() {
+        fn watch(
+            mut changed: ResMut<CaptureChanges>,
+            q: Query<(), (With<CaptureCamera>, Changed<Transform>)>,
+        ) {
+            changed.0 = q.iter().count();
+        }
+        let mut app = App::new();
+        app.insert_resource(CaptureState {
+            image: Handle::default(),
+            armed: false,
+        })
+        .init_resource::<CaptureChanges>()
+        .add_systems(Update, (arm_capture_camera, watch).chain());
+        app.world_mut().spawn((
+            Camera3d::default(),
+            Transform::default(),
+            DistanceFog::default(),
+        ));
+        app.world_mut().spawn((
+            Camera3d::default(),
+            Camera {
+                is_active: false,
+                ..default()
+            },
+            Transform::default(),
+            DistanceFog::default(),
+            CaptureCamera,
+        ));
+        app.update();
+        app.update();
+        assert_eq!(app.world().resource::<CaptureChanges>().0, 0);
     }
 }

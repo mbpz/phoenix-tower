@@ -89,6 +89,10 @@ pub use super::world::{PlacedBlocks, PlacedRecord};
 #[derive(Component)]
 pub struct GhostBlock;
 
+/// Exact cells owned by one architectural guide (never a collider or save record).
+#[derive(Component)]
+pub(crate) struct ComponentGuide(pub Vec<IVec3>);
+
 /// 已放置积木标记
 #[derive(Component)]
 pub struct PlacedBlock;
@@ -184,7 +188,19 @@ fn setup_block_assets(
             } else {
                 None
             },
-            perceptual_roughness: if is_roof { 0.35 } else { 0.55 },
+            // Exported surface atlas is linear G=roughness / B=metalness.
+            // Keep one draw per architectural module, not one entity per trim.
+            metallic_roughness_texture: model.map(|path| {
+                asset_server.load(bevy::gltf::GltfAssetLabel::Texture(0).from_asset(path))
+            }),
+            metallic: if model.is_some() { 1.0 } else { 0.0 },
+            perceptual_roughness: if model.is_some() {
+                1.0
+            } else if is_roof {
+                0.35
+            } else {
+                0.55
+            },
             ..default()
         });
         per_def.insert(def.id.clone(), (mesh, mat));
@@ -476,7 +492,43 @@ pub(crate) fn spawn_blueprint_ghosts(
     commands: &mut Commands,
     blueprint: &Blueprint,
     render: &BlockRenderAssets,
+    library: &BlockLibrary,
 ) {
+    if blueprint.def.id == "riverside" {
+        // Only use the bundled assembly if its cells exactly match this blueprint.
+        // Imported/custom definitions with the same ID retain the general grid path.
+        let modules: Vec<_> = crate::riverside::SAMPLE
+            .iter()
+            .map(|(id, cell)| {
+                let anchor = IVec3::from_array(*cell);
+                let def = &library.defs[library.by_id[*id]];
+                (*id, anchor, def, footprint_cells(anchor, def, 0))
+            })
+            .collect();
+        let expected: HashMap<_, _> = modules
+            .iter()
+            .flat_map(|(id, _, _, cells)| cells.iter().map(move |cell| (*cell, id.to_string())))
+            .collect();
+        if expected == blueprint.expected {
+            for (id, anchor, def, cells) in modules {
+                commands.spawn((
+                    Mesh3d(render.per_def[id].0.clone()),
+                    MeshMaterial3d(
+                        render
+                            .blueprint_materials
+                            .get(id)
+                            .unwrap_or(&render.ghost_material)
+                            .clone(),
+                    ),
+                    Transform::from_translation(block_center(anchor, def, 0)),
+                    BlueprintGhost,
+                    ComponentGuide(cells),
+                    Name::new(format!("ComponentGuide:{id}")),
+                ));
+            }
+            return;
+        }
+    }
     for cell in &blueprint.cell_list {
         let id = &blueprint.expected[cell];
         let mat = render
@@ -505,10 +557,11 @@ fn reconcile_blueprint_ghosts(
     blueprint: Res<Blueprint>,
     existing: Query<Entity, With<BlueprintGhost>>,
     render: Res<BlockRenderAssets>,
+    library: Res<BlockLibrary>,
 ) {
     let count = existing.iter().count();
     if blueprint.active && count == 0 {
-        spawn_blueprint_ghosts(&mut commands, &blueprint, &render);
+        spawn_blueprint_ghosts(&mut commands, &blueprint, &render, &library);
     } else if !blueprint.active && count > 0 {
         for entity in existing.iter() {
             commands.entity(entity).despawn();
@@ -914,12 +967,103 @@ mod tests {
     }
 
     #[test]
+    fn riverside_guides_use_eight_whole_components_not_271_voxels() {
+        let mut app = App::new();
+        let library = load_block_library();
+        let (_, themes) = load_blueprint_library();
+        let bp = super::super::blueprint::blueprint_from_def(
+            themes.defs.iter().find(|d| d.id == "riverside").unwrap(),
+        );
+        app.insert_resource(bp)
+            .insert_resource(BlockRenderAssets {
+                per_def: library
+                    .defs
+                    .iter()
+                    .map(|d| (d.id.clone(), (Handle::default(), Handle::default())))
+                    .collect(),
+                ghost_material: Handle::default(),
+                ghost_bad_material: Handle::default(),
+                blueprint_materials: Default::default(),
+                blueprint_unit_mesh: Handle::default(),
+            })
+            .insert_resource(library)
+            .add_systems(
+                Startup,
+                |mut commands: Commands,
+                 bp: Res<Blueprint>,
+                 render: Res<BlockRenderAssets>,
+                 library: Res<BlockLibrary>| {
+                    spawn_blueprint_ghosts(&mut commands, &bp, &render, &library);
+                },
+            );
+        app.update();
+        assert_eq!(
+            app.world_mut()
+                .query_filtered::<Entity, With<BlueprintGhost>>()
+                .iter(app.world())
+                .count(),
+            8
+        );
+    }
+
+    #[test]
+    fn modified_riverside_blueprint_falls_back_to_exact_cell_guides() {
+        let mut app = App::new();
+        let library = load_block_library();
+        let (_, themes) = load_blueprint_library();
+        let mut bp = super::super::blueprint::blueprint_from_def(
+            themes.defs.iter().find(|d| d.id == "riverside").unwrap(),
+        );
+        let removed = bp.cell_list.pop().unwrap();
+        bp.expected.remove(&removed);
+        let expected_count = bp.cell_list.len();
+        app.insert_resource(bp)
+            .insert_resource(BlockRenderAssets {
+                per_def: library
+                    .defs
+                    .iter()
+                    .map(|d| (d.id.clone(), (Handle::default(), Handle::default())))
+                    .collect(),
+                ghost_material: Handle::default(),
+                ghost_bad_material: Handle::default(),
+                blueprint_materials: Default::default(),
+                blueprint_unit_mesh: Handle::default(),
+            })
+            .insert_resource(library)
+            .add_systems(
+                Startup,
+                |mut commands: Commands,
+                 bp: Res<Blueprint>,
+                 render: Res<BlockRenderAssets>,
+                 library: Res<BlockLibrary>| {
+                    spawn_blueprint_ghosts(&mut commands, &bp, &render, &library);
+                },
+            );
+        app.update();
+        assert_eq!(
+            app.world_mut()
+                .query_filtered::<Entity, With<BlueprintGhost>>()
+                .iter(app.world())
+                .count(),
+            expected_count
+        );
+        assert_eq!(
+            app.world_mut()
+                .query::<&ComponentGuide>()
+                .iter(app.world())
+                .count(),
+            0
+        );
+    }
+
+    #[test]
     fn blueprint_unit_ghost_uses_same_grid_origin_as_real_blocks() {
         let library = load_block_library();
         let mut app = App::new();
         let (blueprint, _) = load_blueprint_library();
         let cell = blueprint.cell_list[0];
-        app.insert_resource(blueprint)
+        app.insert_resource(load_block_library())
+            .insert_resource(blueprint)
             .insert_resource(BlockRenderAssets {
                 per_def: Default::default(),
                 ghost_material: Handle::default(),
@@ -929,8 +1073,11 @@ mod tests {
             })
             .add_systems(
                 Startup,
-                |mut commands: Commands, bp: Res<Blueprint>, render: Res<BlockRenderAssets>| {
-                    spawn_blueprint_ghosts(&mut commands, &bp, &render);
+                |mut commands: Commands,
+                 bp: Res<Blueprint>,
+                 render: Res<BlockRenderAssets>,
+                 library: Res<BlockLibrary>| {
+                    spawn_blueprint_ghosts(&mut commands, &bp, &render, &library);
                 },
             );
         app.update();

@@ -13,6 +13,7 @@ from pathlib import Path
 import struct
 import tempfile
 import unittest
+import zlib
 
 ASSET_DIR = Path(os.environ.get("RIVERSIDE_ASSET_DIR", str(
     Path(__file__).resolve().parents[1]/"assets/models/riverside")))
@@ -86,9 +87,9 @@ def validate_asset(path, dimensions):
     assert node.get("matrix", [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]) == [
         1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
     assert document["scenes"][document.get("scene", 0)]["nodes"] == [0]
-    assert not any(document.get(k) for k in ["textures", "images", "animations", "skins", "extensionsRequired"])
+    assert not any(document.get(k) for k in ["animations", "skins", "extensionsRequired"])
     attrs = primitive["attributes"]
-    assert {"POSITION", "NORMAL", "COLOR_0"} <= attrs.keys(), "Vertex colors are REQUIRED with engine white material"
+    assert {"POSITION", "NORMAL", "COLOR_0", "TEXCOORD_0"} <= attrs.keys(), "Vertex colors are REQUIRED with engine white material"
     positions = accessor_values(document, binary, attrs["POSITION"])
     normals = accessor_values(document, binary, attrs["NORMAL"])
     colors = accessor_values(document, binary, attrs["COLOR_0"])
@@ -123,6 +124,44 @@ def validate_asset(path, dimensions):
     assert len(document["materials"]) == 1
     assert material["pbrMetallicRoughness"]["baseColorFactor"] == [1, 1, 1, 1]
     assert material.get("alphaMode", "OPAQUE") == "OPAQUE"
+    # Independently read the embedded linear PBR atlas and verify the UV/color
+    # association; merely declaring a texture is not a surface contract.
+    pbr = material["pbrMetallicRoughness"]
+    assert pbr["metallicFactor"] == pbr["roughnessFactor"] == 1
+    assert pbr["metallicRoughnessTexture"] == {"index": 0}
+    assert document["textures"] == [{"sampler": 0, "source": 0}]
+    assert document["samplers"][0]["minFilter"] == document["samplers"][0]["magFilter"] == 9728
+    assert len(document["images"]) == 1 and "uri" not in document["images"][0]
+    image = document["images"][0]
+    assert image["mimeType"] == "image/png"
+    view = document["bufferViews"][image["bufferView"]]
+    png = binary[view["byteOffset"]:view["byteOffset"]+view["byteLength"]]
+    assert png[:8] == b"\x89PNG\r\n\x1a\n"
+    offset, compressed, width = 8, b"", 0
+    while offset < len(png):
+        length, kind = struct.unpack_from(">I4s", png, offset)
+        payload = png[offset+8:offset+8+length]
+        assert zlib.crc32(kind+payload) == struct.unpack_from(">I", png, offset+8+length)[0]
+        if kind == b"IHDR":
+            width, height, depth, color, *_ = struct.unpack(">IIBBBBB", payload)
+            assert (height, depth, color) == (1, 8, 6)
+        if kind == b"IDAT":
+            compressed += payload
+        offset += length+12
+    pixels = zlib.decompress(compressed)
+    assert len(pixels) == 1+width*4 and pixels[0] == 0
+    uv = accessor_values(document, binary, attrs["TEXCOORD_0"])
+    assert len(uv) == len(positions)
+    for rgba, (u, v) in zip(colors, uv):
+        assert math.isfinite(u) and 0 < u < 1 and v == .5
+        index = int(u*width)
+        assert abs(u-(index+.5)/width) < 1e-6
+        rough, metal = pixels[1+4*index+1:1+4*index+3]
+        # Gold and stone each need a distinct response, not uniformly shiny plastic.
+        if rgba[0] > .8:
+            assert 70 <= rough <= 95 and 170 <= metal <= 195
+        elif abs(rgba[0]-.39) < 1e-6:
+            assert rough >= 225 and metal == 0
     return {"bounds": {"min": low, "max": high}, "vertices": len(positions),
             "triangles": len(indices)//3, "colors_linear_rgba": [list(c) for c in sorted(set(colors))]}
 
@@ -133,6 +172,18 @@ class RiversideAssetsTests(unittest.TestCase):
         for name, dimensions in EXPECTED.items():
             with self.subTest(asset=name):
                 validate_asset(ASSET_DIR/(name+".glb"), dimensions)
+
+    def test_surface_atlas_preserves_one_draw_while_separating_material_response(self):
+        for name in EXPECTED:
+            with self.subTest(asset=name):
+                document, binary = read_glb(ASSET_DIR/(name+".glb"))
+                pbr = document["materials"][0]["pbrMetallicRoughness"]
+                self.assertIn("metallicRoughnessTexture", pbr)
+                attrs = document["meshes"][0]["primitives"][0]["attributes"]
+                self.assertIn("TEXCOORD_0", attrs)
+                uv = accessor_values(document, binary, attrs["TEXCOORD_0"])
+                self.assertGreater(len(set(uv)), 1)
+                self.assertEqual(len(document["meshes"][0]["primitives"]), 1)
 
     def test_manifest_matches_bytes_not_estimates(self):
         manifest = json.loads((ASSET_DIR/"manifest.json").read_text())
@@ -166,7 +217,7 @@ class RiversideAssetsTests(unittest.TestCase):
     def test_validator_rejects_broken_export_contracts(self):
         source, binary = read_glb(ASSET_DIR/"hongzhu4.glb")
         with tempfile.TemporaryDirectory(prefix="riverside-contract-") as directory:
-            for defect in ["rotation", "translation", "scale", "color", "primitive", "mesh", "bounds", "actual_bounds"]:
+            for defect in ["rotation", "translation", "scale", "color", "primitive", "mesh", "bounds", "actual_bounds", "uv", "atlas", "surface_factor"]:
                 with self.subTest(defect=defect):
                     document = json.loads(json.dumps(source))
                     payload = binary
@@ -184,6 +235,12 @@ class RiversideAssetsTests(unittest.TestCase):
                         document["meshes"] *= 2
                     elif defect == "bounds":
                         document["accessors"][0]["max"][1] = 4
+                    elif defect == "uv":
+                        del document["meshes"][0]["primitives"][0]["attributes"]["TEXCOORD_0"]
+                    elif defect == "atlas":
+                        document["images"][0]["mimeType"] = "image/jpeg"
+                    elif defect == "surface_factor":
+                        document["materials"][0]["pbrMetallicRoughness"]["metallicFactor"] = 0
                     elif defect == "actual_bounds":
                         # Keep accessor min/max unchanged: verify actual buffer data,
                         # not just the exporter-provided bounding-box metadata.

@@ -1,0 +1,67 @@
+{
+  "date": "2026-09-07",
+  "checkpoint": "d923f71",
+  "native_window": {
+    "logical_content": [
+      1280,
+      720
+    ],
+    "scale": 2
+  },
+  "cpu": {
+    "pid": 75929,
+    "start_local": "16:49:27",
+    "end_local": "16:49:39",
+    "samples_pct": [
+      54.2,
+      66.2,
+      66.4,
+      66.4,
+      65.0,
+      63.7
+    ],
+    "mean_pct": 63.65,
+    "excluded_initial_sample": 0,
+    "top_memory": "493-494M"
+  },
+  "fps": {
+    "method": "1Hz instantaneous frame FPS, same interval; not GPU timing",
+    "samples": [
+      62.0,
+      59.9,
+      61.7,
+      59.9,
+      58.1,
+      60.8,
+      61.5,
+      59.0,
+      59.6,
+      61.0,
+      60.7,
+      57.7,
+      59.9
+    ]
+  },
+  "native_evidence": [
+    "2026-09-07T08:39:19.643144Z  INFO phoenix_tower::ui::input: INPUT_PROBE focused=true keyboard_captured=false over_ui=false left_down=true left_up=true world_click=true orbit=false key_presses=0 key_releases=0 history_modifier=false shift=false pieces=8 cursor=Some(Vec2(690.0, 246.0)) scale=2 motion=(Vec2(0.0, 0.0), Vec2(0.0, 0.0)) scroll=Vec2(0.0, 0.0) camera=Some((0.68, 0.5, 33.419224))",
+    "2026-09-07T08:39:49.756468Z  INFO phoenix_tower::ui::input: INPUT_PROBE focused=true keyboard_captured=false over_ui=false left_down=true left_up=true world_click=false orbit=true key_presses=0 key_releases=0 history_modifier=false shift=false pieces=8 cursor=Some(Vec2(912.0, 432.0)) scale=2 motion=(Vec2(104.0, 30.0), Vec2(0.0, 0.0)) scroll=Vec2(0.0, 0.0) camera=Some((0.055999994, 0.68, 33.419224))",
+    "2026-09-07T08:39:50.590014Z  INFO phoenix_tower::ui::input: INPUT_PROBE focused=true keyboard_captured=false over_ui=false left_down=false left_up=false world_click=false orbit=false key_presses=0 key_releases=0 history_modifier=false shift=false pieces=8 cursor=Some(Vec2(780.0, 351.0)) scale=2 motion=(Vec2(0.0, 0.0), Vec2(0.0, 0.0)) scroll=Vec2(0.0, 376.0) camera=Some((0.055999994, 0.68, 23.824902))",
+    "2026-09-07T08:46:57.450576Z  INFO phoenix_tower::save: 💾 已保存 8 个积木 → saves/slot1.ptw",
+    "2026-09-07T08:47:35.188880Z  INFO phoenix_tower::ui::input: INPUT_PROBE focused=true keyboard_captured=false over_ui=false left_down=false left_up=false world_click=false orbit=false key_presses=1 key_releases=0 history_modifier=false shift=false pieces=7 cursor=Some(Vec2(4.610127, 129.85495)) scale=2 motion=(Vec2(0.0, 0.0), Vec2(0.0, 0.0)) scroll=Vec2(0.0, 0.0) camera=Some((0.68, 0.5, 33.473038))",
+    "2026-09-07T08:48:30.461301Z  INFO phoenix_tower::save: 📂 已加载存档（8 个积木）"
+  ],
+  "tests": {
+    "rust_passed": 161,
+    "rust_ignored": 1,
+    "python_passed": 43,
+    "fmt": "pass",
+    "strict_clippy": "pass",
+    "build": "pass"
+  },
+  "limitations": [
+    "No same-scene 300% baseline comparison",
+    "No long-run GPU/CPU acceptance",
+    "No full from-empty gameplay acceptance",
+    "Final live scene not reset after new input"
+  ]
+}

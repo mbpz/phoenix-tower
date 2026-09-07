@@ -6,7 +6,7 @@
 All modeling helpers use engine (X, up-Y, Z) coordinates. Blender data is Z-up.
 The small uncompressed GLB writer reads Blender's evaluated triangle/corner data
 and bakes the inverse coordinate conversion into positions AND normals. There
-are no export operator defaults, node rotations, textures, or material splits.
+are no export operator defaults, node rotations or material splits; a tiny packed PBR atlas separates surfaces.
 """
 
 import argparse
@@ -16,11 +16,12 @@ import math
 from pathlib import Path
 import struct
 import sys
+import zlib
 
 import bpy
 from mathutils import Vector
 
-GENERATOR_VERSION = "1.0.0"
+GENERATOR_VERSION = "1.1.0"
 DIMENSIONS = {
     "datiji": (7, 2, 7),
     "hongzhu4": (1, 4, 1),
@@ -44,6 +45,34 @@ COLORS = {
     "teal": (0.021, 0.17, 0.15, 1),
     "jade_light": (0.058, 0.35, 0.25, 1),
 }
+
+
+# One draw per module, distinct physical response per stone/wood/glaze/metal face.
+# glTF linear channels: G = perceptual roughness, B = metallic (not sRGB).
+def surface_response(name):
+    if name.startswith("stone"):
+        return (.92, 0.0)
+    if name.startswith("gold"):
+        return (.32, .72)
+    if name in ("jade", "teal", "jade_light"):
+        return (.27, .10)
+    if name in ("vermilion", "red_light"):
+        return (.46, 0.0)
+    return (.72, 0.0)
+
+
+def palette_index(rgba):
+    return min(range(len(COLORS)), key=lambda i:
+               sum((a-b)**2 for a, b in zip(rgba, list(COLORS.values())[i])))
+
+
+def surface_png():
+    def chunk(kind, payload):
+        return struct.pack(">I", len(payload)) + kind + payload + struct.pack(">I", zlib.crc32(kind+payload))
+    pixels = bytes(v for name in COLORS for v in
+                   (255, round(surface_response(name)[0]*255), round(surface_response(name)[1]*255), 255))
+    return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", len(COLORS), 1, 8, 6, 0, 0, 0))
+            + chunk(b"IDAT", zlib.compress(b"\0"+pixels)) + chunk(b"IEND", b""))
 
 
 class Builder:
@@ -113,9 +142,11 @@ class Builder:
         mesh.from_pydata([(x, -z, y) for x, y, z in fitted], [], self.faces)
         mesh.update()
         color = mesh.color_attributes.new(name="COLOR_0", type="FLOAT_COLOR", domain="CORNER")
+        uv = mesh.uv_layers.new(name="SurfacePalette")
         for polygon, rgba in zip(mesh.polygons, self.colors):
             for index in polygon.loop_indices:
                 color.data[index].color = rgba
+                uv.data[index].uv = ((palette_index(rgba)+.5)/len(COLORS), .5)
         mesh.color_attributes.active_color = color
         mesh.materials.append(material)
         obj = bpy.data.objects.new(name, mesh)
@@ -302,7 +333,7 @@ def export_glb(obj, path):
     mesh = obj.data
     mesh.calc_loop_triangles()
     colors = mesh.color_attributes["COLOR_0"]
-    positions, normals, rgba, indices = [], [], [], []
+    positions, normals, rgba, indices, uv = [], [], [], [], []
     dedup = {}
     for triangle in mesh.loop_triangles:
         for loop_index in triangle.loops:
@@ -314,6 +345,7 @@ def export_glb(obj, path):
                 positions.append((co.x, co.z, -co.y))
                 normals.append((n.x, n.z, -n.y))
                 rgba.append(tuple(colors.data[loop_index].color))
+                uv.append(tuple(mesh.uv_layers["SurfacePalette"].data[loop_index].uv))
             indices.append(dedup[key])
     bounds = {"min": [min(v[i] for v in positions) for i in range(3)],
               "max": [max(v[i] for v in positions) for i in range(3)]}
@@ -324,6 +356,7 @@ def export_glb(obj, path):
         (normals, "3f", "VEC3", 5126, 34962),
         (rgba, "4f", "VEC4", 5126, 34962),
         ([(i,) for i in indices], "I", "SCALAR", 5125, 34963),
+        (uv, "2f", "VEC2", 5126, 34962),
     ]:
         start = len(blob)
         for value in values:
@@ -332,14 +365,22 @@ def export_glb(obj, path):
         accessors.append({"bufferView": len(views)-1, "componentType": component,
                           "count": len(values), "type": kind})
     accessors[0].update(bounds)
+    png = surface_png()
+    views.append({"buffer": 0, "byteOffset": len(blob), "byteLength": len(png)})
+    blob.extend(png)
+    blob.extend(b"\0" * (-len(blob) % 4))
     gltf = {
         "asset": {"version": "2.0", "generator": f"riverside {GENERATOR_VERSION}; Blender {bpy.app.version_string}"},
         "scene": 0, "scenes": [{"nodes": [0]}],
         "nodes": [{"name": obj.name, "mesh": 0}],
-        "meshes": [{"name": obj.name, "primitives": [{"attributes": {"POSITION": 0, "NORMAL": 1, "COLOR_0": 2},
+        "meshes": [{"name": obj.name, "primitives": [{"attributes": {"POSITION": 0, "NORMAL": 1, "COLOR_0": 2, "TEXCOORD_0": 4},
                                                       "indices": 3, "mode": 4, "material": 0}]}],
         "materials": [{"name": "WhiteVertexColor", "pbrMetallicRoughness": {
-            "baseColorFactor": [1, 1, 1, 1], "metallicFactor": 0, "roughnessFactor": .78}}],
+            "baseColorFactor": [1, 1, 1, 1], "metallicFactor": 1, "roughnessFactor": 1,
+            "metallicRoughnessTexture": {"index": 0}}}],
+        "images": [{"bufferView": len(views)-1, "mimeType": "image/png"}],
+        "samplers": [{"magFilter": 9728, "minFilter": 9728, "wrapS": 33071, "wrapT": 33071}],
+        "textures": [{"sampler": 0, "source": 0}],
         "accessors": accessors, "bufferViews": views, "buffers": [{"byteLength": len(blob)}],
     }
     document = json.dumps(gltf, sort_keys=True, separators=(",", ":")).encode()
@@ -421,6 +462,16 @@ def main():
     attribute = material.node_tree.nodes.new("ShaderNodeVertexColor")
     attribute.layer_name = "COLOR_0"
     material.node_tree.links.new(attribute.outputs["Color"], shader.inputs["Base Color"])
+    atlas = bpy.data.images.new("SurfaceResponse", width=len(COLORS), height=1, alpha=True)
+    atlas.colorspace_settings.name = 'Non-Color'
+    atlas.pixels = [v for name in COLORS for v in (1.0, *surface_response(name), 1.0)]
+    atlas.pack()
+    texture = material.node_tree.nodes.new("ShaderNodeTexImage")
+    texture.image, texture.interpolation = atlas, 'Closest'
+    separate = material.node_tree.nodes.new("ShaderNodeSeparateColor")
+    material.node_tree.links.new(texture.outputs["Color"], separate.inputs["Color"])
+    material.node_tree.links.new(separate.outputs["Green"], shader.inputs["Roughness"])
+    material.node_tree.links.new(separate.outputs["Blue"], shader.inputs["Metallic"])
     args.output.mkdir(parents=True, exist_ok=True)
     builders = dict(zip(DIMENSIONS, [platform, column, beam, floor, bracket, roof]))
     objects, records = {}, []

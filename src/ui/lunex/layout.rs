@@ -291,6 +291,7 @@ pub(super) fn spawn_ui_camera(mut commands: Commands) {
 /// 最小界面：顶部标题横幅 +（env 门控）B1 积木面板。
 /// 后续 B 阶段逐 Tab 迁移时，egui 面板仍并行保留（feature 切换）。
 pub(super) fn spawn_hud_root(
+    riverside: Option<Res<crate::riverside::RiversideMode>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut materials: ResMut<Assets<ColorMaterial>>,
@@ -328,7 +329,11 @@ pub(super) fn spawn_hud_root(
             .with_children(|banner| {
                 banner.spawn((
                     Name::new("Title Text"),
-                    Text2d::new("黄鹤楼 · 筑梦江城"),
+                    Text2d::new(if riverside.as_ref().is_some_and(|m| m.0) {
+                        "江岸亭 · 筑梦庭院"
+                    } else {
+                        "黄鹤楼 · 筑梦江城"
+                    }),
                     TextFont {
                         font: font.clone(),
                         font_size: FontSize::Px(24.0),

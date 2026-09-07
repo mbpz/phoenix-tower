@@ -219,6 +219,12 @@ def stop_owned_process(process):
             process.wait()
 
 
+def game_command(args):
+    # Keep historic smoke benchmarks on the tower. Courtyard verifies the actual
+    # no-argument player entry, rather than relying on a hidden opt-in flag.
+    return [str(args.binary), *([] if args.riverside else ['--tower'])]
+
+
 def run_verification(args, *, command=None):
     """Run one owned child; command override is for headless lifecycle tests only."""
     args.output_dir.mkdir(parents=True, exist_ok=True)
@@ -272,7 +278,7 @@ def run_verification(args, *, command=None):
         try:
             if args.load and not args.load.is_file():
                 raise FileNotFoundError(f'Import fixture does not exist: {args.load}')
-            process = subprocess.Popen(command or [str(args.binary), *(['--riverside'] if args.riverside else [])], cwd=args.root,
+            process = subprocess.Popen(command or game_command(args), cwd=args.root,
                                        env=build_environment(args), stdout=output,
                                        stderr=subprocess.STDOUT)
             while True:

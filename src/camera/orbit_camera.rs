@@ -147,6 +147,16 @@ fn frame_cells(orbit: &mut OrbitCamera, cells: &[IVec3], aspect: f32) {
     orbit.autopilot = None;
 }
 
+fn frame_courtyard(orbit: &mut OrbitCamera, cells: &[IVec3], aspect: f32) {
+    orbit.yaw = 0.68;
+    orbit.pitch = 0.50;
+    frame_cells(orbit, cells, aspect);
+    // Center the architecture in the play area, not beneath the fixed sidebar.
+    let right = Vec3::new(orbit.yaw.cos(), 0.0, -orbit.yaw.sin());
+    orbit.target -= Vec3::Y * 2.0 + right * 2.1;
+    orbit.distance = (orbit.distance * 1.06).min(DIST_MAX);
+}
+
 fn overview_shortcut(
     keys: Res<ButtonInput<KeyCode>>,
     input: Option<Res<InputOwnership>>,
@@ -162,7 +172,11 @@ fn overview_shortcut(
             .ok()
             .map(|w| w.width() / w.height().max(1.0))
             .unwrap_or(16.0 / 9.0);
-        frame_cells(&mut orbit, &blueprint.cell_list, aspect);
+        if blueprint.def.id == "riverside" {
+            frame_courtyard(&mut orbit, &blueprint.cell_list, aspect);
+        } else {
+            frame_cells(&mut orbit, &blueprint.cell_list, aspect);
+        }
     }
 }
 
@@ -171,6 +185,7 @@ fn spawn_orbit_camera(
     mut orbit: ResMut<OrbitCamera>,
     blueprint: Option<Res<crate::building::blueprint::Blueprint>>,
     tutorial: Option<Res<crate::building::tutorial::Tutorial>>,
+    mode: Option<Res<crate::riverside::RiversideMode>>,
     windows: Query<&Window, With<bevy::window::PrimaryWindow>>,
 ) {
     let aspect = windows
@@ -200,8 +215,16 @@ fn spawn_orbit_camera(
         DistanceFog {
             color: Color::srgb(0.78, 0.82, 0.9),
             falloff: FogFalloff::Linear {
-                start: 40.0,
-                end: 160.0,
+                start: if mode.as_ref().is_some_and(|m| m.0) {
+                    20.0
+                } else {
+                    40.0
+                },
+                end: if mode.as_ref().is_some_and(|m| m.0) {
+                    36.0
+                } else {
+                    160.0
+                },
             },
             ..default()
         },
@@ -333,7 +356,11 @@ fn completion_autopilot_system(
             .ok()
             .map(|w| w.width() / w.height().max(1.0))
             .unwrap_or(16.0 / 9.0);
-        frame_cells(&mut overview, &blueprint.cell_list, aspect);
+        if riverside {
+            frame_courtyard(&mut overview, &blueprint.cell_list, aspect);
+        } else {
+            frame_cells(&mut overview, &blueprint.cell_list, aspect);
+        }
         orbit.target = overview.target;
         orbit.autopilot = Some(AutoPilot {
             goal_yaw: overview.yaw,
@@ -365,6 +392,30 @@ pub fn autopilot_step(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn courtyard_overview_reserves_sidebar_without_hiding_architecture() {
+        use bevy::camera::CameraProjection;
+        let cells: Vec<_> = (-3..=3)
+            .flat_map(|x| (0..=10).flat_map(move |y| (-3..=3).map(move |z| IVec3::new(x, y, z))))
+            .collect();
+        let mut orbit = OrbitCamera::default();
+        frame_courtyard(&mut orbit, &cells, 1280.0 / 752.0);
+        let view = Transform::from_translation(orbit.position())
+            .looking_at(orbit.target, Vec3::Y)
+            .to_matrix()
+            .inverse();
+        let mut projection = PerspectiveProjection::default();
+        projection.update(1280.0, 752.0);
+        let clip = projection.get_clip_from_view() * view;
+        for cell in cells {
+            let ndc = clip.project_point3(cell.as_vec3());
+            assert!(
+                ndc.x > -0.55 && ndc.x < 0.8 && ndc.y > -0.65 && ndc.y < 0.7,
+                "{ndc:?}"
+            );
+        }
+    }
 
     #[test]
     fn tutorial_exit_frames_full_blueprint_once_without_overriding_later_input() {

@@ -13,7 +13,7 @@
           -3.5
         ]
       },
-      "bytes": 709420,
+      "bytes": 837056,
       "color_attribute": "COLOR_0",
       "colors_linear_rgba": [
         [
@@ -43,7 +43,7 @@
       "file": "datiji.glb",
       "meshes": 1,
       "primitives": 1,
-      "sha256": "62643da702459a804e4110f34f52c8d74a75cb9063644f7fb35ebd0346cc5364",
+      "sha256": "4a4d60873586835d0edf15c4a7a3d276697e97ea88d9927f3475d08a7e53a37b",
       "triangles": 6048,
       "vertices": 15894
     },
@@ -60,7 +60,7 @@
           -0.5
         ]
       },
-      "bytes": 56724,
+      "bytes": 66692,
       "color_attribute": "COLOR_0",
       "colors_linear_rgba": [
         [
@@ -108,7 +108,7 @@
       "file": "hongzhu4.glb",
       "meshes": 1,
       "primitives": 1,
-      "sha256": "646c4220544d73f2d19046c0210fb4cf96514ed9b518bcdc4ef3d420eeada8c7",
+      "sha256": "9c7c94e4ef65103f362ec29bec0b047d04605c5389e0a9bf5f1fc879508d6d74",
       "triangles": 684,
       "vertices": 1186
     },
@@ -125,7 +125,7 @@
           -0.5
         ]
       },
-      "bytes": 41108,
+      "bytes": 48692,
       "color_attribute": "COLOR_0",
       "colors_linear_rgba": [
         [
@@ -161,7 +161,7 @@
       "file": "liangfang5.glb",
       "meshes": 1,
       "primitives": 1,
-      "sha256": "4aef8f00b31ae3cad8b2e8dacee7c08c766de9057f32f00e50b7d14b114e49ba",
+      "sha256": "04571e010346d9e15ec6f2c4d9e721a9b4f028f7a9d3fb52bbc33df4bfd68255",
       "triangles": 376,
       "vertices": 888
     },
@@ -178,7 +178,7 @@
           -2.5
         ]
       },
-      "bytes": 28028,
+      "bytes": 33176,
       "color_attribute": "COLOR_0",
       "colors_linear_rgba": [
         [
@@ -214,7 +214,7 @@
       "file": "louban5.glb",
       "meshes": 1,
       "primitives": 1,
-      "sha256": "04af73db728ef0ec062cafc7a9d23a14bb6cad5feecfbbb3e688ce9cd78e7e65",
+      "sha256": "dc65685814a004e931ac541e8a1fd4e32978f00d9160f4619f5c30128388fb85",
       "triangles": 300,
       "vertices": 584
     },
@@ -231,7 +231,7 @@
           -1.0
         ]
       },
-      "bytes": 32684,
+      "bytes": 38652,
       "color_attribute": "COLOR_0",
       "colors_linear_rgba": [
         [
@@ -273,7 +273,7 @@
       "file": "dougong.glb",
       "meshes": 1,
       "primitives": 1,
-      "sha256": "ed26ea2d28c9c2fa57293f99cad5bc6112379390fe10b244c8ef78fd6ffde250",
+      "sha256": "c05c7c279c5674d2c7bc95f692318f70b575e63288f37590c391145510ca018f",
       "triangles": 348,
       "vertices": 686
     },
@@ -290,7 +290,7 @@
           -3.5
         ]
       },
-      "bytes": 1196760,
+      "bytes": 1413844,
       "color_attribute": "COLOR_0",
       "colors_linear_rgba": [
         [
@@ -344,7 +344,7 @@
       "file": "jiangting_roof.glb",
       "meshes": 1,
       "primitives": 1,
-      "sha256": "a3148810469851271111894e0a007c40447a9bdb3442206cd15a1e09db45f4f4",
+      "sha256": "fa0bcfe7b409218443f58889e13365cff8d51e8edbb7d66a161b967a5ebe3563",
       "triangles": 9388,
       "vertices": 27075
     }
@@ -353,8 +353,8 @@
   "blender_version": "5.2.1 LTS",
   "coordinates": "glTF Y-up meters; centered origin; baked vertices and normals; identity nodes",
   "generator": "tools/build_riverside_assets.py",
-  "generator_sha256": "12680c0a1e2c9e8a9c1ac41024ab5771f3d9753ffd97976be7edf9f5d206269b",
-  "generator_version": "1.0.0",
+  "generator_sha256": "4347da748f0c341f3aa954f87166bd3282abb44f1a26c0f307eaa5ff5af46999",
+  "generator_version": "1.1.0",
   "material_contract": "One Mesh0/Primitive0; linear COLOR_0 RGBA; white opaque StandardMaterial",
   "palette_linear_rgba": {
     "gold": [
@@ -431,5 +431,5 @@
     ]
   },
   "schema_version": 1,
-  "total_glb_bytes": 2064724
+  "total_glb_bytes": 2438112
 }

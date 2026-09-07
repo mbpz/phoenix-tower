@@ -177,7 +177,11 @@ fn tutorial_ghost_visibility(
     tutorial: Res<Tutorial>,
     stack: Res<PlacedBlocks>,
     mut ghosts: Query<
-        (&Transform, &mut Visibility),
+        (
+            &Transform,
+            &mut Visibility,
+            Option<&crate::building::placement::ComponentGuide>,
+        ),
         With<crate::building::blueprint::BlueprintGhost>,
     >,
 ) {
@@ -185,10 +189,13 @@ fn tutorial_ghost_visibility(
         .active
         .then(|| tutorial.steps.get(tutorial.step))
         .flatten();
-    for (transform, mut visibility) in &mut ghosts {
+    for (transform, mut visibility, component) in &mut ghosts {
         let cell = (transform.translation - Vec3::Y * 0.5).round().as_ivec3();
-        let visible = !stack.occupied.contains(&cell)
-            && current.is_none_or(|step| step.cells.contains(&cell));
+        let available = |cell: &IVec3| {
+            !stack.occupied.contains(cell) && current.is_none_or(|step| step.cells.contains(cell))
+        };
+        let visible =
+            component.map_or_else(|| available(&cell), |guide| guide.0.iter().all(available));
         let next = if visible {
             Visibility::Inherited
         } else {
@@ -204,6 +211,51 @@ fn tutorial_ghost_visibility(
 mod tests {
     use super::*;
     use crate::building::blueprint::load_blueprint;
+
+    #[test]
+    fn whole_component_guide_hides_on_any_occupied_cell_and_restores_when_empty() {
+        let mut app = App::new();
+        let mut tutorial = load_tutorial();
+        tutorial.active = false;
+        app.insert_resource(tutorial)
+            .init_resource::<PlacedBlocks>()
+            .add_systems(Update, tutorial_ghost_visibility);
+        let cells = vec![IVec3::new(-3, 7, -3), IVec3::new(3, 7, 3)];
+        let guide = app
+            .world_mut()
+            .spawn((
+                crate::building::blueprint::BlueprintGhost,
+                crate::building::placement::ComponentGuide(cells.clone()),
+                Transform::from_xyz(0.0, 9.0, 0.0),
+                Visibility::Hidden,
+            ))
+            .id();
+        app.update();
+        assert_eq!(
+            *app.world().get::<Visibility>(guide).unwrap(),
+            Visibility::Inherited
+        );
+        // The occupied cell is not the component's center; checking only the
+        // transform would incorrectly expose an overlapping placement guide.
+        app.world_mut()
+            .resource_mut::<PlacedBlocks>()
+            .occupied
+            .insert(cells[1]);
+        app.update();
+        assert_eq!(
+            *app.world().get::<Visibility>(guide).unwrap(),
+            Visibility::Hidden
+        );
+        app.world_mut()
+            .resource_mut::<PlacedBlocks>()
+            .occupied
+            .clear();
+        app.update();
+        assert_eq!(
+            *app.world().get::<Visibility>(guide).unwrap(),
+            Visibility::Inherited
+        );
+    }
 
     #[test]
     fn tutorial_blueprint_hides_future_and_occupied_cells_then_restores_overview() {

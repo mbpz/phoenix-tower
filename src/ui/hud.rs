@@ -118,11 +118,25 @@ fn update_hint(
         t("自由模式", "Free Build", lang).to_string()
     };
     let tutorial_line = if riverside.as_ref().is_some_and(|mode| mode.0) && !tutorial.active {
-        t(
-            "江岸亭：撤销屋顶 → M 开启蓝图 → 点击绿色目标重建；F5 保存",
-            "Riverside: undo roof > M for snap guide > click green target; F5 saves",
-            lang,
-        )
+        if stack.records.iter().any(|r| r.def_id == "jiangting_roof") {
+            t(
+                "Backspace 拆下屋顶 · T 昼夜 · F5 保存",
+                "Backspace: remove roof · T: day/night · F5: save",
+                lang,
+            )
+        } else if blueprint.active {
+            t(
+                "点击屋顶绿色预览，完成重建",
+                "Click the green roof preview to rebuild",
+                lang,
+            )
+        } else {
+            t(
+                "M 开启蓝图，找回屋顶位置",
+                "M: reveal the roof rebuilding guide",
+                lang,
+            )
+        }
         .to_string()
     } else if tutorial.active {
         let label = match lang {
@@ -210,14 +224,31 @@ fn update_hint(
         } else {
             compact_keys.to_string()
         },
-        format!(
-            "{}: {} · {} {}° · {}",
-            t("积木", "Block", lang),
-            def.name,
-            t("旋转", "Rotation", lang),
-            library.rotation as u32 * 90,
-            mode
-        ),
+        if riverside.as_ref().is_some_and(|mode| mode.0) {
+            format!(
+                "{} · {}° · {}",
+                def.name,
+                library.rotation as u32 * 90,
+                if blueprint.active {
+                    format!(
+                        "{} {:.0}%",
+                        t("蓝图", "Guide", lang),
+                        blueprint.completion * 100.0
+                    )
+                } else {
+                    t("自由搭建", "Free build", lang).to_string()
+                }
+            )
+        } else {
+            format!(
+                "{}: {} · {} {}° · {}",
+                t("积木", "Block", lang),
+                def.name,
+                t("旋转", "Rotation", lang),
+                library.rotation as u32 * 90,
+                mode
+            )
+        },
     ];
     for line in [challenge_line, stability_line, tool_line, tutorial_line] {
         if !line.is_empty() {

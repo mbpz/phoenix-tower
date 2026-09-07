@@ -45,7 +45,7 @@ fn main() {
     // 直接运行 target/debug/phoenix-tower 时会找不到 assets/）
     let asset_root = format!("{}/assets", env!("CARGO_MANIFEST_DIR"));
     let riverside = riverside::RiversideMode::requested(
-        std::env::args().any(|arg| arg == "--riverside"),
+        std::env::args().any(|arg| arg == "--tower"),
         std::env::var_os("PHOENIX_LOAD").is_some(),
         std::env::var_os("PHOENIX_STRESS").is_some(),
     );

@@ -168,17 +168,25 @@ fn day_night_system(
     if let Ok(light) = sun.single_mut() {
         light
             .map_unchanged(|light| &mut light.illuminance)
-            .set_if_neq(lerp(if mode.0 { 5000.0 } else { DAY_SUN }, NIGHT_SUN));
+            .set_if_neq(lerp(
+                if mode.0 { 5000.0 } else { DAY_SUN },
+                if mode.0 { 320.0 } else { NIGHT_SUN },
+            ));
     }
     ambient
         .map_unchanged(|ambient| &mut ambient.brightness)
-        .set_if_neq(lerp(if mode.0 { 450.0 } else { DAY_AMB }, NIGHT_AMB));
+        .set_if_neq(lerp(
+            if mode.0 { 450.0 } else { DAY_AMB },
+            if mode.0 { 140.0 } else { NIGHT_AMB },
+        ));
+    // The bounded diorama water fades into its backdrop, not a visible cut edge.
+    let day_sky = if mode.0 { [0.12, 0.23, 0.24] } else { DAY_SKY };
     clear
         .map_unchanged(|clear| &mut clear.0)
         .set_if_neq(Color::srgb(
-            lerp(DAY_SKY[0], NIGHT_SKY[0]),
-            lerp(DAY_SKY[1], NIGHT_SKY[1]),
-            lerp(DAY_SKY[2], NIGHT_SKY[2]),
+            lerp(day_sky[0], NIGHT_SKY[0]),
+            lerp(day_sky[1], NIGHT_SKY[1]),
+            lerp(day_sky[2], NIGHT_SKY[2]),
         ));
 
     // 夜景辉光：灯笼（暖红）与宝顶（暖金）随入夜增强
@@ -201,17 +209,19 @@ fn day_night_system(
     for light in &mut lantern_lights {
         light
             .map_unchanged(|light| &mut light.intensity)
-            .set_if_neq(t * 350.0);
+            .set_if_neq(t * if mode.0 { 1200.0 } else { 350.0 });
     }
     // 雾色昼夜联动：白天浅蓝薄雾 → 夜晚深蓝
     const DAY_FOG: [f32; 3] = [0.78, 0.82, 0.9];
     const NIGHT_FOG: [f32; 3] = [0.05, 0.08, 0.16];
+    let day_fog = if mode.0 { day_sky } else { DAY_FOG };
+    let night_fog = if mode.0 { NIGHT_SKY } else { NIGHT_FOG };
     for f in &mut fog {
         f.map_unchanged(|fog| &mut fog.color)
             .set_if_neq(Color::srgb(
-                lerp(DAY_FOG[0], NIGHT_FOG[0]),
-                lerp(DAY_FOG[1], NIGHT_FOG[1]),
-                lerp(DAY_FOG[2], NIGHT_FOG[2]),
+                lerp(day_fog[0], night_fog[0]),
+                lerp(day_fog[1], night_fog[1]),
+                lerp(day_fog[2], night_fog[2]),
             ));
     }
 }
@@ -261,6 +271,32 @@ mod performance_tests {
         app.world_mut().spawn(DirectionalLight::default());
         app.world_mut().spawn(DistanceFog::default());
         app
+    }
+
+    #[test]
+    fn courtyard_night_keeps_architecture_readable_and_fog_matches_backdrop() {
+        let mut app = scene_app();
+        app.world_mut()
+            .resource_mut::<crate::riverside::RiversideMode>()
+            .0 = true;
+        for night in [false, true] {
+            {
+                let mut sky = app.world_mut().resource_mut::<SkyState>();
+                sky.night = night;
+                sky.t = if night { 1.0 } else { 0.0 };
+            }
+            app.update();
+            let clear = app.world().resource::<ClearColor>().0;
+            let fog = app
+                .world_mut()
+                .query::<&DistanceFog>()
+                .single(app.world())
+                .unwrap();
+            assert_eq!(fog.color, clear);
+            assert!(app.world().resource::<GlobalAmbientLight>().brightness >= 140.0);
+        }
+        app.update();
+        assert_eq!(app.world().resource::<ChangedEnvironment>().0, 0);
     }
 
     #[test]

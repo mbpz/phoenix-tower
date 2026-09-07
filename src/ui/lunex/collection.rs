@@ -93,7 +93,7 @@ pub(super) fn b7_knowledge_sync(
     }
     if let Some(card) = &hints.card {
         for mut t in texts.p0() {
-            t.0 = format!("📖 {}", card.name);
+            t.0.clone_from(&card.name);
         }
         for mut t in texts.p1() {
             t.0 = card.desc.clone();
