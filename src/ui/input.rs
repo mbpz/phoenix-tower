@@ -113,12 +113,18 @@ pub(crate) fn keyboard_allowed(ownership: Option<&InputOwnership>) -> bool {
     ownership.is_none_or(|input| !input.keyboard_captured)
 }
 
+/// A quick chord may be pressed and released between rendered frames.
+/// Keep modifiers for that frame so history works and plain hotkeys cannot leak.
+pub(crate) fn modifier_active(keys: &ButtonInput<KeyCode>, key: KeyCode) -> bool {
+    keys.pressed(key) || keys.just_released(key)
+}
+
 pub(crate) fn shortcuts_allowed(
     keys: &ButtonInput<KeyCode>,
     ownership: Option<&InputOwnership>,
 ) -> bool {
     keyboard_allowed(ownership)
-        && !keys.any_pressed([
+        && ![
             KeyCode::ControlLeft,
             KeyCode::ControlRight,
             KeyCode::SuperLeft,
@@ -127,7 +133,9 @@ pub(crate) fn shortcuts_allowed(
             KeyCode::AltRight,
             KeyCode::ShiftLeft,
             KeyCode::ShiftRight,
-        ])
+        ]
+        .into_iter()
+        .any(|key| modifier_active(keys, key))
 }
 
 fn update_ownership(
@@ -232,6 +240,16 @@ mod tests {
             !input.left.dragged,
             "ownership, not the drag threshold, must block this click"
         );
+    }
+
+    #[test]
+    fn released_modifier_in_same_frame_still_blocks_plain_shortcuts() {
+        let mut keys = ButtonInput::default();
+        keys.press(KeyCode::SuperLeft);
+        keys.press(KeyCode::KeyR);
+        keys.release(KeyCode::KeyR);
+        keys.release(KeyCode::SuperLeft);
+        assert!(!shortcuts_allowed(&keys, None));
     }
 
     #[test]

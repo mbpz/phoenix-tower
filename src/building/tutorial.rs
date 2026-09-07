@@ -1,4 +1,4 @@
-//! 新手教程（B-12）：三步强制蓝图（台基 → 红柱 → 琉璃瓦），对应 PRD §6 新玩家路径。
+//! 新手教程（B-12）：三步强制蓝图（台基 → 红柱 → 大梁），对应 PRD §6 新玩家路径。
 //!
 //! - 启动即激活，自动强制进入蓝图模式（幽灵蓝图由 reconcile 对账系统生成）
 //! - 每步自动选中目标积木，HUD 显示引导文案
@@ -34,7 +34,8 @@ pub struct TutorialPlugin;
 impl Plugin for TutorialPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(load_tutorial())
-            .add_systems(Update, tutorial_system);
+            .add_systems(Update, tutorial_system)
+            .add_systems(PostUpdate, tutorial_ghost_visibility);
     }
 }
 
@@ -135,13 +136,25 @@ fn tutorial_system(
         return;
     }
 
+    // Undo may remove an earlier prerequisite. Select the earliest unfinished
+    // step before choosing its block; otherwise the player is locked out of repair.
+    let placed = placed_map(&stack);
+    if let Some(first_incomplete) = tutorial
+        .steps
+        .iter()
+        .position(|step| !step_complete(&placed, step))
+    {
+        if first_incomplete < tutorial.step {
+            tutorial.step = first_incomplete;
+        }
+    }
+
     // 当前步骤自动选中目标积木（含首次激活）
     if let Some(&idx) = library.by_id.get(&tutorial.steps[tutorial.step].block_id) {
         library.current = idx;
     }
 
     // 完成检测
-    let placed = placed_map(&stack);
     let step = &tutorial.steps[tutorial.step];
     if !step_complete(&placed, step) {
         return;
@@ -157,10 +170,111 @@ fn tutorial_system(
     }
 }
 
+/// Keep the construction target legible; undo restores its unoccupied guide cells.
+fn tutorial_ghost_visibility(
+    tutorial: Res<Tutorial>,
+    stack: Res<PlacedBlocks>,
+    mut ghosts: Query<
+        (&Transform, &mut Visibility),
+        With<crate::building::blueprint::BlueprintGhost>,
+    >,
+) {
+    let current = tutorial
+        .active
+        .then(|| tutorial.steps.get(tutorial.step))
+        .flatten();
+    for (transform, mut visibility) in &mut ghosts {
+        let cell = (transform.translation - Vec3::Y * 0.5).round().as_ivec3();
+        let visible = !stack.occupied.contains(&cell)
+            && current.is_none_or(|step| step.cells.contains(&cell));
+        let next = if visible {
+            Visibility::Inherited
+        } else {
+            Visibility::Hidden
+        };
+        if *visibility != next {
+            *visibility = next;
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::building::blueprint::load_blueprint;
+
+    #[test]
+    fn tutorial_blueprint_hides_future_and_occupied_cells_then_restores_overview() {
+        use crate::building::blueprint::BlueprintGhost;
+        let mut app = App::new();
+        app.insert_resource(load_tutorial())
+            .init_resource::<PlacedBlocks>()
+            .add_systems(Update, tutorial_ghost_visibility);
+        let current = IVec3::new(-3, 0, -3);
+        let future = IVec3::new(-3, 2, -3);
+        let spawn = |app: &mut App, cell: IVec3| {
+            app.world_mut()
+                .spawn((
+                    BlueprintGhost,
+                    Transform::from_translation(cell.as_vec3() + Vec3::Y * 0.5),
+                    Visibility::Inherited,
+                ))
+                .id()
+        };
+        let a = spawn(&mut app, current);
+        let b = spawn(&mut app, future);
+        app.update();
+        assert_eq!(
+            *app.world().get::<Visibility>(a).unwrap(),
+            Visibility::Inherited
+        );
+        assert_eq!(
+            *app.world().get::<Visibility>(b).unwrap(),
+            Visibility::Hidden
+        );
+        app.world_mut()
+            .resource_mut::<PlacedBlocks>()
+            .occupied
+            .insert(current);
+        app.world_mut().resource_mut::<Tutorial>().active = false;
+        app.update();
+        assert_eq!(
+            *app.world().get::<Visibility>(a).unwrap(),
+            Visibility::Hidden
+        );
+        assert_eq!(
+            *app.world().get::<Visibility>(b).unwrap(),
+            Visibility::Inherited
+        );
+        app.world_mut()
+            .resource_mut::<PlacedBlocks>()
+            .occupied
+            .clear();
+        app.update();
+        assert_eq!(
+            *app.world().get::<Visibility>(a).unwrap(),
+            Visibility::Inherited
+        );
+    }
+
+    #[test]
+    fn undoing_platform_rewinds_active_tutorial_and_selection() {
+        let mut app = App::new();
+        let mut tutorial = load_tutorial();
+        tutorial.step = 1;
+        app.insert_resource(tutorial)
+            .insert_resource(crate::building::blueprint::load_blueprint_library().0)
+            .insert_resource(crate::building::block_defs::load_block_library())
+            .init_resource::<PlacedBlocks>()
+            .init_resource::<ButtonInput<KeyCode>>()
+            .add_systems(Update, tutorial_system);
+        app.update();
+        assert_eq!(app.world().resource::<Tutorial>().step, 0);
+        assert_eq!(
+            app.world().resource::<BlockLibrary>().current_def().id,
+            "datiji"
+        );
+    }
 
     #[test]
     fn empty_placement_not_complete() {

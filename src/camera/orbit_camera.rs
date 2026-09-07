@@ -22,6 +22,7 @@ impl Plugin for OrbitCameraPlugin {
                 (
                     camera_sanity_check,
                     completion_autopilot_system,
+                    overview_shortcut,
                     orbit_camera_system,
                 )
                     .chain(),
@@ -105,55 +106,88 @@ impl OrbitCamera {
     }
 }
 
-fn spawn_orbit_camera(
-    mut commands: Commands,
+fn frame_cells(orbit: &mut OrbitCamera, cells: &[IVec3], aspect: f32) {
+    if cells.is_empty() {
+        return;
+    }
+    let min = cells
+        .iter()
+        .fold(Vec3::splat(f32::INFINITY), |bound, cell| {
+            bound.min(cell.as_vec3())
+        })
+        + Vec3::new(-0.5, 0.0, -0.5);
+    let max = cells
+        .iter()
+        .fold(Vec3::splat(f32::NEG_INFINITY), |bound, cell| {
+            bound.max(cell.as_vec3())
+        })
+        + Vec3::new(0.5, 1.0, 0.5);
+    orbit.target = (min + max) * 0.5;
+    let tan_half_fov = (PerspectiveProjection::default().fov * 0.5).tan();
+    let rotation = Transform::from_translation(orbit.position())
+        .looking_at(orbit.target, Vec3::Y)
+        .rotation
+        .inverse();
+    let mut distance = DIST_MIN;
+    for x in [min.x, max.x] {
+        for y in [min.y, max.y] {
+            for z in [min.z, max.z] {
+                let p = rotation * (Vec3::new(x, y, z) - orbit.target);
+                // Reserve the top quarter for title/knowledge cards and the
+                // lower edge for hints, rather than merely fitting the lens.
+                let vertical_margin = if p.y > 0.0 { 0.5 } else { 0.75 };
+                distance = distance
+                    .max(p.z + p.y.abs() / (tan_half_fov * vertical_margin))
+                    .max(p.z + p.x.abs() / (tan_half_fov * aspect * 0.8));
+            }
+        }
+    }
+    orbit.distance = (distance * 1.03).clamp(DIST_MIN, DIST_MAX);
+    orbit.autopilot = None;
+}
+
+fn overview_shortcut(
+    keys: Res<ButtonInput<KeyCode>>,
+    input: Option<Res<InputOwnership>>,
+    blueprint: Res<crate::building::blueprint::Blueprint>,
     mut orbit: ResMut<OrbitCamera>,
-    blueprint: Option<Res<crate::building::blueprint::Blueprint>>,
     windows: Query<&Window, With<bevy::window::PrimaryWindow>>,
 ) {
-    // Frame once, before the tutorial enables its blueprint. Never reset player
-    // pan/zoom on subsequent frames; riverside keeps its PostStartup override.
-    if let Some(blueprint) = blueprint.filter(|bp| !bp.cell_list.is_empty()) {
-        let min = blueprint
-            .cell_list
-            .iter()
-            .fold(Vec3::splat(f32::INFINITY), |bound, cell| {
-                bound.min(cell.as_vec3())
-            })
-            + Vec3::new(-0.5, 0.0, -0.5);
-        let max = blueprint
-            .cell_list
-            .iter()
-            .fold(Vec3::splat(f32::NEG_INFINITY), |bound, cell| {
-                bound.max(cell.as_vec3())
-            })
-            + Vec3::new(0.5, 1.0, 0.5);
-        orbit.target = (min + max) * 0.5;
+    if crate::ui::input::shortcuts_allowed(&keys, input.as_deref())
+        && keys.just_pressed(KeyCode::Home)
+    {
         let aspect = windows
             .single()
             .ok()
             .map(|w| w.width() / w.height().max(1.0))
             .unwrap_or(16.0 / 9.0);
-        let tan_half_fov = (PerspectiveProjection::default().fov * 0.5).tan();
-        let rotation = Transform::from_translation(orbit.position())
-            .looking_at(orbit.target, Vec3::Y)
-            .rotation
-            .inverse();
-        let mut distance = DIST_MIN;
-        for x in [min.x, max.x] {
-            for y in [min.y, max.y] {
-                for z in [min.z, max.z] {
-                    let p = rotation * (Vec3::new(x, y, z) - orbit.target);
-                    // Reserve the top quarter for title/knowledge cards and the
-                    // lower edge for hints, rather than merely fitting the lens.
-                    let vertical_margin = if p.y > 0.0 { 0.5 } else { 0.75 };
-                    distance = distance
-                        .max(p.z + p.y.abs() / (tan_half_fov * vertical_margin))
-                        .max(p.z + p.x.abs() / (tan_half_fov * aspect * 0.8));
-                }
-            }
-        }
-        orbit.distance = (distance * 1.03).clamp(DIST_MIN, DIST_MAX);
+        frame_cells(&mut orbit, &blueprint.cell_list, aspect);
+    }
+}
+
+fn spawn_orbit_camera(
+    mut commands: Commands,
+    mut orbit: ResMut<OrbitCamera>,
+    blueprint: Option<Res<crate::building::blueprint::Blueprint>>,
+    tutorial: Option<Res<crate::building::tutorial::Tutorial>>,
+    windows: Query<&Window, With<bevy::window::PrimaryWindow>>,
+) {
+    let aspect = windows
+        .single()
+        .ok()
+        .map(|w| w.width() / w.height().max(1.0))
+        .unwrap_or(16.0 / 9.0);
+    // First-time builders work on the first tier, not a tiny full-tower silhouette.
+    // Startup only: subsequent pan/zoom remains under player control.
+    if let Some(tutorial) = tutorial.filter(|t| t.active) {
+        let cells: Vec<_> = tutorial
+            .steps
+            .iter()
+            .flat_map(|step| step.cells.iter().copied())
+            .collect();
+        frame_cells(&mut orbit, &cells, aspect);
+    } else if let Some(blueprint) = blueprint {
+        frame_cells(&mut orbit, &blueprint.cell_list, aspect);
     }
     commands.spawn((
         Camera3d::default(),
@@ -252,24 +286,26 @@ fn completion_autopilot_system(
     blueprint: Res<crate::building::blueprint::Blueprint>,
     mut orbit: ResMut<OrbitCamera>,
     mut prev_completed: Local<bool>,
+    windows: Query<&Window, With<bevy::window::PrimaryWindow>>,
 ) {
     if blueprint.completed && !*prev_completed {
+        let riverside = blueprint.def.id == "riverside";
+        let mut overview = OrbitCamera {
+            yaw: if riverside { 0.68 } else { 0.15 },
+            pitch: if riverside { 0.40 } else { 0.55 },
+            ..default()
+        };
+        let aspect = windows
+            .single()
+            .ok()
+            .map(|w| w.width() / w.height().max(1.0))
+            .unwrap_or(16.0 / 9.0);
+        frame_cells(&mut overview, &blueprint.cell_list, aspect);
+        orbit.target = overview.target;
         orbit.autopilot = Some(AutoPilot {
-            goal_yaw: if blueprint.def.id == "riverside" {
-                0.68
-            } else {
-                0.15
-            },
-            goal_pitch: if blueprint.def.id == "riverside" {
-                0.40
-            } else {
-                0.55
-            },
-            goal_distance: if blueprint.def.id == "riverside" {
-                28.0
-            } else {
-                40.0
-            },
+            goal_yaw: overview.yaw,
+            goal_pitch: overview.pitch,
+            goal_distance: overview.distance,
         });
         info!("🎥 观赏视角已就位（场景拖拽或滚轮接管）");
     }
@@ -296,6 +332,67 @@ pub fn autopilot_step(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn completion_overview_recenters_tutorial_and_keeps_tower_in_frame() {
+        use bevy::camera::CameraProjection;
+        let mut app = App::new();
+        let mut bp = crate::building::blueprint::load_blueprint_library().0;
+        bp.completed = true;
+        let cells = bp.cell_list.clone();
+        app.insert_resource(bp)
+            .insert_resource(OrbitCamera {
+                target: Vec3::Y * 4.0,
+                ..default()
+            })
+            .add_systems(Update, completion_autopilot_system);
+        app.update();
+        let orbit = app.world().resource::<OrbitCamera>();
+        let pilot = orbit.autopilot.unwrap();
+        let view_orbit = OrbitCamera {
+            target: orbit.target,
+            yaw: pilot.goal_yaw,
+            pitch: pilot.goal_pitch,
+            distance: pilot.goal_distance,
+            ..default()
+        };
+        let view = Transform::from_translation(view_orbit.position())
+            .looking_at(view_orbit.target, Vec3::Y)
+            .to_matrix()
+            .inverse();
+        let mut projection = PerspectiveProjection::default();
+        projection.update(1280.0, 720.0);
+        let clip = projection.get_clip_from_view() * view;
+        for cell in cells {
+            let ndc = clip.project_point3(cell.as_vec3() + Vec3::Y);
+            assert!(
+                ndc.y < 0.55 && ndc.y > -0.8 && ndc.x.abs() < 0.8,
+                "{cell:?}: {ndc:?}"
+            );
+        }
+        app.world_mut().resource_mut::<OrbitCamera>().target = Vec3::splat(9.0);
+        app.update();
+        assert_eq!(
+            app.world().resource::<OrbitCamera>().target,
+            Vec3::splat(9.0)
+        );
+    }
+
+    #[test]
+    fn tutorial_starts_close_enough_to_click_the_platform() {
+        let mut app = App::new();
+        app.insert_resource(crate::building::blueprint::load_blueprint_library().0)
+            .insert_resource(crate::building::tutorial::load_tutorial())
+            .init_resource::<OrbitCamera>()
+            .add_systems(Startup, spawn_orbit_camera);
+        app.update();
+        let orbit = app.world().resource::<OrbitCamera>();
+        assert!(
+            orbit.target.y < 5.0,
+            "tutorial must frame the construction tier"
+        );
+        assert!(orbit.distance < 35.0, "platform must not be a tiny target");
+    }
 
     #[test]
     fn startup_frames_default_blueprint_below_title_with_native_aspects() {

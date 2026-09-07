@@ -55,8 +55,6 @@ impl Plugin for PlacementPlugin {
 
 /// 网格尺寸：1 单位 = 1 格。
 const GRID: f32 = 1.0;
-/// 蓝图模式 y 扫描上限（防失控循环）
-const MAX_BLUEPRINT_Y: i32 = 64;
 
 /// 幽灵蓝图透明度（B-10 打磨：面板滑杆实时调节）。
 #[derive(Resource)]
@@ -139,6 +137,7 @@ fn setup_block_assets(
             meshes.add(match def.id.as_str() {
                 "hongzhu" | "hongzhu4" | "fangzhu" => {
                     crate::building::meshes::column(0.5, h * GRID, 10)
+                        .translated_by(Vec3::Y * (-h * GRID * 0.5))
                 }
                 "dengzhu" => crate::building::meshes::column(0.22, h * GRID, 8),
                 "denglong" => crate::building::meshes::column(0.42, 0.7, 8),
@@ -153,9 +152,7 @@ fn setup_block_assets(
                 "louban" | "louban5" => {
                     crate::building::meshes::eave_slab(w * GRID, d * GRID, 0.5, 0.9)
                 }
-                "taiji" | "datiji" => {
-                    crate::building::meshes::eave_slab(w * GRID, d * GRID, 0.5, 0.0)
-                }
+                "taiji" | "datiji" => Mesh::from(Cuboid::new(w * GRID, h * GRID, d * GRID)),
                 "baoding" => crate::building::meshes::spire(0.9),
                 "jizhuanding" | "jiangting_roof" => {
                     crate::building::meshes::conical_roof(w * GRID, d * GRID, h * GRID, 8)
@@ -173,7 +170,10 @@ fn setup_block_assets(
                 | "baoding"
                 | "jiangting_roof"
         );
+        // Playable pieces and placement guides must stay legible at any orbit
+        // distance. Keep distance fog on the landscape, not interactive geometry.
         let mat = materials.add(StandardMaterial {
+            fog_enabled: false,
             base_color: if model.is_some() {
                 Color::WHITE
             } else {
@@ -193,6 +193,7 @@ fn setup_block_assets(
         let ghost_mat = materials.add(StandardMaterial {
             base_color: Color::srgba(def.color[0], def.color[1], def.color[2], 0.35),
             unlit: true,
+            fog_enabled: false,
             alpha_mode: AlphaMode::Blend,
             ..default()
         });
@@ -203,12 +204,14 @@ fn setup_block_assets(
         ghost_material: materials.add(StandardMaterial {
             base_color: Color::srgba(0.2, 0.85, 0.45, 0.35),
             unlit: true,
+            fog_enabled: false,
             alpha_mode: AlphaMode::Blend,
             ..default()
         }),
         ghost_bad_material: materials.add(StandardMaterial {
             base_color: Color::srgba(0.9, 0.25, 0.2, 0.4),
             unlit: true,
+            fog_enabled: false,
             alpha_mode: AlphaMode::Blend,
             ..default()
         }),
@@ -232,13 +235,19 @@ fn cursor_column(
     windows: &Query<&Window, With<PrimaryWindow>>,
     cameras: &PlacementCameras<'_, '_>,
 ) -> Option<(i32, i32)> {
-    let window = windows.single().ok()?;
-    let cursor = window.cursor_position()?;
-    let (camera, cam_gt) = cameras.single().ok()?;
-    let ray = camera.viewport_to_world(cam_gt, cursor).ok()?;
+    let ray = cursor_ray(windows, cameras)?;
     let t = ray.intersect_plane(Vec3::ZERO, InfinitePlane3d::new(Vec3::Y))?;
     let hit = ray.get_point(t);
     Some(((hit.x / GRID).round() as i32, (hit.z / GRID).round() as i32))
+}
+
+fn cursor_ray(
+    windows: &Query<&Window, With<PrimaryWindow>>,
+    cameras: &PlacementCameras<'_, '_>,
+) -> Option<Ray3d> {
+    let cursor = windows.single().ok()?.cursor_position()?;
+    let (camera, transform) = cameras.single().ok()?;
+    camera.viewport_to_world(transform, cursor).ok()
 }
 
 /// 旋转后的平面 footprint 尺寸 (w, d)：90°/270° 时 w/d 互换。
@@ -313,10 +322,7 @@ pub(crate) fn rotation_quat(rot: u8) -> Quat {
     Quat::from_rotation_y(rot as f32 * std::f32::consts::FRAC_PI_2)
 }
 
-/// 计算放置锚点：
-/// - 自由模式：按列顶堆叠；
-/// - 蓝图模式：扫描 y 寻找使 footprint 完全匹配蓝图的落位（严格吸附，
-///   旋转方向由玩家 R 键控制，与蓝图朝向一致时幽灵变绿）。
+/// Column selection remains useful for free stacking and top-down tests.
 fn placement_anchor(
     col: (i32, i32),
     def: &BlockDef,
@@ -325,39 +331,92 @@ fn placement_anchor(
     blueprint: &Blueprint,
 ) -> Option<IVec3> {
     if blueprint.active {
-        // 蓝图模式：宽容定位——光标落在 footprint 内即可。
-        // 从最接近中心的光标偏移开始搜索合法锚点（优先居中）。
-        // （原实现只试"光标为中心"的单一锚点，5×5 台基等大块只有 1 个
-        //   有效光标位，教程几乎无法完成——用户反馈后修复）
         let (w, d) = rotated_footprint(def, rot);
-        let (w, d) = (w as i32, d as i32);
-        let mut offsets: Vec<(i32, i32)> = Vec::with_capacity((w * d) as usize);
-        for dx in 0..w {
-            for dz in 0..d {
-                offsets.push((dx, dz));
-            }
-        }
-        // 按与中心偏移的距离排序：|dx - (w-1)/2| + |dz - (d-1)/2|
-        let (cw, cd) = ((w - 1) / 2, (d - 1) / 2);
-        offsets.sort_by_key(|(dx, dz)| (dx - cw).abs() + (dz - cd).abs());
-        for (dx, dz) in offsets {
-            let ax = col.0 - dx;
-            let az = col.1 - dz;
-            for y in 0..=MAX_BLUEPRINT_Y {
-                let anchor = IVec3::new(ax, y, az);
-                let cells = footprint_cells(anchor, def, rot);
-                if footprint_matches(&blueprint.expected, &cells, &def.id) {
-                    return Some(anchor);
-                }
-            }
-        }
-        None
+        blueprint
+            .cell_list
+            .iter()
+            .copied()
+            .filter(|anchor| {
+                anchor.x <= col.0
+                    && col.0 < anchor.x + w as i32
+                    && anchor.z <= col.1
+                    && col.1 < anchor.z + d as i32
+                    && blueprint.expected.get(anchor) == Some(&def.id)
+                    && {
+                        let cells = footprint_cells(*anchor, def, rot);
+                        cells.iter().all(|c| !stack.occupied.contains(c))
+                            && footprint_matches(&blueprint.expected, &cells, &def.id)
+                    }
+            })
+            .min_by_key(|a| (a.y, a.x, a.z))
     } else {
         let (ax, az) = anchor_xz(col, def, rot);
         let cols = footprint_columns(def, ax, az, rot);
-        let y = base_y_for(&stack.col_top, &cols);
-        Some(IVec3::new(ax, y, az))
+        Some(IVec3::new(ax, base_y_for(&stack.col_top, &cols), az))
     }
+}
+
+/// Preview and commit use the same visible, unoccupied blueprint footprint.
+/// Each anchor must itself be an expected cell: work is bounded by blueprint
+/// size, not a speculative height scan. Test the ray before allocating cells.
+fn ray_placement_anchor(
+    ray: Ray3d,
+    def: &BlockDef,
+    rot: u8,
+    stack: &PlacedBlocks,
+    blueprint: &Blueprint,
+) -> Option<IVec3> {
+    if !blueprint.active {
+        let t = ray.intersect_plane(Vec3::ZERO, InfinitePlane3d::new(Vec3::Y))?;
+        let hit = ray.get_point(t);
+        return placement_anchor(
+            (hit.x.round() as i32, hit.z.round() as i32),
+            def,
+            rot,
+            stack,
+            blueprint,
+        );
+    }
+    use bevy::math::bounding::{Aabb3d, RayCast3d};
+    let cast = RayCast3d::from_ray(ray, f32::MAX);
+    // Occupied grid cells are conservative occluders: never place through a
+    // completed front piece merely because the rear one matches the material.
+    let occlusion = stack
+        .occupied
+        .iter()
+        .filter_map(|cell| {
+            cast.aabb_intersection_at(&Aabb3d::new(
+                cell.as_vec3() + Vec3::Y * 0.5,
+                Vec3::splat(0.5),
+            ))
+        })
+        .min_by(f32::total_cmp)
+        .unwrap_or(f32::MAX);
+    let (w, d) = rotated_footprint(def, rot);
+    let half = Vec3::new(w as f32, def.size[1] as f32, d as f32) * 0.5;
+    blueprint
+        .cell_list
+        .iter()
+        .filter_map(|&anchor| {
+            if blueprint.expected.get(&anchor) != Some(&def.id) || stack.occupied.contains(&anchor)
+            {
+                return None;
+            }
+            let distance =
+                cast.aabb_intersection_at(&Aabb3d::new(block_center(anchor, def, rot), half))?;
+            if distance > occlusion + 0.001 {
+                return None;
+            }
+            let cells = footprint_cells(anchor, def, rot);
+            (cells.iter().all(|c| !stack.occupied.contains(c))
+                && footprint_matches(&blueprint.expected, &cells, &def.id))
+            .then_some((distance, anchor))
+        })
+        .min_by(|(da, a), (db, b)| {
+            da.total_cmp(db)
+                .then_with(|| (a.y, a.x, a.z).cmp(&(b.y, b.x, b.z)))
+        })
+        .map(|(_, anchor)| anchor)
 }
 
 /// 生成积木实体（放置/重做/读档/复原共用）。
@@ -527,11 +586,11 @@ fn update_ghost_preview(
     } else {
         library.rotation
     };
-    let col = cursor_column(&windows, &cameras);
     let anchor = if remove.active {
         None
     } else {
-        col.and_then(|c| placement_anchor(c, def, rot, &stack, &blueprint))
+        cursor_ray(&windows, &cameras)
+            .and_then(|ray| ray_placement_anchor(ray, def, rot, &stack, &blueprint))
     };
     let target = anchor.map(|a| block_center(a, def, rot));
     let ok = anchor.is_some() && challenge.can_place(&def.id);
@@ -597,11 +656,17 @@ pub(crate) fn handle_place_and_undo(
     mut challenge: ResMut<Challenge>,
     remove: Res<RemoveMode>,
 ) {
-    let modifier = keys.pressed(KeyCode::ControlLeft)
-        || keys.pressed(KeyCode::ControlRight)
-        || keys.pressed(KeyCode::SuperLeft)
-        || keys.pressed(KeyCode::SuperRight);
-    let shift = keys.pressed(KeyCode::ShiftLeft) || keys.pressed(KeyCode::ShiftRight);
+    let modifier = [
+        KeyCode::ControlLeft,
+        KeyCode::ControlRight,
+        KeyCode::SuperLeft,
+        KeyCode::SuperRight,
+    ]
+    .into_iter()
+    .any(|key| crate::ui::input::modifier_active(&keys, key));
+    let shift = [KeyCode::ShiftLeft, KeyCode::ShiftRight]
+        .into_iter()
+        .any(|key| crate::ui::input::modifier_active(&keys, key));
     let rot_override = challenge.def.rotation_locked && challenge.is_active();
 
     // 撤销
@@ -657,10 +722,12 @@ pub(crate) fn handle_place_and_undo(
     if !ownership.is_some_and(|input| input.world_click()) {
         return;
     }
-    if let Some(col) = cursor_column(&windows, &cameras) {
+    if let Some(ray) = cursor_ray(&windows, &cameras) {
         // 拆除模式：移除光标列最顶部的积木
         if remove.active {
-            if let Some(idx) = top_block_index_at(&stack.records, col) {
+            if let Some(idx) = cursor_column(&windows, &cameras)
+                .and_then(|col| top_block_index_at(&stack.records, col))
+            {
                 let record = stack.remove(idx);
                 commands.entity(record.entity).despawn();
                 if blueprint.active {
@@ -672,7 +739,7 @@ pub(crate) fn handle_place_and_undo(
 
         let def = library.current_def();
         let rot = if rot_override { 0 } else { library.rotation };
-        if let Some(anchor) = placement_anchor(col, def, rot, &stack, &blueprint) {
+        if let Some(anchor) = ray_placement_anchor(ray, def, rot, &stack, &blueprint) {
             let cells = footprint_cells(anchor, def, rot);
             let free = cells.iter().all(|c| !stack.occupied.contains(c));
             let quota_ok = challenge.can_place(&def.id);
@@ -726,6 +793,125 @@ pub(crate) fn refresh_completion(
 mod tests {
     use super::*;
     use crate::building::block_defs::load_block_library;
+
+    #[test]
+    fn placed_front_column_occludes_unplaced_rear_column() {
+        let lib = load_block_library();
+        let mut bp = load_blueprint_library().0;
+        bp.active = true;
+        let def = &lib.defs[lib.by_id["hongzhu4"]];
+        let mut stack = PlacedBlocks::default();
+        let ray = Ray3d::new(Vec3::new(3.0, 4.0, 20.0), Dir3::NEG_Z);
+        assert_eq!(
+            ray_placement_anchor(ray, def, 0, &stack, &bp),
+            Some(IVec3::new(3, 2, 3))
+        );
+        stack
+            .occupied
+            .extend(footprint_cells(IVec3::new(3, 2, 3), def, 0));
+        assert_eq!(ray_placement_anchor(ray, def, 0, &stack, &bp), None);
+    }
+
+    #[test]
+    fn ray_targets_visible_elevated_beam_instead_of_ground_behind_it() {
+        let lib = load_block_library();
+        let (mut bp, _) = crate::building::blueprint::load_blueprint_library();
+        bp.active = true;
+        let def = &lib.defs[lib.by_id["liangfang5"]];
+        let anchor = IVec3::new(-2, 7, 2);
+        let center = block_center(anchor, def, 0);
+        let origin = center + Vec3::new(0.0, 5.0, 15.0);
+        let ray = Ray3d::new(origin, Dir3::new(center - origin).unwrap());
+        assert_eq!(
+            ray_placement_anchor(ray, def, 0, &PlacedBlocks::default(), &bp),
+            Some(anchor)
+        );
+    }
+
+    #[test]
+    fn occupied_platform_is_not_a_green_placement_target() {
+        let lib = load_block_library();
+        let (mut bp, _) = crate::building::blueprint::load_blueprint_library();
+        bp.active = true;
+        let def = &lib.defs[lib.by_id["datiji"]];
+        let mut stack = PlacedBlocks::default();
+        stack
+            .occupied
+            .extend(footprint_cells(IVec3::new(-3, 0, -3), def, 0));
+        let ray = Ray3d::new(Vec3::new(0.0, 10.0, 0.0), Dir3::NEG_Y);
+        assert_eq!(ray_placement_anchor(ray, def, 0, &stack, &bp), None);
+    }
+
+    #[test]
+    fn tutorial_meshes_align_with_their_grid_height() {
+        use bevy::mesh::VertexAttributeValues;
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .init_asset::<Mesh>()
+            .init_asset::<StandardMaterial>()
+            .init_asset::<Image>()
+            .insert_resource(crate::riverside::RiversideMode(false))
+            .insert_resource(load_block_library())
+            .add_systems(Startup, setup_block_assets);
+        app.update();
+        let render = app.world().resource::<BlockRenderAssets>();
+        let meshes = app.world().resource::<Assets<Mesh>>();
+        let library = app.world().resource::<BlockLibrary>();
+        for id in ["datiji", "hongzhu4", "liangfang5"] {
+            let def = &library.defs[library.by_id[id]];
+            let mesh = meshes.get(&render.per_def[id].0).unwrap();
+            let VertexAttributeValues::Float32x3(vertices) =
+                mesh.attribute(Mesh::ATTRIBUTE_POSITION).unwrap()
+            else {
+                panic!("position format");
+            };
+            let center = block_center(IVec3::new(0, 2, 0), def, 0);
+            let min = vertices
+                .iter()
+                .map(|p| p[1] + center.y)
+                .fold(f32::INFINITY, f32::min);
+            let max = vertices
+                .iter()
+                .map(|p| p[1] + center.y)
+                .fold(f32::NEG_INFINITY, f32::max);
+            assert!((min - 2.0).abs() < 0.001, "{id}: bottom={min}");
+            assert!(
+                (max - (2.0 + def.size[1] as f32)).abs() < 0.001,
+                "{id}: top={max}"
+            );
+        }
+    }
+
+    #[test]
+    fn interactive_materials_remain_readable_outside_landscape_fog_range() {
+        let mut app = App::new();
+        app.add_plugins((MinimalPlugins, AssetPlugin::default()))
+            .init_asset::<Mesh>()
+            .init_asset::<StandardMaterial>()
+            .init_asset::<Image>()
+            .insert_resource(crate::riverside::RiversideMode(false))
+            .insert_resource(load_block_library())
+            .add_systems(Startup, setup_block_assets);
+        app.update();
+        let render = app.world().resource::<BlockRenderAssets>();
+        let materials = app.world().resource::<Assets<StandardMaterial>>();
+        for (id, (_, handle)) in &render.per_def {
+            assert!(
+                !materials.get(handle).unwrap().fog_enabled,
+                "placed {id} lost in fog"
+            );
+        }
+        for handle in render
+            .blueprint_materials
+            .values()
+            .chain([&render.ghost_material, &render.ghost_bad_material])
+        {
+            let material = materials.get(handle).unwrap();
+            assert!(!material.fog_enabled, "placement guide lost in fog");
+            assert!(material.unlit);
+            assert_eq!(material.alpha_mode, AlphaMode::Blend);
+        }
+    }
 
     #[test]
     fn blueprint_unit_ghost_uses_same_grid_origin_as_real_blocks() {
@@ -915,6 +1101,32 @@ mod tests {
             press_history_keys(&mut app, &keys);
             assert!(app.world().resource::<PlacedBlocks>().records.is_empty());
             assert_eq!(app.world().resource::<PlacedBlocks>().redo.len(), 1);
+        }
+    }
+
+    #[test]
+    fn fast_history_chords_survive_modifier_release_in_the_same_frame() {
+        let mut app = history_input_app();
+        for (chord, expected_count) in [
+            (vec![KeyCode::SuperLeft, KeyCode::KeyZ], 0),
+            (
+                vec![KeyCode::SuperLeft, KeyCode::ShiftLeft, KeyCode::KeyZ],
+                1,
+            ),
+        ] {
+            let mut keys = app.world_mut().resource_mut::<ButtonInput<KeyCode>>();
+            keys.reset_all();
+            for key in &chord {
+                keys.press(*key);
+            }
+            for key in chord.iter().rev() {
+                keys.release(*key);
+            }
+            app.update();
+            assert_eq!(
+                app.world().resource::<PlacedBlocks>().records.len(),
+                expected_count
+            );
         }
     }
 
