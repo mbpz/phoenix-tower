@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-09-07",
+  "status": "provisional_pixel_trace_not_metric_roof_geometry",
+  "export_to_game": false,
+  "source": {
+    "figure": "2-2-14",
+    "local_file": "figure-2-2-14.jpeg",
+    "image_size_px": [
+      10784,
+      7420
+    ],
+    "coordinate_system": "original image pixels; origin top-left; x right, y down"
+  },
+  "cross_reference": "2-2-13",
+  "source_instructions": [
+    "标高为真高，但长度应按平面图斜长展开",
+    "上部虚线注记：不作放样用",
+    "檩条顶面升起曲线示意与檐口起翘曲线不可混用"
+  ],
+  "printed_horizontal_chain_mm": [
+    400,
+    1700,
+    1200
+  ],
+  "section_vertical_chain_mm": [
+    440,
+    300,
+    840
+  ],
+  "symmetric_elevations_m": [
+    {
+      "floor": "L1",
+      "upper_left": 9.01,
+      "upper_right": 8.81,
+      "lower_right": 7.23
+    },
+    {
+      "floor": "L2",
+      "upper_left": 19.0,
+      "upper_right": 18.8,
+      "lower_right": 17.22
+    },
+    {
+      "floor": "L3",
+      "upper_left": 25.6,
+      "upper_right": 25.4,
+      "lower_right": 23.82
+    },
+    {
+      "floor": "L4",
+      "upper_left": 32.2,
+      "upper_right": 32.0,
+      "lower_right": 32.0,
+      "conflict": true
+    },
+    {
+      "floor": "L5",
+      "upper_left": 38.8,
+      "upper_right": 38.6,
+      "lower_right": 37.02,
+      "upper_right_evidence": "section; profile label crossed"
+    },
+    {
+      "floor": "annex",
+      "upper_left": 41.0,
+      "upper_right": 40.8,
+      "lower_right": 39.22
+    }
+  ],
+  "asymmetric_elevations_m": [
+    {
+      "floor": "L2",
+      "upper_left": 19.0,
+      "upper_right": 18.8,
+      "lower_right": 17.2
+    },
+    {
+      "floor": "L3",
+      "upper_left": 25.6,
+      "upper_right": 25.4,
+      "lower_right": 23.82
+    },
+    {
+      "floor": "L4",
+      "upper_left": 32.2,
+      "upper_right": 32.0,
+      "lower_right": 30.42
+    }
+  ],
+  "unresolved_conflicts": [
+    {
+      "id": "symmetric_L4_lower",
+      "transcribed_m": 32.0,
+      "other_section_or_variant_m": 30.42,
+      "resolution": null,
+      "action": "Do not silently correct the plate or apply this elevation."
+    },
+    {
+      "id": "L2_lower_variant",
+      "symmetric_m": 17.22,
+      "asymmetric_m": 17.2,
+      "resolution": null,
+      "action": "20 mm discrepancy; verify revision or intended variant before modeling."
+    }
+  ],
+  "asymmetric_lower_curve": {
+    "points_px": [
+      [
+        3506,
+        4289
+      ],
+      [
+        3630,
+        4523
+      ],
+      [
+        3799,
+        4772
+      ],
+      [
+        4041,
+        5037
+      ],
+      [
+        4270,
+        5283
+      ],
+      [
+        4512,
+        5504
+      ],
+      [
+        4757,
+        5709
+      ],
+      [
+        5010,
+        5886
+      ],
+      [
+        5244,
+        6031
+      ],
+      [
+        5485,
+        6160
+      ],
+      [
+        5723,
+        6256
+      ],
+      [
+        5879,
+        6300
+      ],
+      [
+        5996,
+        6320
+      ],
+      [
+        7203,
+        6320
+      ]
+    ],
+    "tolerance_px_assumed": 15,
+    "origin_of_upturn_px": [
+      5996,
+      6320
+    ],
+    "start_cap_included": false,
+    "dimension_tick_x_px": [
+      3353,
+      3828,
+      5799,
+      7211
+    ],
+    "metric_points": null,
+    "roof_plan_mapping": null,
+    "interpolation": "POLY to preserve the manual samples; not a measured smooth profile"
+  },
+  "evidence_bounds_px": {
+    "symmetric_chain": [
+      5501,
+      3484,
+      9569,
+      3707
+    ],
+    "asymmetric_chain": [
+      3280,
+      6618,
+      7304,
+      6815
+    ],
+    "section_chain": [
+      760,
+      809,
+      5147,
+      4264
+    ],
+    "symmetric_lower_labels": [
+      9660,
+      2670,
+      10080,
+      3270
+    ],
+    "asymmetric_lower_labels": [
+      7424,
+      6019,
+      7827,
+      6336
+    ]
+  },
+  "display": {
+    "crop_bounds_px": [
+      3000,
+      3820,
+      8000,
+      7000
+    ],
+    "preview_file": "eave-asymmetric-reference.png",
+    "pixels_per_display_unit": 500,
+    "units": "arbitrary display units; not meters"
+  },
+  "limitations": [
+    "No formula or verified roof curve radius inferred.",
+    "R175/R50/R70 are local construction details, not global roof curvature.",
+    "Polyline starts below the tip cap.",
+    "Asymmetric detail has only L2/L3/L4 labels; do not replicate to other floors.",
+    "Design drawing, not certified as-built survey."
+  ]
+}

@@ -1,0 +1,1739 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-09-07",
+  "status": "design_based_structural_study_not_as_built",
+  "source_dimensions": "yellow-crane-drawing-dimensions.json",
+  "axes_x_m": {
+    "1": -15,
+    "2": -11,
+    "3": -9,
+    "4": -7,
+    "5": -5,
+    "6": -3,
+    "7": 3,
+    "8": 5,
+    "9": 7,
+    "10": 9,
+    "11": 11,
+    "12": 15
+  },
+  "axes_y_m": {
+    "A": -15,
+    "B": -11,
+    "C": -9,
+    "D": -7,
+    "E": -5,
+    "F": -3,
+    "G": 3,
+    "H": 5,
+    "J": 7,
+    "K": 9,
+    "L": 11,
+    "M": 15
+  },
+  "calibrations": {
+    "2-2-1": {
+      "image_size_px": [
+        1600,
+        1544
+      ],
+      "x_endpoints_px": [
+        250,
+        1294
+      ],
+      "y_endpoints_px": [
+        166,
+        1209
+      ],
+      "span_m": 30,
+      "image": "trace-plan-2-2-1.png",
+      "method": "independent_X_Y_manual_axis_endpoints_no_deskew",
+      "pick_tolerance_px": 3
+    },
+    "2-2-2": {
+      "image_size_px": [
+        1600,
+        1358
+      ],
+      "x_endpoints_px": [
+        400,
+        1308
+      ],
+      "y_endpoints_px": [
+        231,
+        1143
+      ],
+      "span_m": 22,
+      "image": "trace-plan-2-2-2.png",
+      "method": "independent_X_Y_manual_axis_endpoints_no_deskew",
+      "pick_tolerance_px": 3
+    },
+    "2-2-3": {
+      "image_size_px": [
+        1600,
+        1376
+      ],
+      "x_endpoints_px": [
+        373,
+        1266
+      ],
+      "y_endpoints_px": [
+        197,
+        1085
+      ],
+      "span_m": 22,
+      "image": "trace-plan-2-2-3.png",
+      "method": "independent_X_Y_manual_axis_endpoints_no_deskew",
+      "pick_tolerance_px": 3
+    },
+    "2-2-4": {
+      "image_size_px": [
+        1600,
+        1179
+      ],
+      "x_endpoints_px": [
+        465,
+        1130
+      ],
+      "y_endpoints_px": [
+        171,
+        834
+      ],
+      "span_m": 18,
+      "image": "trace-plan-2-2-4.png",
+      "method": "independent_X_Y_manual_axis_endpoints_no_deskew",
+      "pick_tolerance_px": 3
+    },
+    "2-2-6": {
+      "image_size_px": [
+        1200,
+        1349
+      ],
+      "x_endpoints_px": [
+        149,
+        1064
+      ],
+      "y_endpoints_px": [
+        155,
+        1067
+      ],
+      "span_m": 30,
+      "image": "trace-plan-2-2-6.png",
+      "method": "independent_X_Y_manual_axis_endpoints_no_deskew",
+      "pick_tolerance_px": 3
+    }
+  },
+  "floors": [
+    {
+      "id": "L1",
+      "figure": "2-2-1",
+      "elevation_m": 0,
+      "schematic_post_top_m": 6,
+      "column_axes_by_row": {
+        "M": [
+          4,
+          6,
+          7,
+          9
+        ],
+        "L": [
+          2,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          11
+        ],
+        "K": [
+          3,
+          5,
+          8,
+          10
+        ],
+        "J": [
+          1,
+          2,
+          4,
+          6,
+          7,
+          9,
+          11,
+          12
+        ],
+        "H": [
+          2,
+          3,
+          10,
+          11
+        ],
+        "G": [
+          1,
+          2,
+          4,
+          6,
+          7,
+          9,
+          11,
+          12
+        ],
+        "F": [
+          1,
+          2,
+          4,
+          6,
+          7,
+          9,
+          11,
+          12
+        ],
+        "E": [
+          2,
+          3,
+          10,
+          11
+        ],
+        "D": [
+          1,
+          2,
+          4,
+          6,
+          7,
+          9,
+          11,
+          12
+        ],
+        "C": [
+          3,
+          5,
+          8,
+          10
+        ],
+        "B": [
+          2,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          11
+        ],
+        "A": [
+          4,
+          6,
+          7,
+          9
+        ]
+      },
+      "column_count": 72,
+      "outline_m": [
+        [
+          -9.2,
+          17.2
+        ],
+        [
+          9.2,
+          17.2
+        ],
+        [
+          9.2,
+          13.2
+        ],
+        [
+          13.2,
+          13.2
+        ],
+        [
+          13.2,
+          9.2
+        ],
+        [
+          17.2,
+          9.2
+        ],
+        [
+          17.2,
+          -9.2
+        ],
+        [
+          13.2,
+          -9.2
+        ],
+        [
+          13.2,
+          -13.2
+        ],
+        [
+          9.2,
+          -13.2
+        ],
+        [
+          9.2,
+          -17.2
+        ],
+        [
+          -9.2,
+          -17.2
+        ],
+        [
+          -9.2,
+          -13.2
+        ],
+        [
+          -13.2,
+          -13.2
+        ],
+        [
+          -13.2,
+          -9.2
+        ],
+        [
+          -17.2,
+          -9.2
+        ],
+        [
+          -17.2,
+          9.2
+        ],
+        [
+          -13.2,
+          9.2
+        ],
+        [
+          -13.2,
+          13.2
+        ],
+        [
+          -9.2,
+          13.2
+        ]
+      ],
+      "outline_check_pixels": [
+        [
+          451.8,
+          89.5
+        ],
+        [
+          1092.2,
+          89.5
+        ],
+        [
+          1092.2,
+          228.6
+        ],
+        [
+          1231.4,
+          228.6
+        ],
+        [
+          1231.4,
+          367.6
+        ],
+        [
+          1370.6,
+          367.6
+        ],
+        [
+          1370.6,
+          1007.4
+        ],
+        [
+          1231.4,
+          1007.4
+        ],
+        [
+          1231.4,
+          1146.4
+        ],
+        [
+          1092.2,
+          1146.4
+        ],
+        [
+          1092.2,
+          1285.5
+        ],
+        [
+          451.8,
+          1285.5
+        ],
+        [
+          451.8,
+          1146.4
+        ],
+        [
+          312.6,
+          1146.4
+        ],
+        [
+          312.6,
+          1007.4
+        ],
+        [
+          173.4,
+          1007.4
+        ],
+        [
+          173.4,
+          367.6
+        ],
+        [
+          312.6,
+          367.6
+        ],
+        [
+          312.6,
+          228.6
+        ],
+        [
+          451.8,
+          228.6
+        ]
+      ],
+      "outline_meaning": "platform_contour_from_printed_2200_offsets_beyond_outer_column_axes; stairs excluded",
+      "holes": [
+        {
+          "id": "lift_west",
+          "rect_m": [
+            -2.65,
+            3.35,
+            -0.55,
+            4.85
+          ],
+          "status": "scan_traced_clear_opening_approximate"
+        },
+        {
+          "id": "lift_east",
+          "rect_m": [
+            0.55,
+            3.35,
+            2.65,
+            4.85
+          ],
+          "status": "scan_traced_clear_opening_approximate"
+        },
+        {
+          "id": "stair_west",
+          "rect_m": [
+            -8.7,
+            3.3,
+            -7.3,
+            8.7
+          ],
+          "status": "schematic_stairwell_envelope_not_stair_geometry"
+        },
+        {
+          "id": "stair_east",
+          "rect_m": [
+            7.3,
+            3.3,
+            8.7,
+            8.7
+          ],
+          "status": "schematic_stairwell_envelope_not_stair_geometry"
+        }
+      ]
+    },
+    {
+      "id": "M1",
+      "figure": "2-2-6",
+      "elevation_m": 6,
+      "schematic_post_top_m": 12.3,
+      "column_axes_by_row": {
+        "M": [
+          6,
+          7
+        ],
+        "L": [
+          5,
+          6,
+          7,
+          8
+        ],
+        "K": [
+          3,
+          5,
+          8,
+          10
+        ],
+        "J": [
+          4,
+          6,
+          7,
+          9
+        ],
+        "H": [
+          2,
+          3,
+          10,
+          11
+        ],
+        "G": [
+          1,
+          2,
+          4,
+          6,
+          7,
+          9,
+          11,
+          12
+        ],
+        "F": [
+          1,
+          2,
+          4,
+          6,
+          7,
+          9,
+          11,
+          12
+        ],
+        "E": [
+          2,
+          3,
+          10,
+          11
+        ],
+        "D": [
+          4,
+          6,
+          7,
+          9
+        ],
+        "C": [
+          3,
+          5,
+          8,
+          10
+        ],
+        "B": [
+          5,
+          6,
+          7,
+          8
+        ],
+        "A": [
+          6,
+          7
+        ]
+      },
+      "column_count": 52,
+      "outline_m": [
+        [
+          -5,
+          15
+        ],
+        [
+          5,
+          15
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          15,
+          5
+        ],
+        [
+          15,
+          -5
+        ],
+        [
+          9,
+          -5
+        ],
+        [
+          9,
+          -9
+        ],
+        [
+          5,
+          -9
+        ],
+        [
+          5,
+          -15
+        ],
+        [
+          -5,
+          -15
+        ],
+        [
+          -5,
+          -9
+        ],
+        [
+          -9,
+          -9
+        ],
+        [
+          -9,
+          -5
+        ],
+        [
+          -15,
+          -5
+        ],
+        [
+          -15,
+          5
+        ],
+        [
+          -9,
+          5
+        ],
+        [
+          -9,
+          9
+        ],
+        [
+          -5,
+          9
+        ]
+      ],
+      "outline_check_pixels": [
+        [
+          454.0,
+          155.0
+        ],
+        [
+          759.0,
+          155.0
+        ],
+        [
+          759.0,
+          337.4
+        ],
+        [
+          881.0,
+          337.4
+        ],
+        [
+          881.0,
+          459.0
+        ],
+        [
+          1064.0,
+          459.0
+        ],
+        [
+          1064.0,
+          763.0
+        ],
+        [
+          881.0,
+          763.0
+        ],
+        [
+          881.0,
+          884.6
+        ],
+        [
+          759.0,
+          884.6
+        ],
+        [
+          759.0,
+          1067.0
+        ],
+        [
+          454.0,
+          1067.0
+        ],
+        [
+          454.0,
+          884.6
+        ],
+        [
+          332.0,
+          884.6
+        ],
+        [
+          332.0,
+          763.0
+        ],
+        [
+          149.0,
+          763.0
+        ],
+        [
+          149.0,
+          459.0
+        ],
+        [
+          332.0,
+          459.0
+        ],
+        [
+          332.0,
+          337.4
+        ],
+        [
+          454.0,
+          337.4
+        ]
+      ],
+      "outline_meaning": "wall_centerline_envelope; finish offsets unresolved",
+      "holes": [
+        {
+          "id": "lift_west",
+          "rect_m": [
+            -2.65,
+            3.35,
+            -0.55,
+            4.85
+          ],
+          "status": "scan_traced_clear_opening_approximate"
+        },
+        {
+          "id": "lift_east",
+          "rect_m": [
+            0.55,
+            3.35,
+            2.65,
+            4.85
+          ],
+          "status": "scan_traced_clear_opening_approximate"
+        },
+        {
+          "id": "front_hall_atrium",
+          "rect_m": [
+            -7,
+            -7,
+            7,
+            3
+          ],
+          "status": "printed_axis_bounded_front_hall_open_to_below"
+        },
+        {
+          "id": "stair_west",
+          "rect_m": [
+            -8.7,
+            5.4,
+            -5.3,
+            8.7
+          ],
+          "status": "schematic_stairwell_envelope_not_stair_geometry"
+        },
+        {
+          "id": "stair_east",
+          "rect_m": [
+            5.3,
+            5.4,
+            8.7,
+            8.7
+          ],
+          "status": "schematic_stairwell_envelope_not_stair_geometry"
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "figure": "2-2-2",
+      "elevation_m": 12.3,
+      "schematic_post_top_m": 19.4,
+      "column_axes_by_row": {
+        "L": [
+          5,
+          6,
+          7,
+          8
+        ],
+        "K": [
+          3,
+          5,
+          8,
+          10
+        ],
+        "J": [
+          4,
+          6,
+          7,
+          9
+        ],
+        "H": [
+          2,
+          3,
+          10,
+          11
+        ],
+        "G": [
+          2,
+          4,
+          6,
+          7,
+          9,
+          11
+        ],
+        "F": [
+          2,
+          4,
+          6,
+          7,
+          9,
+          11
+        ],
+        "E": [
+          2,
+          3,
+          10,
+          11
+        ],
+        "D": [
+          4,
+          6,
+          7,
+          9
+        ],
+        "C": [
+          3,
+          5,
+          8,
+          10
+        ],
+        "B": [
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "column_count": 44,
+      "outline_m": [
+        [
+          -6,
+          12
+        ],
+        [
+          6,
+          12
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          10,
+          6
+        ],
+        [
+          12,
+          6
+        ],
+        [
+          12,
+          -6
+        ],
+        [
+          10,
+          -6
+        ],
+        [
+          10,
+          -10
+        ],
+        [
+          6,
+          -10
+        ],
+        [
+          6,
+          -12
+        ],
+        [
+          -6,
+          -12
+        ],
+        [
+          -6,
+          -10
+        ],
+        [
+          -10,
+          -10
+        ],
+        [
+          -10,
+          -6
+        ],
+        [
+          -12,
+          -6
+        ],
+        [
+          -12,
+          6
+        ],
+        [
+          -10,
+          6
+        ],
+        [
+          -10,
+          10
+        ],
+        [
+          -6,
+          10
+        ]
+      ],
+      "outline_check_pixels": [
+        [
+          606.4,
+          189.5
+        ],
+        [
+          1101.6,
+          189.5
+        ],
+        [
+          1101.6,
+          272.5
+        ],
+        [
+          1266.7,
+          272.5
+        ],
+        [
+          1266.7,
+          438.3
+        ],
+        [
+          1349.3,
+          438.3
+        ],
+        [
+          1349.3,
+          935.7
+        ],
+        [
+          1266.7,
+          935.7
+        ],
+        [
+          1266.7,
+          1101.5
+        ],
+        [
+          1101.6,
+          1101.5
+        ],
+        [
+          1101.6,
+          1184.5
+        ],
+        [
+          606.4,
+          1184.5
+        ],
+        [
+          606.4,
+          1101.5
+        ],
+        [
+          441.3,
+          1101.5
+        ],
+        [
+          441.3,
+          935.7
+        ],
+        [
+          358.7,
+          935.7
+        ],
+        [
+          358.7,
+          438.3
+        ],
+        [
+          441.3,
+          438.3
+        ],
+        [
+          441.3,
+          272.5
+        ],
+        [
+          606.4,
+          272.5
+        ]
+      ],
+      "outline_meaning": "railing_centerline_envelope_observed_1000_offset; outer_slab_edge_not_claimed",
+      "holes": [
+        {
+          "id": "lift_west",
+          "rect_m": [
+            -2.65,
+            3.35,
+            -0.55,
+            4.85
+          ],
+          "status": "scan_traced_clear_opening_approximate"
+        },
+        {
+          "id": "lift_east",
+          "rect_m": [
+            0.55,
+            3.35,
+            2.65,
+            4.85
+          ],
+          "status": "scan_traced_clear_opening_approximate"
+        },
+        {
+          "id": "stair_west",
+          "rect_m": [
+            -6.65,
+            3.45,
+            -3.45,
+            6.65
+          ],
+          "status": "schematic_stairwell_envelope_not_stair_geometry"
+        },
+        {
+          "id": "stair_east",
+          "rect_m": [
+            3.45,
+            3.45,
+            6.65,
+            6.65
+          ],
+          "status": "schematic_stairwell_envelope_not_stair_geometry"
+        }
+      ]
+    },
+    {
+      "id": "L3",
+      "figure": "2-2-3",
+      "elevation_m": 19.4,
+      "schematic_post_top_m": 26,
+      "column_axes_by_row": {
+        "L": [
+          5,
+          6,
+          7,
+          8
+        ],
+        "K": [
+          3,
+          5,
+          8,
+          10
+        ],
+        "J": [
+          4,
+          6,
+          7,
+          9
+        ],
+        "H": [
+          2,
+          3,
+          10,
+          11
+        ],
+        "G": [
+          2,
+          4,
+          6,
+          7,
+          9,
+          11
+        ],
+        "F": [
+          2,
+          4,
+          6,
+          7,
+          9,
+          11
+        ],
+        "E": [
+          2,
+          3,
+          10,
+          11
+        ],
+        "D": [
+          4,
+          6,
+          7,
+          9
+        ],
+        "C": [
+          3,
+          5,
+          8,
+          10
+        ],
+        "B": [
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "column_count": 44,
+      "outline_m": [
+        [
+          -5,
+          11
+        ],
+        [
+          5,
+          11
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          11,
+          5
+        ],
+        [
+          11,
+          -5
+        ],
+        [
+          9,
+          -5
+        ],
+        [
+          9,
+          -9
+        ],
+        [
+          5,
+          -9
+        ],
+        [
+          5,
+          -11
+        ],
+        [
+          -5,
+          -11
+        ],
+        [
+          -5,
+          -9
+        ],
+        [
+          -9,
+          -9
+        ],
+        [
+          -9,
+          -5
+        ],
+        [
+          -11,
+          -5
+        ],
+        [
+          -11,
+          5
+        ],
+        [
+          -9,
+          5
+        ],
+        [
+          -9,
+          9
+        ],
+        [
+          -5,
+          9
+        ]
+      ],
+      "outline_check_pixels": [
+        [
+          616.5,
+          197.0
+        ],
+        [
+          1022.5,
+          197.0
+        ],
+        [
+          1022.5,
+          277.7
+        ],
+        [
+          1184.8,
+          277.7
+        ],
+        [
+          1184.8,
+          439.2
+        ],
+        [
+          1266.0,
+          439.2
+        ],
+        [
+          1266.0,
+          842.8
+        ],
+        [
+          1184.8,
+          842.8
+        ],
+        [
+          1184.8,
+          1004.3
+        ],
+        [
+          1022.5,
+          1004.3
+        ],
+        [
+          1022.5,
+          1085.0
+        ],
+        [
+          616.5,
+          1085.0
+        ],
+        [
+          616.5,
+          1004.3
+        ],
+        [
+          454.2,
+          1004.3
+        ],
+        [
+          454.2,
+          842.8
+        ],
+        [
+          373.0,
+          842.8
+        ],
+        [
+          373.0,
+          439.2
+        ],
+        [
+          454.2,
+          439.2
+        ],
+        [
+          454.2,
+          277.7
+        ],
+        [
+          616.5,
+          277.7
+        ]
+      ],
+      "outline_meaning": "perimeter_column_and_railing_axis_envelope; roof_projection_excluded",
+      "holes": [
+        {
+          "id": "lift_west",
+          "rect_m": [
+            -2.65,
+            3.35,
+            -0.55,
+            4.85
+          ],
+          "status": "scan_traced_clear_opening_approximate"
+        },
+        {
+          "id": "lift_east",
+          "rect_m": [
+            0.55,
+            3.35,
+            2.65,
+            4.85
+          ],
+          "status": "scan_traced_clear_opening_approximate"
+        },
+        {
+          "id": "stair_west",
+          "rect_m": [
+            -6.65,
+            3.45,
+            -3.45,
+            6.65
+          ],
+          "status": "schematic_stairwell_envelope_not_stair_geometry"
+        },
+        {
+          "id": "stair_east",
+          "rect_m": [
+            3.45,
+            3.45,
+            6.65,
+            6.65
+          ],
+          "status": "schematic_stairwell_envelope_not_stair_geometry"
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "figure": "2-2-3",
+      "elevation_m": 26,
+      "schematic_post_top_m": 32.6,
+      "column_axes_by_row": {
+        "L": [
+          5,
+          6,
+          7,
+          8
+        ],
+        "K": [
+          3,
+          5,
+          8,
+          10
+        ],
+        "J": [
+          4,
+          6,
+          7,
+          9
+        ],
+        "H": [
+          2,
+          3,
+          10,
+          11
+        ],
+        "G": [
+          2,
+          4,
+          6,
+          7,
+          9,
+          11
+        ],
+        "F": [
+          2,
+          4,
+          6,
+          7,
+          9,
+          11
+        ],
+        "E": [
+          2,
+          3,
+          10,
+          11
+        ],
+        "D": [
+          4,
+          6,
+          7,
+          9
+        ],
+        "C": [
+          3,
+          5,
+          8,
+          10
+        ],
+        "B": [
+          5,
+          6,
+          7,
+          8
+        ]
+      },
+      "column_count": 44,
+      "outline_m": [
+        [
+          -5,
+          11
+        ],
+        [
+          5,
+          11
+        ],
+        [
+          5,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          9,
+          5
+        ],
+        [
+          11,
+          5
+        ],
+        [
+          11,
+          -5
+        ],
+        [
+          9,
+          -5
+        ],
+        [
+          9,
+          -9
+        ],
+        [
+          5,
+          -9
+        ],
+        [
+          5,
+          -11
+        ],
+        [
+          -5,
+          -11
+        ],
+        [
+          -5,
+          -9
+        ],
+        [
+          -9,
+          -9
+        ],
+        [
+          -9,
+          -5
+        ],
+        [
+          -11,
+          -5
+        ],
+        [
+          -11,
+          5
+        ],
+        [
+          -9,
+          5
+        ],
+        [
+          -9,
+          9
+        ],
+        [
+          -5,
+          9
+        ]
+      ],
+      "outline_check_pixels": [
+        [
+          616.5,
+          197.0
+        ],
+        [
+          1022.5,
+          197.0
+        ],
+        [
+          1022.5,
+          277.7
+        ],
+        [
+          1184.8,
+          277.7
+        ],
+        [
+          1184.8,
+          439.2
+        ],
+        [
+          1266.0,
+          439.2
+        ],
+        [
+          1266.0,
+          842.8
+        ],
+        [
+          1184.8,
+          842.8
+        ],
+        [
+          1184.8,
+          1004.3
+        ],
+        [
+          1022.5,
+          1004.3
+        ],
+        [
+          1022.5,
+          1085.0
+        ],
+        [
+          616.5,
+          1085.0
+        ],
+        [
+          616.5,
+          1004.3
+        ],
+        [
+          454.2,
+          1004.3
+        ],
+        [
+          454.2,
+          842.8
+        ],
+        [
+          373.0,
+          842.8
+        ],
+        [
+          373.0,
+          439.2
+        ],
+        [
+          454.2,
+          439.2
+        ],
+        [
+          454.2,
+          277.7
+        ],
+        [
+          616.5,
+          277.7
+        ]
+      ],
+      "outline_meaning": "shared_3_4_plan_perimeter_axes_only; not assertion of identical complete architecture",
+      "holes": [
+        {
+          "id": "lift_west",
+          "rect_m": [
+            -2.65,
+            3.35,
+            -0.55,
+            4.85
+          ],
+          "status": "scan_traced_clear_opening_approximate"
+        },
+        {
+          "id": "lift_east",
+          "rect_m": [
+            0.55,
+            3.35,
+            2.65,
+            4.85
+          ],
+          "status": "scan_traced_clear_opening_approximate"
+        },
+        {
+          "id": "stair_west",
+          "rect_m": [
+            -6.65,
+            3.45,
+            -3.45,
+            6.65
+          ],
+          "status": "schematic_stairwell_envelope_not_stair_geometry"
+        },
+        {
+          "id": "stair_east",
+          "rect_m": [
+            3.45,
+            3.45,
+            6.65,
+            6.65
+          ],
+          "status": "schematic_stairwell_envelope_not_stair_geometry"
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "figure": "2-2-4",
+      "elevation_m": 32.6,
+      "schematic_post_top_m": 37.3,
+      "column_axes_by_row": {
+        "K": [
+          3,
+          5,
+          6,
+          7,
+          8,
+          10
+        ],
+        "J": [
+          4,
+          6,
+          7,
+          9
+        ],
+        "H": [
+          3,
+          10
+        ],
+        "G": [
+          3,
+          4,
+          6,
+          7,
+          9,
+          10
+        ],
+        "F": [
+          3,
+          4,
+          6,
+          7,
+          9,
+          10
+        ],
+        "E": [
+          3,
+          10
+        ],
+        "D": [
+          4,
+          6,
+          7,
+          9
+        ],
+        "C": [
+          3,
+          5,
+          6,
+          7,
+          8,
+          10
+        ]
+      },
+      "column_count": 36,
+      "outline_m": [
+        [
+          -9,
+          9
+        ],
+        [
+          9,
+          9
+        ],
+        [
+          9,
+          -9
+        ],
+        [
+          -9,
+          -9
+        ]
+      ],
+      "outline_check_pixels": [
+        [
+          465.0,
+          171.0
+        ],
+        [
+          1130.0,
+          171.0
+        ],
+        [
+          1130.0,
+          834.0
+        ],
+        [
+          465.0,
+          834.0
+        ]
+      ],
+      "outline_meaning": "perimeter_column_axes_square; eave_projection_excluded",
+      "holes": [
+        {
+          "id": "lift_west",
+          "rect_m": [
+            -2.65,
+            3.35,
+            -0.55,
+            4.85
+          ],
+          "status": "scan_traced_clear_opening_approximate"
+        },
+        {
+          "id": "lift_east",
+          "rect_m": [
+            0.55,
+            3.35,
+            2.65,
+            4.85
+          ],
+          "status": "scan_traced_clear_opening_approximate"
+        },
+        {
+          "id": "stair_west",
+          "rect_m": [
+            -6.65,
+            3.45,
+            -3.45,
+            6.65
+          ],
+          "status": "schematic_stairwell_envelope_not_stair_geometry"
+        },
+        {
+          "id": "stair_east",
+          "rect_m": [
+            3.45,
+            3.45,
+            6.65,
+            6.65
+          ],
+          "status": "schematic_stairwell_envelope_not_stair_geometry"
+        }
+      ]
+    }
+  ],
+  "column_selection_rule": "Hatched round structural symbols only. Ground H/5,H/6,H/7,H/8 and mezzanine K/6,K/7,H/6,H/7 are rounded wall corners labelled R300, excluded. Small unhatched circles/steel tubes and railing posts excluded. Counts refer to selected plan symbols, not a total building column quantity.",
+  "display_proxies": {
+    "post_radius_m": 0.3,
+    "slab_thickness_m": 0.24,
+    "post_height": "floor_to_floor_schematic_continuity_NOT_verified_member_extent",
+    "material": "neutral_study_palette_NOT_restored_historical_material",
+    "roof": "absent_pending_unfolded_curve_mapping"
+  },
+  "export_to_game": false,
+  "unresolved": [
+    "individual_column_diameters_and_member_tops",
+    "exact_finished_slab_edges_and_thickness",
+    "stair_flights_and_landings",
+    "roof_profiles_to_plan_development",
+    "finial",
+    "as_built_revisions"
+  ]
+}

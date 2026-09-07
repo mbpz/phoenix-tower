@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-09-07",
+  "source_status": "published_design_plates_not_verified_as_built",
+  "measurement_method": "Manual transcription of printed dimensions, NOT pixel measurements or field survey. Units inferred from consistent elevation/dimension chains; total notes still required.",
+  "source_gallery": "https://hhl.cnkgraph.com/Picture/黄鹤楼设计纪事",
+  "local_evidence_directory": ".omx/references/yellow-crane",
+  "source_hash_manifest": "downloaded-originals.json",
+  "axes_origin": "Use centre of shared 6000-mm bay as optional modeling origin; compass orientation not verified.",
+  "grids": [
+    {
+      "id": "ground_grid",
+      "figures": [
+        "2-2-1",
+        "2-2-6"
+      ],
+      "printed_title": "底层平面",
+      "printed_scale": "1:50",
+      "x_axes": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12"
+      ],
+      "y_axes": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J",
+        "K",
+        "L",
+        "M"
+      ],
+      "x_intervals_mm": [
+        4000,
+        2000,
+        2000,
+        2000,
+        2000,
+        6000,
+        2000,
+        2000,
+        2000,
+        2000,
+        4000
+      ],
+      "y_intervals_mm": [
+        4000,
+        2000,
+        2000,
+        2000,
+        2000,
+        6000,
+        2000,
+        2000,
+        2000,
+        2000,
+        4000
+      ],
+      "span_mm": 30000,
+      "meaning": "Outer dimensioned structural axes; not roof tips or stair perimeter."
+    },
+    {
+      "id": "levels_2_3_4_grid",
+      "figures": [
+        "2-2-2",
+        "2-2-3"
+      ],
+      "printed_scale": "1:50",
+      "x_axes": [
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11"
+      ],
+      "y_axes": [
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J",
+        "K",
+        "L"
+      ],
+      "x_intervals_mm": [
+        2000,
+        2000,
+        2000,
+        2000,
+        6000,
+        2000,
+        2000,
+        2000,
+        2000
+      ],
+      "y_intervals_mm": [
+        2000,
+        2000,
+        2000,
+        2000,
+        6000,
+        2000,
+        2000,
+        2000,
+        2000
+      ],
+      "span_mm": 22000,
+      "meaning": "Shared axis span does not imply identical balconies, roofs or internal partitions."
+    },
+    {
+      "id": "level_5_grid",
+      "figures": [
+        "2-2-4",
+        "2-2-8"
+      ],
+      "printed_scale": "1:50",
+      "x_axes": [
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10"
+      ],
+      "y_axes": [
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "J",
+        "K"
+      ],
+      "x_intervals_mm": [
+        2000,
+        2000,
+        2000,
+        6000,
+        2000,
+        2000,
+        2000
+      ],
+      "y_intervals_mm": [
+        2000,
+        2000,
+        2000,
+        6000,
+        2000,
+        2000,
+        2000
+      ],
+      "span_mm": 18000,
+      "meaning": "Axis span, not total eaves width. Roof and floor plans cross-check this grid."
+    }
+  ],
+  "main_floor_elevations": [
+    {
+      "id": "level_2",
+      "elevation_m": 12.3,
+      "figures": [
+        "2-2-5",
+        "2-2-2"
+      ],
+      "evidence_status": "cross_checked_plan_and_section"
+    },
+    {
+      "id": "level_3",
+      "elevation_m": 19.4,
+      "figures": [
+        "2-2-5",
+        "2-2-3"
+      ],
+      "evidence_status": "cross_checked_plan_and_section"
+    },
+    {
+      "id": "level_4",
+      "elevation_m": 26.0,
+      "figures": [
+        "2-2-5",
+        "2-2-3"
+      ],
+      "evidence_status": "cross_checked_plan_and_section"
+    },
+    {
+      "id": "level_5",
+      "elevation_m": 32.6,
+      "figures": [
+        "2-2-5",
+        "2-2-4"
+      ],
+      "evidence_status": "cross_checked_plan_and_section"
+    }
+  ],
+  "total_height_m": null,
+  "unresolved": [
+    "As-built/version correspondence",
+    "Geodetic datum of +/-0.000",
+    "Overall finial height",
+    "Exterior roof-edge dimensions",
+    "Floor-specific eave curves and construction variants",
+    "Finished material and repair state"
+  ],
+  "not_for": [
+    "engineering_design",
+    "structural_assessment",
+    "certified_survey",
+    "unqualified_real_building_claim"
+  ],
+  "gallery_level": {
+    "elevation_m": 6.0,
+    "figures": [
+      "2-2-5",
+      "2-2-6"
+    ],
+    "printed_title": "一至二层夹层平面",
+    "catalog_title": "跑马廊层平面",
+    "evidence_status": "cross_checked_plan_and_section"
+  },
+  "eave_details": {
+    "figures": [
+      "2-2-13",
+      "2-2-14"
+    ],
+    "printed_scale": "1:10",
+    "variants": [
+      "symmetric_corner",
+      "asymmetric_corner"
+    ],
+    "variant_assignment": "Must follow individual floor references; not one universal curved roof.",
+    "curve_coordinates_m": null,
+    "status": "Drawings acquired and visually read; curve tracing and per-floor mapping not complete."
+  }
+}
