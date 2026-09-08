@@ -1,0 +1,5303 @@
+{
+  "mesh_metadata": {
+    "WB13_L1_posts": {
+      "vertices": 2304,
+      "polygons": 1296,
+      "loop_triangles": 4320,
+      "coordinates_faces_sha256": "60866d9461c107a07edf0d6fdf9d620e77c5895010f8db4426df897ee7fd452f",
+      "loop_triangles_sha256": "c3903fbd76586cfb1aba7399db796abb245e925d34c1f4bf8ec6b707604d7761"
+    },
+    "WB13_Ground_canopy": {
+      "vertices": 5200,
+      "polygons": 5200,
+      "loop_triangles": 10400,
+      "coordinates_faces_sha256": "e3e739ecddc6aaa23ce69746eea7973cb8dadbb33a83809ef55832e2a4e0307f",
+      "loop_triangles_sha256": "d5bd878939dda87014cb97156640a18548abe86d650955c62bcbaa0a1311a174"
+    },
+    "WB14_L1_posts": {
+      "vertices": 2304,
+      "polygons": 1296,
+      "loop_triangles": 4320,
+      "coordinates_faces_sha256": "60866d9461c107a07edf0d6fdf9d620e77c5895010f8db4426df897ee7fd452f",
+      "loop_triangles_sha256": "c3903fbd76586cfb1aba7399db796abb245e925d34c1f4bf8ec6b707604d7761"
+    },
+    "WB14_Ground_canopy": {
+      "vertices": 5200,
+      "polygons": 5200,
+      "loop_triangles": 10400,
+      "coordinates_faces_sha256": "56bdbaf97077b7f0057ed5af3b9f4d270702fb68dc45ffaf5f1b51b1b49cfacd",
+      "loop_triangles_sha256": "d5bd878939dda87014cb97156640a18548abe86d650955c62bcbaa0a1311a174"
+    },
+    "WB13_L3_posts": {
+      "vertices": 1408,
+      "polygons": 792,
+      "loop_triangles": 2640,
+      "coordinates_faces_sha256": "1b6f052ec9ba370024441c0741699ac6013b54a48d6d83ab4d55dd26c14b9a52",
+      "loop_triangles_sha256": "367432f22de9864f307d93c1546c2cd01a38eaec9069973ca8aac58f0102be0e"
+    },
+    "WB13_Third_canopy": {
+      "vertices": 5200,
+      "polygons": 5200,
+      "loop_triangles": 10400,
+      "coordinates_faces_sha256": "843aaff04458d8f2f5719fda81e6ee029fd8943cb4de9ab1672355e8180f112f",
+      "loop_triangles_sha256": "d5bd878939dda87014cb97156640a18548abe86d650955c62bcbaa0a1311a174"
+    },
+    "WB14_L3_posts": {
+      "vertices": 1408,
+      "polygons": 792,
+      "loop_triangles": 2640,
+      "coordinates_faces_sha256": "1b6f052ec9ba370024441c0741699ac6013b54a48d6d83ab4d55dd26c14b9a52",
+      "loop_triangles_sha256": "367432f22de9864f307d93c1546c2cd01a38eaec9069973ca8aac58f0102be0e"
+    },
+    "WB14_Third_canopy": {
+      "vertices": 5200,
+      "polygons": 5200,
+      "loop_triangles": 10400,
+      "coordinates_faces_sha256": "36e9351fb6f5478943a9e4faf2377e81e2654033ea85f4aea6fb92cea8367d58",
+      "loop_triangles_sha256": "d5bd878939dda87014cb97156640a18548abe86d650955c62bcbaa0a1311a174"
+    }
+  },
+  "summary": {
+    "posts": 116,
+    "v13": {
+      "coverage": {
+        "full": 68,
+        "none": 40,
+        "partial": 8
+      },
+      "negative_full_coverage": 16,
+      "runtime_interior_witnesses": 16,
+      "minimum_full_coverage_gap_m": -0.22726315388399954
+    },
+    "v14": {
+      "coverage": {
+        "full": 68,
+        "none": 40,
+        "partial": 8
+      },
+      "negative_full_coverage": 16,
+      "runtime_interior_witnesses": 16,
+      "minimum_full_coverage_gap_m": -0.22726315388399954
+    },
+    "maximum_existing_negative_worsening_m": 0.004807343529208197
+  },
+  "rows": [
+    {
+      "floor": "L1",
+      "post_index": 0,
+      "center_m": [
+        -7.0,
+        15.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.579746266450444,
+          "minimum_point": [
+            -6.908155918121336,
+            15.221731185913086,
+            7.579746266450444
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.1763403345476035,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.47974636181787567,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.556315965946803,
+          "minimum_point": [
+            -6.908155918121336,
+            15.221731185913086,
+            7.556315965946803
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.1763403345476035,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.45631606131423474,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 1,
+      "center_m": [
+        -3.0,
+        15.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.475304484741664,
+          "minimum_point": [
+            -3.000000000000001,
+            15.239999771118164,
+            7.475304484741664
+          ],
+          "triangle_index": 10,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.37530458010909573,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.475304484741664,
+          "minimum_point": [
+            -3.000000000000001,
+            15.239999771118164,
+            7.475304484741664
+          ],
+          "triangle_index": 10,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.37530458010909573,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 2,
+      "center_m": [
+        3.0,
+        15.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.489960046881391,
+          "minimum_point": [
+            3.0000000000000004,
+            15.239999771118164,
+            7.489960046881391
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.3899601422488228,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.489960046881391,
+          "minimum_point": [
+            3.0000000000000004,
+            15.239999771118164,
+            7.489960046881391
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.3899601422488228,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 3,
+      "center_m": [
+        7.0,
+        15.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.607630473308695,
+          "minimum_point": [
+            6.908155918121339,
+            15.221731185913086,
+            7.607630473308695
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760364,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.5076305686761264,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.585207483270841,
+          "minimum_point": [
+            6.908155918121339,
+            15.221731185913086,
+            7.585207483270841
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760364,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.48520757863827235,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 4,
+      "center_m": [
+        -11.0,
+        11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.38827874186982,
+          "minimum_point": [
+            -10.908156394958496,
+            11.221731185913086,
+            8.38827874186982
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.17634026750965845,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.288278837237252,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.358214659750296,
+          "minimum_point": [
+            -10.908156394958496,
+            11.221731185913086,
+            8.358214659750296
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.17634026750965845,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2582147551177272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 5,
+      "center_m": [
+        -7.0,
+        11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.415309739003513,
+          "minimum_point": [
+            -7.239999771118164,
+            11.0,
+            8.415309739003513
+          ],
+          "triangle_index": 34,
+          "projected_area_m2": 0.1763403345476035,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.3153098343709448,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.415083114535037,
+          "minimum_point": [
+            -7.239999771118164,
+            11.0,
+            8.415083114535037
+          ],
+          "triangle_index": 34,
+          "projected_area_m2": 0.1763403345476035,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.3150832099024683,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 6,
+      "center_m": [
+        -5.0,
+        11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.971183071623294,
+          "minimum_point": [
+            -4.999999999999999,
+            11.239999771118164,
+            8.971183071623294
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760356,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8711831669907255,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.970881525283419,
+          "minimum_point": [
+            -4.999999999999999,
+            11.239999771118164,
+            8.970881525283419
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760356,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8708816206508505,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 7,
+      "center_m": [
+        -3.0,
+        11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.898380065386409,
+          "minimum_point": [
+            -2.9999999999999982,
+            11.239999771118164,
+            8.898380065386409
+          ],
+          "triangle_index": 11,
+          "projected_area_m2": 0.17634044027727208,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.7983801607538403,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.898380065386409,
+          "minimum_point": [
+            -2.9999999999999982,
+            11.239999771118164,
+            8.898380065386409
+          ],
+          "triangle_index": 11,
+          "projected_area_m2": 0.17634044027727208,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.7983801607538403,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 8,
+      "center_m": [
+        3.0,
+        11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.926037734945496,
+          "minimum_point": [
+            2.9999999999999996,
+            11.239999771118164,
+            8.926037734945496
+          ],
+          "triangle_index": 6,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8260378303129272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.926037734945496,
+          "minimum_point": [
+            2.9999999999999996,
+            11.239999771118164,
+            8.926037734945496
+          ],
+          "triangle_index": 6,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8260378303129272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 9,
+      "center_m": [
+        5.0,
+        11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 9.008389808458361,
+          "minimum_point": [
+            4.999999999999999,
+            11.239999771118164,
+            9.008389808458361
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.1763403345476035,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.9083899038257925,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 9.008073997092518,
+          "minimum_point": [
+            4.999999999999999,
+            11.239999771118164,
+            9.008073997092518
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.1763403345476035,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.90807409245995,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 10,
+      "center_m": [
+        7.0,
+        11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.333578317209675,
+          "minimum_point": [
+            7.225916709486258,
+            10.929198723613453,
+            8.333578317209675
+          ],
+          "triangle_index": 45,
+          "projected_area_m2": 0.1763403345476038,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2335784125771063,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.333578317209675,
+          "minimum_point": [
+            7.225916709486258,
+            10.929198723613453,
+            8.333578317209675
+          ],
+          "triangle_index": 45,
+          "projected_area_m2": 0.1763403345476038,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2335784125771063,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 11,
+      "center_m": [
+        11.0,
+        11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.388278741869819,
+          "minimum_point": [
+            11.221731185913086,
+            10.908156394958496,
+            8.388278741869819
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.17634026750965845,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2882788372372502,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.358214659750296,
+          "minimum_point": [
+            11.221731185913086,
+            10.908156394958496,
+            8.358214659750296
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.17634026750965845,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2582147551177272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 12,
+      "center_m": [
+        -9.0,
+        9.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 9.314070695668915,
+          "minimum_point": [
+            -9.0,
+            9.239999771118164,
+            9.314070695668915
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.1763402675096586,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 2.214070791036347,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 9.313329942146977,
+          "minimum_point": [
+            -9.0,
+            9.239999771118164,
+            9.313329942146977
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.1763402675096586,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 2.2133300375144085,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 13,
+      "center_m": [
+        -5.0,
+        9.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 14,
+      "center_m": [
+        5.0,
+        9.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 15,
+      "center_m": [
+        9.0,
+        9.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 9.314070695668917,
+          "minimum_point": [
+            9.239999771118164,
+            9.0,
+            9.314070695668917
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.17634026750965875,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 2.214070791036349,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 9.313329942146975,
+          "minimum_point": [
+            9.239999771118164,
+            9.0,
+            9.313329942146975
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.17634026750965875,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 2.2133300375144067,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 16,
+      "center_m": [
+        -15.0,
+        7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.607630473308695,
+          "minimum_point": [
+            -15.221731185913086,
+            6.908155918121339,
+            7.607630473308695
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760367,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.5076305686761264,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.585207483270841,
+          "minimum_point": [
+            -15.221731185913086,
+            6.908155918121339,
+            7.585207483270841
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760367,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.48520757863827235,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 17,
+      "center_m": [
+        -11.0,
+        7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.333578317209675,
+          "minimum_point": [
+            -10.929198723613453,
+            7.225916709486258,
+            8.333578317209675
+          ],
+          "triangle_index": 45,
+          "projected_area_m2": 0.1763403345476038,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2335784125771063,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.333578317209675,
+          "minimum_point": [
+            -10.929198723613453,
+            7.225916709486258,
+            8.333578317209675
+          ],
+          "triangle_index": 45,
+          "projected_area_m2": 0.1763403345476038,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2335784125771063,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 18,
+      "center_m": [
+        -7.0,
+        7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 19,
+      "center_m": [
+        -3.0,
+        7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 20,
+      "center_m": [
+        3.0,
+        7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 21,
+      "center_m": [
+        7.0,
+        7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 22,
+      "center_m": [
+        11.0,
+        7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.415309739003513,
+          "minimum_point": [
+            11.0,
+            7.239999771118164,
+            8.415309739003513
+          ],
+          "triangle_index": 34,
+          "projected_area_m2": 0.1763403345476039,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.3153098343709448,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.415083114535037,
+          "minimum_point": [
+            11.0,
+            7.239999771118164,
+            8.415083114535037
+          ],
+          "triangle_index": 34,
+          "projected_area_m2": 0.1763403345476039,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.3150832099024683,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 23,
+      "center_m": [
+        15.0,
+        7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.579746266450444,
+          "minimum_point": [
+            15.221731185913086,
+            6.908155918121337,
+            7.579746266450444
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.17634033454760348,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.47974636181787567,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.556315965946803,
+          "minimum_point": [
+            15.221731185913086,
+            6.908155918121337,
+            7.556315965946803
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.17634033454760348,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.45631606131423474,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 24,
+      "center_m": [
+        -11.0,
+        5.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 9.008389808458361,
+          "minimum_point": [
+            -11.239999771118164,
+            5.0,
+            9.008389808458361
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.17634033454760342,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.9083899038257925,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 9.008073997092518,
+          "minimum_point": [
+            -11.239999771118164,
+            5.0,
+            9.008073997092518
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.17634033454760342,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.90807409245995,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 25,
+      "center_m": [
+        -9.0,
+        5.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 26,
+      "center_m": [
+        9.0,
+        5.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 27,
+      "center_m": [
+        11.0,
+        5.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.971183071623292,
+          "minimum_point": [
+            11.239999771118164,
+            5.000000000000001,
+            8.971183071623292
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760362,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8711831669907237,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.97088152528342,
+          "minimum_point": [
+            11.239999771118164,
+            5.000000000000001,
+            8.97088152528342
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760362,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8708816206508523,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 28,
+      "center_m": [
+        -15.0,
+        3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.489960046881391,
+          "minimum_point": [
+            -15.239999771118164,
+            3.0000000000000004,
+            7.489960046881391
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.3899601422488228,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.489960046881391,
+          "minimum_point": [
+            -15.239999771118164,
+            3.0000000000000004,
+            7.489960046881391
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.3899601422488228,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 29,
+      "center_m": [
+        -11.0,
+        3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.926037734945496,
+          "minimum_point": [
+            -11.239999771118164,
+            2.9999999999999996,
+            8.926037734945496
+          ],
+          "triangle_index": 6,
+          "projected_area_m2": 0.17634044027727208,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8260378303129272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.926037734945496,
+          "minimum_point": [
+            -11.239999771118164,
+            2.9999999999999996,
+            8.926037734945496
+          ],
+          "triangle_index": 6,
+          "projected_area_m2": 0.17634044027727208,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8260378303129272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 30,
+      "center_m": [
+        -7.0,
+        3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 31,
+      "center_m": [
+        -3.0,
+        3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 32,
+      "center_m": [
+        3.0,
+        3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 33,
+      "center_m": [
+        7.0,
+        3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 34,
+      "center_m": [
+        11.0,
+        3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.89838006538641,
+          "minimum_point": [
+            11.239999771118164,
+            3.0000000000000013,
+            8.89838006538641
+          ],
+          "triangle_index": 11,
+          "projected_area_m2": 0.17634044027727205,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.798380160753842,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.89838006538641,
+          "minimum_point": [
+            11.239999771118164,
+            3.0000000000000013,
+            8.89838006538641
+          ],
+          "triangle_index": 11,
+          "projected_area_m2": 0.17634044027727205,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.798380160753842,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 35,
+      "center_m": [
+        15.0,
+        3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.475304484741664,
+          "minimum_point": [
+            15.239999771118164,
+            3.000000000000001,
+            7.475304484741664
+          ],
+          "triangle_index": 10,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.37530458010909573,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.475304484741664,
+          "minimum_point": [
+            15.239999771118164,
+            3.000000000000001,
+            7.475304484741664
+          ],
+          "triangle_index": 10,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.37530458010909573,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 36,
+      "center_m": [
+        -15.0,
+        -3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.475304484741664,
+          "minimum_point": [
+            -15.239999771118164,
+            -3.000000000000001,
+            7.475304484741664
+          ],
+          "triangle_index": 10,
+          "projected_area_m2": 0.17634044027727214,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.37530458010909573,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.475304484741664,
+          "minimum_point": [
+            -15.239999771118164,
+            -3.000000000000001,
+            7.475304484741664
+          ],
+          "triangle_index": 10,
+          "projected_area_m2": 0.17634044027727214,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.37530458010909573,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 37,
+      "center_m": [
+        -11.0,
+        -3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.898380065386409,
+          "minimum_point": [
+            -11.239999771118164,
+            -2.9999999999999982,
+            8.898380065386409
+          ],
+          "triangle_index": 11,
+          "projected_area_m2": 0.17634044027727194,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.7983801607538403,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.898380065386409,
+          "minimum_point": [
+            -11.239999771118164,
+            -2.9999999999999982,
+            8.898380065386409
+          ],
+          "triangle_index": 11,
+          "projected_area_m2": 0.17634044027727194,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.7983801607538403,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 38,
+      "center_m": [
+        -7.0,
+        -3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 39,
+      "center_m": [
+        -3.0,
+        -3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 40,
+      "center_m": [
+        3.0,
+        -3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 41,
+      "center_m": [
+        7.0,
+        -3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 42,
+      "center_m": [
+        11.0,
+        -3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.926037734945496,
+          "minimum_point": [
+            11.239999771118164,
+            -2.999999999999999,
+            8.926037734945496
+          ],
+          "triangle_index": 6,
+          "projected_area_m2": 0.17634044027727222,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8260378303129272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.926037734945496,
+          "minimum_point": [
+            11.239999771118164,
+            -2.999999999999999,
+            8.926037734945496
+          ],
+          "triangle_index": 6,
+          "projected_area_m2": 0.17634044027727222,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8260378303129272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 43,
+      "center_m": [
+        15.0,
+        -3.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.489960046881392,
+          "minimum_point": [
+            15.239999771118164,
+            -2.999999999999999,
+            7.489960046881392
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727225,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.3899601422488237,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.489960046881392,
+          "minimum_point": [
+            15.239999771118164,
+            -2.999999999999999,
+            7.489960046881392
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727225,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.3899601422488237,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 44,
+      "center_m": [
+        -11.0,
+        -5.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.971183071623294,
+          "minimum_point": [
+            -11.239999771118164,
+            -4.999999999999999,
+            8.971183071623294
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.1763403345476036,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8711831669907255,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.970881525283419,
+          "minimum_point": [
+            -11.239999771118164,
+            -4.999999999999999,
+            8.970881525283419
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.1763403345476036,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8708816206508505,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 45,
+      "center_m": [
+        -9.0,
+        -5.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 46,
+      "center_m": [
+        9.0,
+        -5.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 47,
+      "center_m": [
+        11.0,
+        -5.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 9.00838980845836,
+          "minimum_point": [
+            11.239999771118164,
+            -5.0,
+            9.00838980845836
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.1763403345476037,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.9083899038257908,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 9.008073997092518,
+          "minimum_point": [
+            11.239999771118164,
+            -5.0,
+            9.008073997092518
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.1763403345476037,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.90807409245995,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 48,
+      "center_m": [
+        -15.0,
+        -7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.579746266450444,
+          "minimum_point": [
+            -15.221731185913086,
+            -6.908155918121336,
+            7.579746266450444
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.17634033454760356,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.47974636181787567,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.556315965946803,
+          "minimum_point": [
+            -15.221731185913086,
+            -6.908155918121336,
+            7.556315965946803
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.17634033454760356,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.45631606131423474,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 49,
+      "center_m": [
+        -11.0,
+        -7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.415309739003513,
+          "minimum_point": [
+            -10.999999999999998,
+            -7.239999771118164,
+            8.415309739003513
+          ],
+          "triangle_index": 34,
+          "projected_area_m2": 0.17634033454760273,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.3153098343709448,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.415083114535035,
+          "minimum_point": [
+            -10.999999999999998,
+            -7.239999771118164,
+            8.415083114535035
+          ],
+          "triangle_index": 34,
+          "projected_area_m2": 0.17634033454760273,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.3150832099024665,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 50,
+      "center_m": [
+        -7.0,
+        -7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 51,
+      "center_m": [
+        -3.0,
+        -7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 52,
+      "center_m": [
+        3.0,
+        -7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 53,
+      "center_m": [
+        7.0,
+        -7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 54,
+      "center_m": [
+        11.0,
+        -7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.333578317209675,
+          "minimum_point": [
+            10.929198723613453,
+            -7.225916709486258,
+            8.333578317209675
+          ],
+          "triangle_index": 45,
+          "projected_area_m2": 0.17634033454760362,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2335784125771063,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.333578317209675,
+          "minimum_point": [
+            10.929198723613453,
+            -7.225916709486258,
+            8.333578317209675
+          ],
+          "triangle_index": 45,
+          "projected_area_m2": 0.17634033454760362,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2335784125771063,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 55,
+      "center_m": [
+        15.0,
+        -7.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.607630473308695,
+          "minimum_point": [
+            15.221731185913088,
+            -6.90815591812134,
+            7.607630473308695
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760373,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.5076305686761264,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.585207483270842,
+          "minimum_point": [
+            15.221731185913088,
+            -6.90815591812134,
+            7.585207483270842
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760373,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.48520757863827324,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 56,
+      "center_m": [
+        -9.0,
+        -9.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 9.314070695668915,
+          "minimum_point": [
+            -9.239999771118164,
+            -9.0,
+            9.314070695668915
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.17634026750965862,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 2.214070791036347,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 9.313329942146977,
+          "minimum_point": [
+            -9.239999771118164,
+            -9.0,
+            9.313329942146977
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.17634026750965862,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 2.2133300375144085,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 57,
+      "center_m": [
+        -5.0,
+        -9.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 58,
+      "center_m": [
+        5.0,
+        -9.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 59,
+      "center_m": [
+        9.0,
+        -9.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 9.314070695668915,
+          "minimum_point": [
+            9.0,
+            -9.239999771118164,
+            9.314070695668915
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.1763402675096586,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 2.214070791036347,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 9.313329942146977,
+          "minimum_point": [
+            9.0,
+            -9.239999771118164,
+            9.313329942146977
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.1763402675096586,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 2.2133300375144085,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 60,
+      "center_m": [
+        -11.0,
+        -11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.38827874186982,
+          "minimum_point": [
+            -11.221731185913086,
+            -10.908156394958496,
+            8.38827874186982
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.17634026750965914,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.288278837237252,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.358214659750296,
+          "minimum_point": [
+            -11.221731185913086,
+            -10.908156394958496,
+            8.358214659750296
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.17634026750965914,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2582147551177272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 61,
+      "center_m": [
+        -7.0,
+        -11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.333578317209675,
+          "minimum_point": [
+            -7.225916709486258,
+            -10.929198723613453,
+            8.333578317209675
+          ],
+          "triangle_index": 45,
+          "projected_area_m2": 0.17634033454760367,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2335784125771063,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.333578317209675,
+          "minimum_point": [
+            -7.225916709486258,
+            -10.929198723613453,
+            8.333578317209675
+          ],
+          "triangle_index": 45,
+          "projected_area_m2": 0.17634033454760367,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2335784125771063,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 62,
+      "center_m": [
+        -5.0,
+        -11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 9.008389808458361,
+          "minimum_point": [
+            -4.999999999999999,
+            -11.239999771118164,
+            9.008389808458361
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.17634033454760353,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.9083899038257925,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 9.008073997092518,
+          "minimum_point": [
+            -4.999999999999999,
+            -11.239999771118164,
+            9.008073997092518
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.17634033454760353,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.90807409245995,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 63,
+      "center_m": [
+        -3.0,
+        -11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.926037734945496,
+          "minimum_point": [
+            -3.0000000000000004,
+            -11.239999771118164,
+            8.926037734945496
+          ],
+          "triangle_index": 6,
+          "projected_area_m2": 0.1763404402772719,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8260378303129272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.926037734945496,
+          "minimum_point": [
+            -3.0000000000000004,
+            -11.239999771118164,
+            8.926037734945496
+          ],
+          "triangle_index": 6,
+          "projected_area_m2": 0.1763404402772719,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8260378303129272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 64,
+      "center_m": [
+        3.0,
+        -11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.898380065386409,
+          "minimum_point": [
+            2.9999999999999982,
+            -11.239999771118164,
+            8.898380065386409
+          ],
+          "triangle_index": 11,
+          "projected_area_m2": 0.17634044027727205,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.7983801607538403,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.898380065386409,
+          "minimum_point": [
+            2.9999999999999982,
+            -11.239999771118164,
+            8.898380065386409
+          ],
+          "triangle_index": 11,
+          "projected_area_m2": 0.17634044027727205,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.7983801607538403,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 65,
+      "center_m": [
+        5.0,
+        -11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.971183071623294,
+          "minimum_point": [
+            4.999999999999999,
+            -11.239999771118164,
+            8.971183071623294
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760348,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8711831669907255,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.970881525283419,
+          "minimum_point": [
+            4.999999999999999,
+            -11.239999771118164,
+            8.970881525283419
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760348,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.8708816206508505,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 66,
+      "center_m": [
+        7.0,
+        -11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.415309739003513,
+          "minimum_point": [
+            7.239999771118164,
+            -11.0,
+            8.415309739003513
+          ],
+          "triangle_index": 34,
+          "projected_area_m2": 0.17634033454760334,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.3153098343709448,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.415083114535035,
+          "minimum_point": [
+            7.239999771118164,
+            -11.0,
+            8.415083114535035
+          ],
+          "triangle_index": 34,
+          "projected_area_m2": 0.17634033454760334,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.3150832099024665,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 67,
+      "center_m": [
+        11.0,
+        -11.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 8.38827874186982,
+          "minimum_point": [
+            10.908156394958496,
+            -11.221731185913086,
+            8.38827874186982
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.17634026750965853,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.288278837237252,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 8.358214659750294,
+          "minimum_point": [
+            10.908156394958496,
+            -11.221731185913086,
+            8.358214659750294
+          ],
+          "triangle_index": 5,
+          "projected_area_m2": 0.17634026750965853,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 1.2582147551177254,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 68,
+      "center_m": [
+        -7.0,
+        -15.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.607630473308695,
+          "minimum_point": [
+            -6.908155918121339,
+            -15.221731185913086,
+            7.607630473308695
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760337,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.5076305686761264,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.585207483270841,
+          "minimum_point": [
+            -6.908155918121339,
+            -15.221731185913086,
+            7.585207483270841
+          ],
+          "triangle_index": 4,
+          "projected_area_m2": 0.17634033454760337,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.48520757863827235,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 69,
+      "center_m": [
+        -3.0,
+        -15.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.489960046881391,
+          "minimum_point": [
+            -3.0000000000000004,
+            -15.239999771118164,
+            7.489960046881391
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.3899601422488228,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.489960046881391,
+          "minimum_point": [
+            -3.0000000000000004,
+            -15.239999771118164,
+            7.489960046881391
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.3899601422488228,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 70,
+      "center_m": [
+        3.0,
+        -15.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.475304484741664,
+          "minimum_point": [
+            3.000000000000001,
+            -15.239999771118164,
+            7.475304484741664
+          ],
+          "triangle_index": 10,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.37530458010909573,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.475304484741664,
+          "minimum_point": [
+            3.000000000000001,
+            -15.239999771118164,
+            7.475304484741664
+          ],
+          "triangle_index": 10,
+          "projected_area_m2": 0.1763404402772722,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.37530458010909573,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L1",
+      "post_index": 71,
+      "center_m": [
+        7.0,
+        -15.0
+      ],
+      "top_m": 7.099999904632568,
+      "v13": {
+        "probe": {
+          "cap_m": 7.579746266450444,
+          "minimum_point": [
+            6.908155918121337,
+            -15.221731185913086,
+            7.579746266450444
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.17634033454760364,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.47974636181787567,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 7.556315965946803,
+          "minimum_point": [
+            6.908155918121337,
+            -15.221731185913086,
+            7.556315965946803
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.17634033454760364,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.45631606131423474,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 0,
+      "center_m": [
+        -5.0,
+        11.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.399124931018335,
+          "minimum_point": [
+            -4.908155918121338,
+            11.221731185913086,
+            24.399124931018335
+          ],
+          "triangle_index": 9,
+          "projected_area_m2": 0.17634033454760373,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.15087430604221197,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -4.909074358940124,
+            11.219513874053954,
+            24.47512796414576
+          ],
+          "roof_winding_numbers": [
+            1.0000000000000002
+          ],
+          "post_winding_number": 1.0000000000000095,
+          "common_vertical_interval_m": [
+            24.40025669123097,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.07487127291478757,
+          "actual_post_winding_number": 1.0000000000000095
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.395052662325345,
+          "minimum_point": [
+            -5.000000000000001,
+            11.239999771118164,
+            24.395052662325345
+          ],
+          "triangle_index": 9,
+          "projected_area_m2": 0.17634033454760373,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.15494657473520235,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -5.000000000000001,
+            11.237599773406982,
+            24.4730915519229
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 0.9999999999999934,
+          "common_vertical_interval_m": [
+            24.39618386678525,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.07690768513764823,
+          "actual_post_winding_number": 0.9999999999999934
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 1,
+      "center_m": [
+        -3.0,
+        11.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.322736083176547,
+          "minimum_point": [
+            -3.0000000000000004,
+            11.239999771118164,
+            24.322736083176547
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727216,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.22726315388399954,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -3.0,
+            11.237599773406982,
+            24.41368812553911
+          ],
+          "roof_winding_numbers": [
+            0.9999999999999999
+          ],
+          "post_winding_number": 1.000000000000022,
+          "common_vertical_interval_m": [
+            24.323687977918993,
+            24.50368827315923
+          ],
+          "interval_half_width_m": 0.09000014762011865,
+          "actual_post_winding_number": 1.000000000000022
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.322736083176547,
+          "minimum_point": [
+            -3.0000000000000004,
+            11.239999771118164,
+            24.322736083176547
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727216,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.22726315388399954,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -3.0,
+            11.237599773406982,
+            24.41368812553911
+          ],
+          "roof_winding_numbers": [
+            0.9999999999999999
+          ],
+          "post_winding_number": 1.000000000000022,
+          "common_vertical_interval_m": [
+            24.323687977918993,
+            24.50368827315923
+          ],
+          "interval_half_width_m": 0.09000014762011865,
+          "actual_post_winding_number": 1.000000000000022
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 2,
+      "center_m": [
+        3.0,
+        11.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.347899767376468,
+          "minimum_point": [
+            2.9999999999999996,
+            11.239999771118164,
+            24.347899767376468
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727208,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.20209946968407877,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            2.9999999999999996,
+            11.237599773406982,
+            24.438961093583398
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 1.0000000000000628,
+          "common_vertical_interval_m": [
+            24.348960940995507,
+            24.52896124617129
+          ],
+          "interval_half_width_m": 0.09000015258789062,
+          "actual_post_winding_number": 1.0000000000000628
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.347899767376468,
+          "minimum_point": [
+            2.9999999999999996,
+            11.239999771118164,
+            24.347899767376468
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727208,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.20209946968407877,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            2.9999999999999996,
+            11.237599773406982,
+            24.438961093583398
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 1.0000000000000628,
+          "common_vertical_interval_m": [
+            24.348960940995507,
+            24.52896124617129
+          ],
+          "interval_half_width_m": 0.09000015258789062,
+          "actual_post_winding_number": 1.0000000000000628
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 3,
+      "center_m": [
+        5.0,
+        11.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.434920079798385,
+          "minimum_point": [
+            5.000000000000002,
+            11.239999771118164,
+            24.434920079798385
+          ],
+          "triangle_index": 15,
+          "projected_area_m2": 0.17634033454760367,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.11507915726216211,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            5.000000000000002,
+            11.237599773406982,
+            24.493009736056667
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 1.0000000000000102,
+          "common_vertical_interval_m": [
+            24.436020235052787,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.056989501003879894,
+          "actual_post_winding_number": 1.0000000000000102
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.430112736269177,
+          "minimum_point": [
+            5.000000000000002,
+            11.239999771118164,
+            24.430112736269177
+          ],
+          "triangle_index": 15,
+          "projected_area_m2": 0.17634033454760367,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.11988650079137031,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            5.000000000000002,
+            11.237599773406982,
+            24.490612994347053
+          ],
+          "roof_winding_numbers": [
+            0.9999999999999999
+          ],
+          "post_winding_number": 0.9999999999999928,
+          "common_vertical_interval_m": [
+            24.43122675163356,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.05938624271349369,
+          "actual_post_winding_number": 0.9999999999999928
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 4,
+      "center_m": [
+        -9.0,
+        9.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.75969074844711,
+          "minimum_point": [
+            -8.908156394958494,
+            9.221731185913086,
+            24.75969074844711
+          ],
+          "triangle_index": 19,
+          "projected_area_m2": 0.17634026750965892,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.20969151138656272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.744393353811358,
+          "minimum_point": [
+            -9.0,
+            9.239999771118164,
+            24.744393353811358
+          ],
+          "triangle_index": 19,
+          "projected_area_m2": 0.17634026750965892,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.19439411675081075,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 5,
+      "center_m": [
+        -5.0,
+        9.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 25.526709128418794,
+          "minimum_point": [
+            -4.999999999999998,
+            9.239999771118164,
+            25.526709128418794
+          ],
+          "triangle_index": 20,
+          "projected_area_m2": 0.16550735083879495,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 0.9767098913582473,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 25.526666040293648,
+          "minimum_point": [
+            -4.999999999999998,
+            9.239999771118164,
+            25.526666040293648
+          ],
+          "triangle_index": 20,
+          "projected_area_m2": 0.16550735083879495,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 0.9766668032331012,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 6,
+      "center_m": [
+        5.0,
+        9.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 25.564578753246487,
+          "minimum_point": [
+            5.0,
+            9.239999771118164,
+            25.564578753246487
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.1477716681282085,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 1.0145795161859397,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 25.564541980627276,
+          "minimum_point": [
+            5.0,
+            9.239999771118164,
+            25.564541980627276
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.1477716681282085,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 1.0145427435667287,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 7,
+      "center_m": [
+        9.0,
+        9.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.75969074844711,
+          "minimum_point": [
+            9.221731185913086,
+            8.908156394958496,
+            24.75969074844711
+          ],
+          "triangle_index": 19,
+          "projected_area_m2": 0.1763402675096588,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.20969151138656272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.744393353811354,
+          "minimum_point": [
+            9.239999771118164,
+            9.000000000000002,
+            24.744393353811354
+          ],
+          "triangle_index": 19,
+          "projected_area_m2": 0.1763402675096588,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.1943941167508072,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 8,
+      "center_m": [
+        -7.0,
+        7.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 9,
+      "center_m": [
+        -3.0,
+        7.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 10,
+      "center_m": [
+        3.0,
+        7.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 11,
+      "center_m": [
+        7.0,
+        7.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 12,
+      "center_m": [
+        -11.0,
+        5.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.434920079798385,
+          "minimum_point": [
+            -11.239999771118164,
+            5.000000000000002,
+            24.434920079798385
+          ],
+          "triangle_index": 15,
+          "projected_area_m2": 0.1763403345476035,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.11507915726216211,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -11.237599773406982,
+            5.000000000000002,
+            24.493009736056667
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 1.0000000000000102,
+          "common_vertical_interval_m": [
+            24.436020235052787,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.056989501003879894,
+          "actual_post_winding_number": 1.0000000000000102
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.430112736269177,
+          "minimum_point": [
+            -11.239999771118164,
+            5.000000000000002,
+            24.430112736269177
+          ],
+          "triangle_index": 15,
+          "projected_area_m2": 0.1763403345476035,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.11988650079137031,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -11.237599773406982,
+            5.000000000000002,
+            24.490612994347053
+          ],
+          "roof_winding_numbers": [
+            0.9999999999999999
+          ],
+          "post_winding_number": 0.9999999999999928,
+          "common_vertical_interval_m": [
+            24.43122675163356,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.05938624271349369,
+          "actual_post_winding_number": 0.9999999999999928
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 13,
+      "center_m": [
+        -9.0,
+        5.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 25.564578753246487,
+          "minimum_point": [
+            -9.239999771118164,
+            5.0,
+            25.564578753246487
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.1477716681282085,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 1.0145795161859397,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 25.564541980627276,
+          "minimum_point": [
+            -9.239999771118164,
+            5.0,
+            25.564541980627276
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.1477716681282085,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 1.0145427435667287,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 14,
+      "center_m": [
+        9.0,
+        5.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 25.526709128418798,
+          "minimum_point": [
+            9.239999771118164,
+            5.0,
+            25.526709128418798
+          ],
+          "triangle_index": 20,
+          "projected_area_m2": 0.16550735083879495,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 0.9767098913582508,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 25.526666040293644,
+          "minimum_point": [
+            9.239999771118164,
+            5.0,
+            25.526666040293644
+          ],
+          "triangle_index": 20,
+          "projected_area_m2": 0.16550735083879495,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 0.9766668032330976,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 15,
+      "center_m": [
+        11.0,
+        5.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.39912493101834,
+          "minimum_point": [
+            11.221731185913086,
+            4.908155918121338,
+            24.39912493101834
+          ],
+          "triangle_index": 9,
+          "projected_area_m2": 0.17634033454760367,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.15087430604220842,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            11.219513874053954,
+            4.909074358940124,
+            24.47512796414576
+          ],
+          "roof_winding_numbers": [
+            1.0000000000000002
+          ],
+          "post_winding_number": 1.0000000000000095,
+          "common_vertical_interval_m": [
+            24.40025669123097,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.07487127291478757,
+          "actual_post_winding_number": 1.0000000000000095
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.395052662325345,
+          "minimum_point": [
+            11.239999771118164,
+            5.000000000000001,
+            24.395052662325345
+          ],
+          "triangle_index": 9,
+          "projected_area_m2": 0.17634033454760367,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.15494657473520235,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            11.237599773406982,
+            5.000000000000001,
+            24.4730915519229
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 0.9999999999999933,
+          "common_vertical_interval_m": [
+            24.39618386678525,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.07690768513764823,
+          "actual_post_winding_number": 0.9999999999999934
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 16,
+      "center_m": [
+        -11.0,
+        3.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.347899767376468,
+          "minimum_point": [
+            -11.239999771118164,
+            2.9999999999999996,
+            24.347899767376468
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727208,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.20209946968407877,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -11.237599773406982,
+            2.9999999999999996,
+            24.438961093583398
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 1.0000000000000628,
+          "common_vertical_interval_m": [
+            24.348960940995507,
+            24.52896124617129
+          ],
+          "interval_half_width_m": 0.09000015258789062,
+          "actual_post_winding_number": 1.0000000000000628
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.347899767376468,
+          "minimum_point": [
+            -11.239999771118164,
+            2.9999999999999996,
+            24.347899767376468
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727208,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.20209946968407877,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -11.237599773406982,
+            2.9999999999999996,
+            24.438961093583398
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 1.0000000000000628,
+          "common_vertical_interval_m": [
+            24.348960940995507,
+            24.52896124617129
+          ],
+          "interval_half_width_m": 0.09000015258789062,
+          "actual_post_winding_number": 1.0000000000000628
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 17,
+      "center_m": [
+        -7.0,
+        3.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 18,
+      "center_m": [
+        -3.0,
+        3.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 19,
+      "center_m": [
+        3.0,
+        3.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 20,
+      "center_m": [
+        7.0,
+        3.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 21,
+      "center_m": [
+        11.0,
+        3.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.322736083176547,
+          "minimum_point": [
+            11.239999771118164,
+            3.000000000000001,
+            24.322736083176547
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727186,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.22726315388399954,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            11.237599773406982,
+            3.0000000000000004,
+            24.41368812553911
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 1.0000000000000429,
+          "common_vertical_interval_m": [
+            24.32368797791899,
+            24.503688273159227
+          ],
+          "interval_half_width_m": 0.09000014762011865,
+          "actual_post_winding_number": 1.0000000000000429
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.322736083176547,
+          "minimum_point": [
+            11.239999771118164,
+            3.000000000000001,
+            24.322736083176547
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727186,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.22726315388399954,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            11.237599773406982,
+            3.0000000000000004,
+            24.41368812553911
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 1.0000000000000429,
+          "common_vertical_interval_m": [
+            24.32368797791899,
+            24.503688273159227
+          ],
+          "interval_half_width_m": 0.09000014762011865,
+          "actual_post_winding_number": 1.0000000000000429
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 22,
+      "center_m": [
+        -11.0,
+        -3.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.322736083176547,
+          "minimum_point": [
+            -11.239999771118164,
+            -3.0000000000000004,
+            24.322736083176547
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.176340440277272,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.22726315388399954,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -11.237599773406982,
+            -3.0,
+            24.41368812553911
+          ],
+          "roof_winding_numbers": [
+            0.9999999999999999
+          ],
+          "post_winding_number": 1.000000000000022,
+          "common_vertical_interval_m": [
+            24.323687977918993,
+            24.50368827315923
+          ],
+          "interval_half_width_m": 0.09000014762011865,
+          "actual_post_winding_number": 1.000000000000022
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.322736083176547,
+          "minimum_point": [
+            -11.239999771118164,
+            -3.0000000000000004,
+            24.322736083176547
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.176340440277272,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.22726315388399954,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -11.237599773406982,
+            -3.0,
+            24.41368812553911
+          ],
+          "roof_winding_numbers": [
+            0.9999999999999999
+          ],
+          "post_winding_number": 1.000000000000022,
+          "common_vertical_interval_m": [
+            24.323687977918993,
+            24.50368827315923
+          ],
+          "interval_half_width_m": 0.09000014762011865,
+          "actual_post_winding_number": 1.000000000000022
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 23,
+      "center_m": [
+        -7.0,
+        -3.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 24,
+      "center_m": [
+        -3.0,
+        -3.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 25,
+      "center_m": [
+        3.0,
+        -3.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634061304488569,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 26,
+      "center_m": [
+        7.0,
+        -3.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 27,
+      "center_m": [
+        11.0,
+        -3.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.347899767376465,
+          "minimum_point": [
+            11.239999771118164,
+            -2.999999999999999,
+            24.347899767376465
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727205,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.20209946968408232,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            11.237599773406982,
+            -2.999999999999999,
+            24.4389610935834
+          ],
+          "roof_winding_numbers": [
+            1.0000000000000002
+          ],
+          "post_winding_number": 1.0000000000000613,
+          "common_vertical_interval_m": [
+            24.34896094099551,
+            24.528961246171292
+          ],
+          "interval_half_width_m": 0.09000015258789062,
+          "actual_post_winding_number": 1.0000000000000613
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.347899767376465,
+          "minimum_point": [
+            11.239999771118164,
+            -2.999999999999999,
+            24.347899767376465
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727205,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.20209946968408232,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            11.237599773406982,
+            -2.999999999999999,
+            24.4389610935834
+          ],
+          "roof_winding_numbers": [
+            1.0000000000000002
+          ],
+          "post_winding_number": 1.0000000000000613,
+          "common_vertical_interval_m": [
+            24.34896094099551,
+            24.528961246171292
+          ],
+          "interval_half_width_m": 0.09000015258789062,
+          "actual_post_winding_number": 1.0000000000000613
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 28,
+      "center_m": [
+        -11.0,
+        -5.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.39912493101834,
+          "minimum_point": [
+            -11.221731185913086,
+            -4.908155918121338,
+            24.39912493101834
+          ],
+          "triangle_index": 9,
+          "projected_area_m2": 0.17634033454760378,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.15087430604220842,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -11.219513874053954,
+            -4.909074358940124,
+            24.47512796414576
+          ],
+          "roof_winding_numbers": [
+            1.0000000000000002
+          ],
+          "post_winding_number": 1.0000000000000095,
+          "common_vertical_interval_m": [
+            24.40025669123097,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.07487127291478757,
+          "actual_post_winding_number": 1.0000000000000095
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.395052662325345,
+          "minimum_point": [
+            -11.239999771118164,
+            -5.000000000000001,
+            24.395052662325345
+          ],
+          "triangle_index": 9,
+          "projected_area_m2": 0.17634033454760378,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.15494657473520235,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -11.237599773406982,
+            -5.000000000000001,
+            24.4730915519229
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 0.9999999999999934,
+          "common_vertical_interval_m": [
+            24.39618386678525,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.07690768513764823,
+          "actual_post_winding_number": 0.9999999999999934
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 29,
+      "center_m": [
+        -9.0,
+        -5.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 25.526709128418794,
+          "minimum_point": [
+            -9.239999771118164,
+            -4.999999999999998,
+            25.526709128418794
+          ],
+          "triangle_index": 20,
+          "projected_area_m2": 0.16550735083879498,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 0.9767098913582473,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 25.526666040293648,
+          "minimum_point": [
+            -9.239999771118164,
+            -4.999999999999998,
+            25.526666040293648
+          ],
+          "triangle_index": 20,
+          "projected_area_m2": 0.16550735083879498,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 0.9766668032331012,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 30,
+      "center_m": [
+        9.0,
+        -5.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 25.56457875324649,
+          "minimum_point": [
+            9.239999771118164,
+            -5.0,
+            25.56457875324649
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.1477716681282084,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 1.0145795161859432,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 25.564541980627276,
+          "minimum_point": [
+            9.239999771118164,
+            -5.0,
+            25.564541980627276
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.1477716681282084,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 1.0145427435667287,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 31,
+      "center_m": [
+        11.0,
+        -5.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.434920079798385,
+          "minimum_point": [
+            11.239999771118164,
+            -4.999999999999999,
+            24.434920079798385
+          ],
+          "triangle_index": 15,
+          "projected_area_m2": 0.17634033454760367,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.11507915726216211,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            11.237599773406982,
+            -4.999999999999999,
+            24.493009736056667
+          ],
+          "roof_winding_numbers": [
+            1.0000000000000002
+          ],
+          "post_winding_number": 1.000000000000013,
+          "common_vertical_interval_m": [
+            24.436020235052787,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.056989501003879894,
+          "actual_post_winding_number": 1.000000000000013
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.430112736269177,
+          "minimum_point": [
+            11.239999771118164,
+            -4.999999999999999,
+            24.430112736269177
+          ],
+          "triangle_index": 15,
+          "projected_area_m2": 0.17634033454760367,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.11988650079137031,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            11.237599773406982,
+            -4.999999999999999,
+            24.490612994347053
+          ],
+          "roof_winding_numbers": [
+            1.0000000000000002
+          ],
+          "post_winding_number": 0.9999999999999942,
+          "common_vertical_interval_m": [
+            24.431226751633556,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.05938624271349546,
+          "actual_post_winding_number": 0.9999999999999942
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 32,
+      "center_m": [
+        -7.0,
+        -7.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 33,
+      "center_m": [
+        -3.0,
+        -7.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 34,
+      "center_m": [
+        3.0,
+        -7.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.1763405073152171,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 35,
+      "center_m": [
+        7.0,
+        -7.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": null,
+          "minimum_point": null,
+          "triangle_index": null,
+          "projected_area_m2": 0.0,
+          "footprint_area_m2": 0.17634040158554853,
+          "coverage": "none"
+        },
+        "vertical_gap_m": null,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 36,
+      "center_m": [
+        -9.0,
+        -9.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.75969074844711,
+          "minimum_point": [
+            -9.221731185913086,
+            -8.908156394958496,
+            24.75969074844711
+          ],
+          "triangle_index": 19,
+          "projected_area_m2": 0.17634026750965892,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.20969151138656272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.744393353811358,
+          "minimum_point": [
+            -9.239999771118164,
+            -9.0,
+            24.744393353811358
+          ],
+          "triangle_index": 19,
+          "projected_area_m2": 0.17634026750965892,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.19439411675081075,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 37,
+      "center_m": [
+        -5.0,
+        -9.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 25.564578753246487,
+          "minimum_point": [
+            -5.0,
+            -9.239999771118164,
+            25.564578753246487
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.14777166812820855,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 1.0145795161859397,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 25.564541980627276,
+          "minimum_point": [
+            -5.0,
+            -9.239999771118164,
+            25.564541980627276
+          ],
+          "triangle_index": 13,
+          "projected_area_m2": 0.14777166812820855,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 1.0145427435667287,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 38,
+      "center_m": [
+        5.0,
+        -9.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 25.526709128418794,
+          "minimum_point": [
+            4.999999999999998,
+            -9.239999771118164,
+            25.526709128418794
+          ],
+          "triangle_index": 20,
+          "projected_area_m2": 0.16550735083879498,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 0.9767098913582473,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 25.526666040293648,
+          "minimum_point": [
+            4.999999999999998,
+            -9.239999771118164,
+            25.526666040293648
+          ],
+          "triangle_index": 20,
+          "projected_area_m2": 0.16550735083879498,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "partial"
+        },
+        "vertical_gap_m": 0.9766668032331012,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 39,
+      "center_m": [
+        9.0,
+        -9.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.75969074844711,
+          "minimum_point": [
+            8.908156394958496,
+            -9.221731185913086,
+            24.75969074844711
+          ],
+          "triangle_index": 19,
+          "projected_area_m2": 0.1763402675096588,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.20969151138656272,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.744393353811358,
+          "minimum_point": [
+            9.0,
+            -9.239999771118164,
+            24.744393353811358
+          ],
+          "triangle_index": 19,
+          "projected_area_m2": 0.1763402675096588,
+          "footprint_area_m2": 0.1763402675096586,
+          "coverage": "full"
+        },
+        "vertical_gap_m": 0.19439411675081075,
+        "negative_full_coverage": false,
+        "interior_witness": null
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 40,
+      "center_m": [
+        -5.0,
+        -11.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.434920079798385,
+          "minimum_point": [
+            -5.000000000000001,
+            -11.239999771118164,
+            24.434920079798385
+          ],
+          "triangle_index": 15,
+          "projected_area_m2": 0.17634033454760378,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.11507915726216211,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -5.000000000000001,
+            -11.237599773406982,
+            24.493009736056667
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 1.0000000000000124,
+          "common_vertical_interval_m": [
+            24.436020235052787,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.056989501003879894,
+          "actual_post_winding_number": 1.0000000000000122
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.430112736269177,
+          "minimum_point": [
+            -5.000000000000001,
+            -11.239999771118164,
+            24.430112736269177
+          ],
+          "triangle_index": 15,
+          "projected_area_m2": 0.17634033454760378,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.11988650079137031,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -5.000000000000001,
+            -11.237599773406982,
+            24.490612994347053
+          ],
+          "roof_winding_numbers": [
+            1.0000000000000002
+          ],
+          "post_winding_number": 0.9999999999999948,
+          "common_vertical_interval_m": [
+            24.431226751633556,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.05938624271349546,
+          "actual_post_winding_number": 0.9999999999999948
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 41,
+      "center_m": [
+        -3.0,
+        -11.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.347899767376468,
+          "minimum_point": [
+            -2.9999999999999996,
+            -11.239999771118164,
+            24.347899767376468
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727205,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.20209946968407877,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -2.9999999999999996,
+            -11.237599773406982,
+            24.438961093583398
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 1.0000000000000628,
+          "common_vertical_interval_m": [
+            24.348960940995507,
+            24.52896124617129
+          ],
+          "interval_half_width_m": 0.09000015258789062,
+          "actual_post_winding_number": 1.0000000000000628
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.347899767376468,
+          "minimum_point": [
+            -2.9999999999999996,
+            -11.239999771118164,
+            24.347899767376468
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727205,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.20209946968407877,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            -2.9999999999999996,
+            -11.237599773406982,
+            24.438961093583398
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 1.0000000000000628,
+          "common_vertical_interval_m": [
+            24.348960940995507,
+            24.52896124617129
+          ],
+          "interval_half_width_m": 0.09000015258789062,
+          "actual_post_winding_number": 1.0000000000000628
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 42,
+      "center_m": [
+        3.0,
+        -11.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.322736083176547,
+          "minimum_point": [
+            3.0000000000000004,
+            -11.239999771118164,
+            24.322736083176547
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727191,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.22726315388399954,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            3.0,
+            -11.237599773406982,
+            24.41368812553911
+          ],
+          "roof_winding_numbers": [
+            0.9999999999999999
+          ],
+          "post_winding_number": 1.000000000000022,
+          "common_vertical_interval_m": [
+            24.323687977918993,
+            24.50368827315923
+          ],
+          "interval_half_width_m": 0.09000014762011865,
+          "actual_post_winding_number": 1.000000000000022
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.322736083176547,
+          "minimum_point": [
+            3.0000000000000004,
+            -11.239999771118164,
+            24.322736083176547
+          ],
+          "triangle_index": 14,
+          "projected_area_m2": 0.17634044027727191,
+          "footprint_area_m2": 0.17634044027727214,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.22726315388399954,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            3.0,
+            -11.237599773406982,
+            24.41368812553911
+          ],
+          "roof_winding_numbers": [
+            0.9999999999999999
+          ],
+          "post_winding_number": 1.000000000000022,
+          "common_vertical_interval_m": [
+            24.323687977918993,
+            24.50368827315923
+          ],
+          "interval_half_width_m": 0.09000014762011865,
+          "actual_post_winding_number": 1.000000000000022
+        }
+      }
+    },
+    {
+      "floor": "L3",
+      "post_index": 43,
+      "center_m": [
+        5.0,
+        -11.0
+      ],
+      "top_m": 24.549999237060547,
+      "v13": {
+        "probe": {
+          "cap_m": 24.39912493101834,
+          "minimum_point": [
+            4.908155918121338,
+            -11.221731185913086,
+            24.39912493101834
+          ],
+          "triangle_index": 9,
+          "projected_area_m2": 0.17634033454760353,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.15087430604220842,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            4.909074358940124,
+            -11.219513874053954,
+            24.47512796414576
+          ],
+          "roof_winding_numbers": [
+            1.0000000000000002
+          ],
+          "post_winding_number": 1.0000000000000095,
+          "common_vertical_interval_m": [
+            24.40025669123097,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.07487127291478757,
+          "actual_post_winding_number": 1.0000000000000095
+        }
+      },
+      "v14": {
+        "probe": {
+          "cap_m": 24.395052662325345,
+          "minimum_point": [
+            5.000000000000001,
+            -11.239999771118164,
+            24.395052662325345
+          ],
+          "triangle_index": 9,
+          "projected_area_m2": 0.17634033454760353,
+          "footprint_area_m2": 0.17634033454760356,
+          "coverage": "full"
+        },
+        "vertical_gap_m": -0.15494657473520235,
+        "negative_full_coverage": true,
+        "interior_witness": {
+          "point_m": [
+            5.000000000000001,
+            -11.237599773406982,
+            24.4730915519229
+          ],
+          "roof_winding_numbers": [
+            1.0
+          ],
+          "post_winding_number": 0.9999999999999934,
+          "common_vertical_interval_m": [
+            24.39618386678525,
+            24.549999237060547
+          ],
+          "interval_half_width_m": 0.07690768513764823,
+          "actual_post_winding_number": 0.9999999999999934
+        }
+      }
+    }
+  ],
+  "blender_version": "5.2.1 LTS",
+  "active_scene": "HHL_Exterior_Whitebox_14",
+  "source_blend_sha256": {
+    "13": "0815de35d6d572331ba335e1829edcad028546608b0401c39d077bd30c3e1d80",
+    "14": "360d979a04d2061988119e6f303e8b208953326aeb02a74c2fade138d6d9f43e"
+  },
+  "geometry_before": {
+    "13": "04db8e72bc935a0888da3eb812443134ec3f78705ddf433cf5fa5c373d491df1",
+    "14": "74fb76701036e07f5f891fb90f2c2e4d3e149bea8505f38d3a7dfb18fc34be48"
+  },
+  "geometry_after": {
+    "13": "04db8e72bc935a0888da3eb812443134ec3f78705ddf433cf5fa5c373d491df1",
+    "14": "74fb76701036e07f5f891fb90f2c2e4d3e149bea8505f38d3a7dfb18fc34be48"
+  },
+  "geometry_modified": false,
+  "actual_blender_readback": true,
+  "runtime_loop_triangles_verified": true,
+  "bounded_runtime_interior_witnesses_verified": true,
+  "solid_intersection_verified": false,
+  "export_to_game": false,
+  "stored_coordinates_faces_match": true,
+  "limitations": [
+    "Only L1/L3 posts and their Ground/Third canopies in v13/v14 were audited.",
+    "Positive winding witnesses establish local shared interior, conditional on non-self-intersecting shells; no global self-intersection or Boolean-volume certification.",
+    "Partial/no roof coverage remains unaccepted; no architectural fidelity or M1 visual acceptance.",
+    "Private runtime capture arrays are not shipped; hashes bind this numeric report to that local capture.",
+    "Saved blend file hashes identify unchanged disk sources; runtime scene arrays were independently matched to stored extraction."
+  ],
+  "capture_sha256": "3c6bb8c12bc07a2a5f015bf7ee5180a3560cd2fd5c00618c09f36e318bbf9d37",
+  "stored_report_sha256": "71336b94de6bf17f5cd89aa502aea024962bd622af5252e6a3088bbbd9898578",
+  "helper_sha256": {
+    "post_contact_runtime.py": "5058cb9bd49962cbde1d8a53c608673c1826da62b0a6e29909a2c016f9917fa6",
+    "post_contact_readback.py": "f59b5a321eb58196ac1bacf244cea1856369d8a5e694d32111a5e3d24e1cfc0e",
+    "post_contact_study.py": "afab278caa100ade777504bd38a221f3727dee407e3e7e69d2657713389e6168",
+    "solid_witness.py": "a8dd407976db29e8f1b0a5ec1193353f706b889824c50a0ef905f86faae4d55f",
+    "corner_clearance_study.py": "5a9580534364f9f5c24a8f9d3f8904525479f69b57b9f69d3506e95c1f51dbf4"
+  }
+}

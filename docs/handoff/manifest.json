@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "recorded_on": "2026-09-08",
-  "checkpoint": "v14 and source preflight committed as 6017cc5; stored-mesh both-diagonal interior witnesses complete; Blender runtime recheck blocked by approval timeout; M1 revise; portable v08",
-  "scope": "Reviewed v08 portable snapshot and selected v14 evidence, including explicitly non-runtime source preflight and stored-mesh both-diagonal diagnostics. No actual Blender loop-triangle acceptance, new portable export, source imagery or raw multi-scene blend.",
+  "checkpoint": "Stored-mesh baseline committed as cccc0b1; actual Blender v13/v14 loop-triangle readback recovered and 16 shared interior witnesses per version verified; M1 revise; portable v08",
+  "scope": "Reviewed v08 portable snapshot and selected v14 evidence, including bounded actual Blender loop-triangle contact diagnostics. No global solid-intersection, architectural or visual acceptance, new portable export, source imagery or raw multi-scene blend.",
   "files": [
     {
       "path": "docs/handoff/yellow-crane/evidence/corner-clearance-study-11-verification.json",
@@ -158,6 +158,11 @@
       "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-14-visual-verdict.json",
       "bytes": 1069,
       "sha256": "a8aa67a8f28ae3dd51f0234ff180882f7769e34c0b216f90e8081f31df43061f"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/post-contact-v14-runtime.json",
+      "bytes": 145219,
+      "sha256": "07cf03c3d64b6f507480907599146b81121320bdc0f9081d03dde9430dc48f59"
     },
     {
       "path": "docs/handoff/yellow-crane/evidence/post-contact-v14-source-preflight.json",

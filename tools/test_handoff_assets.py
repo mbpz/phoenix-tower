@@ -159,6 +159,60 @@ class HandoffAssetsTests(unittest.TestCase):
                 'maximum_existing_negative_worsening_by_diagonal_m'][diagonal])
         self.assertIn('NOT actual Blender', report['limits'][0])
 
+    def test_runtime_contact_evidence_is_bounded_and_matches_stored_meshes(self):
+        evidence=HANDOFF / 'yellow-crane/evidence'
+        report=json.loads((evidence / 'post-contact-v14-runtime.json').read_text())
+        stored_path=evidence / 'post-contact-v14-stored-mesh.json'
+        stored=json.loads(stored_path.read_text())
+        self.assertTrue(report['actual_blender_readback'])
+        self.assertTrue(report['runtime_loop_triangles_verified'])
+        self.assertTrue(report['bounded_runtime_interior_witnesses_verified'])
+        self.assertFalse(report['solid_intersection_verified'])
+        self.assertFalse(report['geometry_modified'])
+        self.assertFalse(report['export_to_game'])
+        self.assertEqual(report['geometry_before'],report['geometry_after'])
+        self.assertEqual(report['source_blend_sha256']['14'],stored['source_blend_sha256'])
+        self.assertEqual(report['stored_report_sha256'],hashlib.sha256(stored_path.read_bytes()).hexdigest())
+        self.assertEqual(len(report['mesh_metadata']),8)
+        for name,mesh in report['mesh_metadata'].items():
+            self.assertEqual(mesh['coordinates_faces_sha256'],stored['mesh_metadata'][name]['coordinates_faces_sha256'])
+            self.assertEqual(len(mesh['loop_triangles_sha256']),64)
+            self.assertGreater(mesh['loop_triangles'],0)
+        for name,digest in report['helper_sha256'].items():
+            self.assertEqual(hashlib.sha256((ROOT / 'tools/blender' / name).read_bytes()).hexdigest(),digest)
+        self.assertEqual(len(report['rows']),116)
+        for version in ('v13','v14'):
+            summary=report['summary'][version]
+            self.assertEqual(summary['coverage'],{'full':68,'partial':8,'none':40})
+            self.assertEqual(summary['negative_full_coverage'],16)
+            self.assertEqual(summary['runtime_interior_witnesses'],16)
+            negatives=[r for r in report['rows'] if r[version]['negative_full_coverage']]
+            self.assertEqual(len(negatives),16)
+            self.assertTrue(all(r['floor']=='L3' for r in negatives))
+            for state,count in summary['coverage'].items():
+                self.assertEqual(sum(r[version]['probe']['coverage']==state for r in report['rows']),count)
+            gaps=[]
+            for row in report['rows']:
+                entry=row[version]
+                if entry['probe']['coverage']=='full': gaps.append(entry['vertical_gap_m'])
+                witness=entry['interior_witness']
+                if entry['negative_full_coverage']:
+                    self.assertEqual(entry['probe']['coverage'],'full')
+                    self.assertLess(entry['vertical_gap_m'],-3e-6)
+                    self.assertIsNotNone(witness)
+                    self.assertAlmostEqual(witness['actual_post_winding_number'],1.)
+                    self.assertEqual(len(witness['roof_winding_numbers']),1)
+                    self.assertAlmostEqual(witness['roof_winding_numbers'][0],1.)
+                    lo,hi=witness['common_vertical_interval_m']
+                    self.assertLess(lo,witness['point_m'][2])
+                    self.assertLess(witness['point_m'][2],hi)
+                    self.assertLess(witness['point_m'][2],row['top_m'])
+                else: self.assertIsNone(witness)
+            self.assertAlmostEqual(min(gaps),summary['minimum_full_coverage_gap_m'])
+        worsening=max(r['v13']['vertical_gap_m']-r['v14']['vertical_gap_m']
+                      for r in report['rows'] if r['v13']['negative_full_coverage'])
+        self.assertAlmostEqual(worsening,report['summary']['maximum_existing_negative_worsening_m'])
+
     def test_snapshot_roundtrip_evidence(self):
         proof = json.loads((HANDOFF / 'yellow-crane/portability-verification.json').read_text(encoding='utf-8'))
         artifact = ROOT / proof['artifact']
