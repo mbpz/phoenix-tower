@@ -11,6 +11,7 @@ import tempfile
 from pathlib import Path
 from dimensioned_study import slab_mesh, column_mesh
 from crown_whitebox import crown_mesh
+from top_support_whitebox import perimeter_centres, support_study
 
 
 def tier_outline(scale):
@@ -310,6 +311,19 @@ def build(root, version='01'):
         inner=[(x*inner_ratio,y*inner_ratio) for x,y in outer]
         obj=mesh(label,roof_mesh(inner,outer,ridge,eave,tips),'Estimated_roofs','roof')
         obj['source']='2-2-4 corner topology transferred/scaled as estimate; 2-2-5 section elevations; L4 conflict retained in eave trace'
+        if label=='Fifth_lower_canopy':
+            # Use Blender's actual quad tessellation, not a center-point ray.
+            obj.data.calc_loop_triangles()
+            triangles=[tuple(tuple(obj.data.vertices[i].co) for i in t.vertices) for t in obj.data.loop_triangles]
+            floor=next(f for f in data['floors'] if f['id']=='L5')
+            centres=[(data['axes_x_m'][str(c)],data['axes_y_m'][r]) for r,cols in floor['column_axes_by_row'].items() for c in cols]
+            centres=perimeter_centres(centres,floor['outline_m'])
+            study=support_study(triangles,centres,floor['elevation_m']+5.15)
+            for center,size in study['members']:
+                box('L5_support_PROXY',center,size)
+            scene['support_proxy_count']=len(study['accepted'])
+            scene['support_proxy_review']=json.dumps({k:v for k,v in study.items() if k!='members'})
+            scene['support_proxy_limit']='Estimated column-head massing, .02m minimum roof clearance; NOT measured dougong or structural contact'
     crown_vertices,crown_faces,crown_regions=crown_mesh()
     crown=mesh('Crown_joined_roof',(crown_vertices,crown_faces),'Estimated_roofs','roof')
     crown['source']='2-2-8 folded wing footprint; mirrored plan and curved shared seams estimated, NOT as-built'
@@ -378,5 +392,5 @@ def build(root, version='01'):
         bm.free()
     if any(r['non_manifold_edges'] or r['inconsistent_winding_edges'] or r['signed_volume']<=0 or r['min_component_volume']<=0 for r in results):
         raise ValueError(f'Invalid whitebox meshes: {results}')
-    scene['pending_report']=json.dumps({'status':'M1_in_progress_not_visually_accepted','source':'design plates, NOT as-built','scene':name,'meshes':results,'triangles':sum(r['triangles'] for r in results),'limitations':['Shared main/wing crown shell only; lower crown tier and ridge-cap contacts unverified','Transferred lower-tier outline estimates','No material/UV/detail/game acceptance','Wall openings and finial proxy dimensions','L2 transition cells are opaque visual proxies, not verified window construction']},indent=2)
+    scene['pending_report']=json.dumps({'status':'M1_in_progress_not_visually_accepted','source':'design plates, NOT as-built','scene':name,'support_study':json.loads(scene['support_proxy_review']),'meshes':results,'triangles':sum(r['triangles'] for r in results),'limitations':['Shared main/wing crown shell only; lower crown tier and ridge-cap contacts unverified','Transferred lower-tier outline estimates','No material/UV/detail/game acceptance','Wall openings and finial proxy dimensions','L2 transition cells are opaque visual proxies, not verified window construction','L5 support proxies fit estimated canopy and old post heights; no measured dougong or structural contact']},indent=2)
     return save_scene_checkpoint(scene,blend,report)

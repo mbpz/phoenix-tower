@@ -101,3 +101,14 @@ This is an estimated silhouette constraint, not a newly measured eave dimension.
 36 tests pass. The nominal shoulder is sampled by the existing mesh resolution;
 no additional tessellation or modifier was added. Limited lower-crown clearance
 sampling is diagnostic only, not an intersection/construction certificate.
+
+Top support study (not yet Blender-validated): `top_support_whitebox.py` clips a
+single-layer underside against full square footprints, rather than center rays.
+The builder uses actual Blender loop triangles; pure fixtures fan-triangulate quads.
+Insufficient clearance is reported as blocked, never silently resized. Pure tests
+identify 16 eligible outer columns and four corner conflicts; all sizes are estimates.
+46 Python tests pass. The attempted 09 build stopped at its clearance guard before
+save/render; subsequent MCP diagnostics timed out in permission review. Latest
+complete checkpoint remains 08. Reload `top_support_whitebox` before retrying the
+builder, use **10**, and preserve the incomplete 09 scene. No current support proxy
+render, preservation proof, architectural acceptance or game-performance claim exists.
