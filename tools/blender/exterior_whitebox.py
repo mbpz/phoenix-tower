@@ -16,6 +16,8 @@ from top_support_whitebox import perimeter_centres, support_study
 
 # L5 outline originates in plate 2-2-4 itself, not a larger-storey template.
 FIFTH_LOWER_CANOPY_SCALE = 1.0
+# Plate 2-2-14 symmetric L5 eave endpoint; twelve-tip transfer stays provisional.
+FIFTH_LOWER_CANOPY_TIP_Z = 38.8
 
 def tier_outline(scale):
     # 2-2-4 SE corner, axis-mapped manual pixels; rotate, not a generic pagoda.
@@ -312,11 +314,14 @@ def build(root, version='01'):
         ('Fifth_lower_canopy',FIFTH_LOWER_CANOPY_SCALE,.55,40.6,37.02)]:
         outer,tips=tier_outline(scale)
         inner=[(x*inner_ratio,y*inner_ratio) for x,y in outer]
-        obj=mesh(label,roof_mesh(inner,outer,ridge,eave,tips),'Estimated_roofs','roof')
+        rise=FIFTH_LOWER_CANOPY_TIP_Z-eave if label=='Fifth_lower_canopy' else 3.5
+        obj=mesh(label,roof_mesh(inner,outer,ridge,eave,tips,corner_rise=rise),'Estimated_roofs','roof')
         obj['source']='2-2-4 corner topology transferred/scaled as estimate; 2-2-5 section elevations; L4 conflict retained in eave trace'
         if label=='Fifth_lower_canopy':
-            obj['source']='2-2-4 own-floor axis-mapped outline; extra scaling removed; see yellow-crane-l5-eave-landmarks.json; curvature/height remain estimates'
+            obj['source']='2-2-4 own-floor axis-mapped outline; see yellow-crane-l5-eave-landmarks.json; 2-2-14 symmetric L5 eave endpoints; twelve-tip correspondence and curvature remain provisional'
             obj['plan_scale']=FIFTH_LOWER_CANOPY_SCALE
+            obj['eave_tip_elevation_m']=FIFTH_LOWER_CANOPY_TIP_Z
+            obj['endpoint_limit']='Symmetric detail endpoint transferred to mirrored proxy; NOT developed curve or verified twelve-corner correspondence'
             # Use Blender's actual quad tessellation, not a center-point ray.
             obj.data.calc_loop_triangles()
             triangles=[tuple(tuple(obj.data.vertices[i].co) for i in t.vertices) for t in obj.data.loop_triangles]

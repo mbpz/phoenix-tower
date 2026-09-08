@@ -228,5 +228,20 @@
     "Polyline starts below the tip cap.",
     "Asymmetric detail has only L2/L3/L4 labels; do not replicate to other floors.",
     "Design drawing, not certified as-built survey."
-  ]
+  ],
+  "l5_model_endpoint_constraint": {
+    "source": "2-2-14 symmetric wing eave upturn drawing, printed L5 elevations",
+    "tip_elevation_m": 38.8,
+    "low_eave_elevation_m": 37.02,
+    "rise_m": 1.78,
+    "applied_to": "v13 L5 lower canopy only; inherited 3.5 m rise removed",
+    "limits": [
+      "Endpoint-only constraint, not developed metric curve",
+      "Twelve-tip mirrored model correspondence remains provisional",
+      "Do not use dashed purlin schematic as eave curve",
+      "Do not transfer asymmetric L2-L4 trace to L5",
+      "Unresolved L4/L2 annotations retained; no other storey changed",
+      "Not an as-built survey or roof-layer thickness measurement"
+    ]
+  }
 }

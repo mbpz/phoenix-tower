@@ -1,0 +1,74 @@
+{
+  "recorded_on": "2026-09-08",
+  "scene": "HHL_Exterior_Whitebox_13",
+  "status": "saved_partial_verification_M1_not_accepted",
+  "change": "L5-only symmetric detail endpoint 38.800m replaces inherited 40.520m estimate; unchanged interpolation and tessellation",
+  "source_scope": "2-2-14 design plate endpoint, NOT as-built; transfer to all twelve mirrored tips remains provisional",
+  "local_blend_sha256": "0815de35d6d572331ba335e1829edcad028546608b0401c39d077bd30c3e1d80",
+  "construction_report": {
+    "meshes": 34,
+    "triangles": 106968,
+    "accepted_support_proxies": 20,
+    "blocked_support_proxies": 0,
+    "non_manifold_edges": 0,
+    "inconsistent_winding_edges": 0,
+    "all_shell_volumes_positive": true
+  },
+  "preservation": {
+    "method": "Successful assertions immediately after MCP build: old scene geometry digests equal before snapshot; v12 file SHA256 unchanged. Not a scene-library roundtrip or all-field comparison.",
+    "old_scene_count": 19,
+    "old_scene_geometry_sha256": {
+      "HHL_Corner_Clearance_Study_11": "de6d84e21e286f823b982fdf687b6a0f45f7685296869e386eb2f17756e19895",
+      "HHL_Dimensioned_References": "f46cbfe8be70725583d1a9f098738d4f30f2d90fbc75feb343663f5fb43c4b31",
+      "HHL_Eave_Pixel_Study": "266fd8ff293492eaaa92d45a2ef2f0483a64fed9310dcb2e7a7eae335e3eaa4a",
+      "HHL_Exploded_Study": "0a28ee4a5e6f3dc59d220941759407b52796844f4facea15f2c4c5fc41a7670d",
+      "HHL_Exterior_Whitebox_01": "9caff49d31f86a31db1c4010bc70689ce57d18d827f16a0c5fc962d756e54ee6",
+      "HHL_Exterior_Whitebox_02": "70b5c796b37ce6ece3beae681a110b74f7498256ed3d90d9b9fb361b89857f81",
+      "HHL_Exterior_Whitebox_03": "f61aeab5952af8ef8bef2c204a989cb4d244cb517d7c6bbd0b0ae773ea025276",
+      "HHL_Exterior_Whitebox_04": "4fcc3d238efe59f7083c8b516cdd8d60ae13a182375ab5038162685462ba5b53",
+      "HHL_Exterior_Whitebox_05": "8a3c613f8178190ff6a843553c8c00058942f8a5e7252f18c3332ce03a3473bb",
+      "HHL_Exterior_Whitebox_06": "91ac34d13caecaaab8471025489da5bc7779b78f9f5b60cb4511ec5ac3d5d432",
+      "HHL_Exterior_Whitebox_07": "c69b51150b5964253d6094530c044436ad6bbbaec498080ab88dc224de21effc",
+      "HHL_Exterior_Whitebox_08": "29e2107d1edc354719c8ac39228d68125ef3491c5f7f419428b3a7a11c9a4f04",
+      "HHL_Exterior_Whitebox_09": "218f482dae899bdb7913b19810ef5698397debf097090abb8d2ef3ab805c5cd8",
+      "HHL_Exterior_Whitebox_10": "f541a2feef5f1436cde8bc7fc0e27aabdd32520dabd1dc4838631c3034596f27",
+      "HHL_Exterior_Whitebox_12": "6407b18fdc85a04d0e0e0546107f2e2c4c13f56a5aa3541ca649b1337ab5b64e",
+      "HHL_Plan_Trace_QA": "f2521e640208e545a4c379e0828ff3971a80223073bdb08c0d37509ac7bc0911",
+      "HHL_Reconstruction_01": "f08ad954e76f3ee0642170623603b4a99a556bf144d4e7fac7a5eb452125ddbc",
+      "HHL_Structure_Study": "0e0150d18f4d8c1a8eb263aced8ebc653a61d40be5997a14cbbd86275f6d629b",
+      "Scene": "287d7022b76e1df6405e212e1f4e67941033ae80e2a9fff84b52a5b324f76fa8"
+    },
+    "v12_file_sha256": "cc0076d7ef3d881aa64dfbb6db5c7bf87818589f13a415ae0eb086cccd567f26",
+    "old_scene_geometry_preserved": true,
+    "v12_file_preserved": true
+  },
+  "tests": {
+    "blender_helpers_passed": 51,
+    "red_regression": "Old 40.52 endpoint fails expected 38.8 by 1.72m; 16 other exterior tests pass",
+    "independent_review": "COMMENT, no actionable findings; 51 tests independently passed; LSP unavailable"
+  },
+  "pending": [
+    "Actual saved-mesh twelve-tip endpoint readback and 32-unchanged-mesh comparison",
+    "Independent actual top-box full-footprint clearance verification after regeneration",
+    "Same-camera front/oblique/underside renders and v13 visual verdict",
+    "v13 scene-only dependency isolation and roundtrip if promoting portable checkpoint",
+    "Plan diagonal-length to developed eave-curve mapping and corner junction geometry"
+  ],
+  "tool_blocker": {
+    "type": "automatic permission approval review deadline",
+    "events": [
+      "execute_blender_code readback timed out",
+      "one identical readback retry timed out",
+      "safer get_scene_info read-only query timed out"
+    ],
+    "interpretation": "Not evidence of Blender disconnect or unsafe action; no subsequent readback/render result claimed"
+  },
+  "visual_status": {
+    "v13": "not_rendered_not_scored",
+    "last_reviewed_version": "12",
+    "last_score": 82,
+    "last_verdict": "revise",
+    "M1": "revise"
+  },
+  "export_to_game": false
+}

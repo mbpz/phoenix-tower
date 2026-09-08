@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
-from exterior_whitebox import FIFTH_LOWER_CANOPY_SCALE, roof_mesh, tier_outline, output_paths, approach_steps, save_checkpoint, component_volumes, transition_band, enclosure_height
+from exterior_whitebox import FIFTH_LOWER_CANOPY_SCALE, FIFTH_LOWER_CANOPY_TIP_Z, roof_mesh, tier_outline, output_paths, approach_steps, save_checkpoint, component_volumes, transition_band, enclosure_height
 
 
 class ExteriorGeometryTests(unittest.TestCase):
@@ -44,6 +44,26 @@ class ExteriorGeometryTests(unittest.TestCase):
         self.assertGreater(volume, 0)
         self.assertTrue(all(v>0 for v in component_volumes(vertices,faces)))
         self.assertTrue(all(math.isfinite(n) for v in vertices for n in v))
+
+    def test_l5_tip_elevation_uses_symmetric_detail_not_generic_rise(self):
+        outer, tips = tier_outline(FIFTH_LOWER_CANOPY_SCALE)
+        inner = [(x*.55, y*.55) for x, y in outer]
+        vertices, faces = roof_mesh(inner, outer, 40.6, 37.02, tips,
+                                    corner_rise=FIFTH_LOWER_CANOPY_TIP_Z-37.02)
+        old_vertices, old_faces = roof_mesh(inner, outer, 40.6, 37.02, tips)
+        ring = len(outer)*5
+        for i in range(len(outer)):
+            self.assertAlmostEqual(vertices[i*5][2], 40.6)
+            self.assertAlmostEqual(vertices[12*ring+i*5][2],
+                                   38.8 if i in tips else 37.02)
+        self.assertEqual(faces, old_faces)
+        self.assertEqual([(x,y) for x,y,_ in vertices],
+                         [(x,y) for x,y,_ in old_vertices])
+        count = len(vertices)//2
+        for top, bottom in zip(vertices[:count], vertices[count:]):
+            self.assertAlmostEqual(top[2]-bottom[2], .18)
+        self.assertAlmostEqual(old_vertices[12*ring+tips[0]*5][2], 40.52)
+        self.assert_closed(vertices, faces)
 
     def test_stepped_outline_retains_twelve_tips(self):
         outline, tips = tier_outline(1)
