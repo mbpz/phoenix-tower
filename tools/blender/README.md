@@ -159,3 +159,15 @@ level is not evidence for lowering corner posts. Study11 is not an exterior revi
 next exterior iteration is 12. Raw Blend/PNG remain local, selected JSON evidence
 is listed in the handoff manifest. No scene-library roundtrip, independent review,
 LSP, architectural acceptance or runtime performance verification is claimed here.
+
+
+### Exterior12: retain L5's own plan scale
+
+`FIFTH_LOWER_CANOPY_SCALE=1.0` removes the extra `.96` multiplier from an outline
+already traced from L5 plate2-2-4. The six manual SE landmarks in
+`docs/refactoring/yellow-crane-l5-eave-landmarks.json` reuse the original XY grid
+calibration; the 6px tolerance is NOT survey accuracy. All six tests fail at .96.
+Do not transfer this scale correction to other floors or change roof heights to
+match a support-fit deficit. Blender12 has 20 proxy supports (0 blocked), 34 meshes,
+106968 triangles. Only L5 roof/support meshes differ from10. M1 remains revise.
+Private scenes/images remain ignored; reviewed numerical evidence is in handoff.

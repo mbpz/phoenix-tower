@@ -1,0 +1,152 @@
+{
+  "source_figure": "2-2-4",
+  "source_preview_sha256": "b557d39d3f22299f55b4beec588e61571da93e65b4880696717448b25f75fbcc",
+  "calibration": {
+    "image_size_px": [
+      1600,
+      1179
+    ],
+    "x_endpoints_px": [
+      465,
+      1130
+    ],
+    "y_endpoints_px": [
+      171,
+      834
+    ],
+    "span_m": 18,
+    "image": "trace-plan-2-2-4.png",
+    "method": "independent_X_Y_manual_axis_endpoints_no_deskew",
+    "pick_tolerance_px": 3
+  },
+  "tolerance_px": 6,
+  "policy": "Remove extra L5 scaling; no roof vertical parameter, post, beam, other-tier scale or support policy change",
+  "landmarks": [
+    {
+      "name": "east_straight_centre",
+      "outline_xy_m": [
+        14,
+        0
+      ],
+      "pixel_xy": [
+        1313,
+        503
+      ],
+      "v10_pixel_xy": [
+        1294.0333333333333,
+        502.5
+      ],
+      "v10_error_px": 18.973256031700135,
+      "v12_pixel_xy": [
+        1314.7222222222222,
+        502.5
+      ],
+      "v12_error_px": 1.7933347101742818
+    },
+    {
+      "name": "east_straight_end",
+      "outline_xy_m": [
+        14,
+        -5
+      ],
+      "pixel_xy": [
+        1315,
+        687
+      ],
+      "v10_pixel_xy": [
+        1294.0333333333333,
+        679.3
+      ],
+      "v10_error_px": 22.335870502649165,
+      "v12_pixel_xy": [
+        1314.7222222222222,
+        686.6666666666666
+      ],
+      "v12_error_px": 0.43390275977265336
+    },
+    {
+      "name": "east_wing_tip",
+      "outline_xy_m": [
+        14.6,
+        -8.6
+      ],
+      "pixel_xy": [
+        1336,
+        817
+      ],
+      "v10_pixel_xy": [
+        1315.3133333333333,
+        806.596
+      ],
+      "v10_error_px": 23.155590983125006,
+      "v12_pixel_xy": [
+        1336.888888888889,
+        819.2666666666667
+      ],
+      "v12_error_px": 2.4347281644092997
+    },
+    {
+      "name": "diagonal_wing_tip",
+      "outline_xy_m": [
+        12.6,
+        -12.5
+      ],
+      "pixel_xy": [
+        1262,
+        965
+      ],
+      "v10_pixel_xy": [
+        1244.38,
+        944.5
+      ],
+      "v10_error_px": 27.03172950441751,
+      "v12_pixel_xy": [
+        1263.0,
+        962.9166666666667
+      ],
+      "v12_error_px": 2.31090410397694
+    },
+    {
+      "name": "south_wing_tip",
+      "outline_xy_m": [
+        8.5,
+        -14.5
+      ],
+      "pixel_xy": [
+        1117,
+        1036
+      ],
+      "v10_pixel_xy": [
+        1098.9666666666667,
+        1015.2199999999999
+      ],
+      "v10_error_px": 27.513805827458942,
+      "v12_pixel_xy": [
+        1111.5277777777778,
+        1036.5833333333335
+      ],
+      "v12_error_px": 5.503225765599674
+    },
+    {
+      "name": "south_straight_end",
+      "outline_xy_m": [
+        5,
+        -13.9
+      ],
+      "pixel_xy": [
+        982,
+        1018
+      ],
+      "v10_pixel_xy": [
+        974.8333333333334,
+        994.004
+      ],
+      "v10_error_px": 25.043344966499777,
+      "v12_pixel_xy": [
+        982.2222222222222,
+        1014.4833333333333
+      ],
+      "v12_error_px": 3.5236809107088143
+    }
+  ]
+}

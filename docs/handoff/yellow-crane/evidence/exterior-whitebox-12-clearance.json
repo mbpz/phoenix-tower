@@ -1,0 +1,356 @@
+{
+  "scene": "HHL_Exterior_Whitebox_12",
+  "method": "Blender world-space loop triangles clipped over actual top-box square bounds; all four stacked levels stay inside this footprint",
+  "float_tolerance_m": 3e-06,
+  "support_width_policy_m": 1.04,
+  "clearance_policy_m": 0.02,
+  "minimum_height_policy_m": 0.04,
+  "checked_supports": 20,
+  "minimum_vertical_clearance_m": 0.01999805846531899,
+  "checks": [
+    {
+      "center": [
+        -9.0,
+        9.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 37.9873657099213,
+      "support_top_m": 37.96736526489258,
+      "vertical_clearance_m": 0.020000445028721003,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 0.21736526489257812,
+      "minimum_witness": [
+        -8.479999542236328,
+        9.520000457763672,
+        37.9873657099213
+      ]
+    },
+    {
+      "center": [
+        -5.0,
+        9.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.93541859069188,
+      "support_top_m": 38.91542053222656,
+      "vertical_clearance_m": 0.01999805846531899,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.1654205322265625,
+      "minimum_witness": [
+        -5.520000457763672,
+        8.479999542236328,
+        38.93541859069188
+      ]
+    },
+    {
+      "center": [
+        -3.0,
+        9.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.83218983056039,
+      "support_top_m": 38.812191009521484,
+      "vertical_clearance_m": 0.019998821038903714,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.0621910095214844,
+      "minimum_witness": [
+        -3.424460727811625,
+        9.520000457763672,
+        38.83218983056039
+      ]
+    },
+    {
+      "center": [
+        3.0,
+        9.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.88350507461684,
+      "support_top_m": 38.86350631713867,
+      "vertical_clearance_m": 0.019998757478170148,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.1135063171386719,
+      "minimum_witness": [
+        3.4000002043585593,
+        9.520000457763672,
+        38.88350507461684
+      ]
+    },
+    {
+      "center": [
+        5.0,
+        9.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.84343502242907,
+      "support_top_m": 38.82343673706055,
+      "vertical_clearance_m": 0.019998285368522772,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.0734367370605469,
+      "minimum_witness": [
+        5.520000457763672,
+        8.479999542236328,
+        38.84343502242907
+      ]
+    },
+    {
+      "center": [
+        9.0,
+        9.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 37.987365709921306,
+      "support_top_m": 37.96736526489258,
+      "vertical_clearance_m": 0.02000044502872811,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 0.21736526489257812,
+      "minimum_witness": [
+        9.520000457763672,
+        8.479999542236328,
+        37.987365709921306
+      ]
+    },
+    {
+      "center": [
+        -9.0,
+        5.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.84343502242907,
+      "support_top_m": 38.82343673706055,
+      "vertical_clearance_m": 0.019998285368522772,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.0734367370605469,
+      "minimum_witness": [
+        -8.479999542236328,
+        5.520000457763672,
+        38.84343502242907
+      ]
+    },
+    {
+      "center": [
+        9.0,
+        5.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.93541859069188,
+      "support_top_m": 38.91542053222656,
+      "vertical_clearance_m": 0.01999805846531899,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.1654205322265625,
+      "minimum_witness": [
+        8.479999542236328,
+        5.520000457763672,
+        38.93541859069188
+      ]
+    },
+    {
+      "center": [
+        -9.0,
+        3.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.88350507461684,
+      "support_top_m": 38.86350631713867,
+      "vertical_clearance_m": 0.019998757478170148,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.1135063171386719,
+      "minimum_witness": [
+        -9.520000457763672,
+        3.4000002043585593,
+        38.88350507461684
+      ]
+    },
+    {
+      "center": [
+        9.0,
+        3.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.83218983056039,
+      "support_top_m": 38.812191009521484,
+      "vertical_clearance_m": 0.019998821038903714,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.0621910095214844,
+      "minimum_witness": [
+        9.520000457763672,
+        3.424460727811625,
+        38.83218983056039
+      ]
+    },
+    {
+      "center": [
+        -9.0,
+        -3.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.83218983056039,
+      "support_top_m": 38.812191009521484,
+      "vertical_clearance_m": 0.019998821038903714,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.0621910095214844,
+      "minimum_witness": [
+        -9.520000457763672,
+        -3.424460727811625,
+        38.83218983056039
+      ]
+    },
+    {
+      "center": [
+        9.0,
+        -3.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.88350507461684,
+      "support_top_m": 38.86350631713867,
+      "vertical_clearance_m": 0.019998757478170148,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.1135063171386719,
+      "minimum_witness": [
+        9.520000457763672,
+        -3.4000002043585593,
+        38.88350507461684
+      ]
+    },
+    {
+      "center": [
+        -9.0,
+        -5.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.93541859069188,
+      "support_top_m": 38.91542053222656,
+      "vertical_clearance_m": 0.01999805846531899,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.1654205322265625,
+      "minimum_witness": [
+        -8.479999542236328,
+        -5.520000457763672,
+        38.93541859069188
+      ]
+    },
+    {
+      "center": [
+        9.0,
+        -5.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.84343502242907,
+      "support_top_m": 38.82343673706055,
+      "vertical_clearance_m": 0.019998285368522772,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.0734367370605469,
+      "minimum_witness": [
+        8.479999542236328,
+        -5.520000457763672,
+        38.84343502242907
+      ]
+    },
+    {
+      "center": [
+        -9.0,
+        -9.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 37.987365709921306,
+      "support_top_m": 37.96736526489258,
+      "vertical_clearance_m": 0.02000044502872811,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 0.21736526489257812,
+      "minimum_witness": [
+        -9.520000457763672,
+        -8.479999542236328,
+        37.987365709921306
+      ]
+    },
+    {
+      "center": [
+        -5.0,
+        -9.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.84343502242907,
+      "support_top_m": 38.82343673706055,
+      "vertical_clearance_m": 0.019998285368522772,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.0734367370605469,
+      "minimum_witness": [
+        -5.520000457763672,
+        -8.479999542236328,
+        38.84343502242907
+      ]
+    },
+    {
+      "center": [
+        -3.0,
+        -9.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.88350507461684,
+      "support_top_m": 38.86350631713867,
+      "vertical_clearance_m": 0.019998757478170148,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.1135063171386719,
+      "minimum_witness": [
+        -3.4000002043585593,
+        -9.520000457763672,
+        38.88350507461684
+      ]
+    },
+    {
+      "center": [
+        3.0,
+        -9.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.83218983056039,
+      "support_top_m": 38.812191009521484,
+      "vertical_clearance_m": 0.019998821038903714,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.0621910095214844,
+      "minimum_witness": [
+        3.424460727811625,
+        -9.520000457763672,
+        38.83218983056039
+      ]
+    },
+    {
+      "center": [
+        5.0,
+        -9.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 38.93541859069188,
+      "support_top_m": 38.91542053222656,
+      "vertical_clearance_m": 0.01999805846531899,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 1.1654205322265625,
+      "minimum_witness": [
+        5.520000457763672,
+        -8.479999542236328,
+        38.93541859069188
+      ]
+    },
+    {
+      "center": [
+        9.0,
+        -9.0
+      ],
+      "footprint_width_m": 1.0400009155273438,
+      "roof_minimum_m": 37.9873657099213,
+      "support_top_m": 37.96736526489258,
+      "vertical_clearance_m": 0.020000445028721003,
+      "post_and_support_base_m": 37.75,
+      "support_height_m": 0.21736526489257812,
+      "minimum_witness": [
+        8.479999542236328,
+        -9.520000457763672,
+        37.9873657099213
+      ]
+    }
+  ],
+  "limitations": [
+    "Vertical fit to estimated single-layer roof underside only; not minimum Euclidean separation",
+    "No complete scene intersection or structural load/contact verification; supports remain four stacked box proxies"
+  ]
+}

@@ -1,13 +1,32 @@
 """Geometry regressions run without Blender or third-party dependencies."""
 import math
+import json
 import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
-from exterior_whitebox import roof_mesh, tier_outline, output_paths, approach_steps, save_checkpoint, component_volumes, transition_band, enclosure_height
+from exterior_whitebox import FIFTH_LOWER_CANOPY_SCALE, roof_mesh, tier_outline, output_paths, approach_steps, save_checkpoint, component_volumes, transition_band, enclosure_height
 
 
 class ExteriorGeometryTests(unittest.TestCase):
+    def test_l5_outline_retains_its_own_plan_scale(self):
+        root = Path(__file__).resolve().parents[2]
+        refs = root / 'docs/refactoring'
+        landmarks = json.loads((refs / 'yellow-crane-l5-eave-landmarks.json').read_text())
+        calibration = json.loads((refs / 'yellow-crane-plan-traces.json').read_text())['calibrations']['2-2-4']
+        x0, x1 = calibration['x_endpoints_px']
+        y0, y1 = calibration['y_endpoints_px']
+        span = calibration['span_m']
+        outline, _ = tier_outline(FIFTH_LOWER_CANOPY_SCALE)
+        for landmark in landmarks['landmarks']:
+            with self.subTest(landmark=landmark['name']):
+                x, y = (v * FIFTH_LOWER_CANOPY_SCALE for v in landmark['outline_xy_m'])
+                self.assertIn((x, y), outline)
+                projected = ((x0+x1)/2+x*(x1-x0)/span,
+                             (y0+y1)/2-y*(y1-y0)/span)
+                error = math.dist(projected, landmark['pixel_xy'])
+                self.assertLessEqual(error, landmarks['tolerance_px'])
+
     def assert_closed(self, vertices, faces):
         edges = Counter()
         directed = Counter()

@@ -14,6 +14,9 @@ from crown_whitebox import crown_mesh
 from top_support_whitebox import perimeter_centres, support_study
 
 
+# L5 outline originates in plate 2-2-4 itself, not a larger-storey template.
+FIFTH_LOWER_CANOPY_SCALE = 1.0
+
 def tier_outline(scale):
     # 2-2-4 SE corner, axis-mapped manual pixels; rotate, not a generic pagoda.
     quadrant = [(14,0),(14,-5),(14.6,-8.6),(12.1,-8),(11.9,-8.3),
@@ -306,12 +309,14 @@ def build(root, version='01'):
         ('Second_canopy',1.03,.62,19.4,17.22),
         ('Third_canopy',1,.61,26,23.82),
         ('Fourth_canopy',1,.61,32.6,30.42),
-        ('Fifth_lower_canopy',.96,.55,40.6,37.02)]:
+        ('Fifth_lower_canopy',FIFTH_LOWER_CANOPY_SCALE,.55,40.6,37.02)]:
         outer,tips=tier_outline(scale)
         inner=[(x*inner_ratio,y*inner_ratio) for x,y in outer]
         obj=mesh(label,roof_mesh(inner,outer,ridge,eave,tips),'Estimated_roofs','roof')
         obj['source']='2-2-4 corner topology transferred/scaled as estimate; 2-2-5 section elevations; L4 conflict retained in eave trace'
         if label=='Fifth_lower_canopy':
+            obj['source']='2-2-4 own-floor axis-mapped outline; extra scaling removed; see yellow-crane-l5-eave-landmarks.json; curvature/height remain estimates'
+            obj['plan_scale']=FIFTH_LOWER_CANOPY_SCALE
             # Use Blender's actual quad tessellation, not a center-point ray.
             obj.data.calc_loop_triangles()
             triangles=[tuple(tuple(obj.data.vertices[i].co) for i in t.vertices) for t in obj.data.loop_triangles]

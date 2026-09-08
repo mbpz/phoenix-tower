@@ -1,0 +1,20 @@
+{
+  "closeup_underside": {
+    "location": [
+      28.0,
+      -42.0,
+      32.5
+    ],
+    "target": [
+      4,
+      -7,
+      37.5
+    ],
+    "orthographic_scale": 14,
+    "resolution": [
+      1400,
+      1000
+    ]
+  },
+  "front_and_oblique": "default build cameras; 1400x1600; Workbench; geometry only; no material acceptance"
+}

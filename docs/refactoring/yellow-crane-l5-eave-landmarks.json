@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-09-08",
+  "status": "manual_design_plate_landmarks_not_survey",
+  "source_figure": "2-2-4",
+  "local_image": "trace-plan-2-2-4.png",
+  "calibration_ref": "yellow-crane-plan-traces.json#/calibrations/2-2-4",
+  "coordinate_system": "image pixels top-left; model XY metres, origin at grid centre",
+  "tolerance_px": 6,
+  "tolerance_reason": "Rounded pre-existing outline plus raster stroke width/manual selection; not measurement accuracy",
+  "landmarks": [
+    {
+      "name": "east_straight_centre",
+      "outline_xy_m": [
+        14,
+        0
+      ],
+      "pixel_xy": [
+        1313,
+        503
+      ]
+    },
+    {
+      "name": "east_straight_end",
+      "outline_xy_m": [
+        14,
+        -5
+      ],
+      "pixel_xy": [
+        1315,
+        687
+      ]
+    },
+    {
+      "name": "east_wing_tip",
+      "outline_xy_m": [
+        14.6,
+        -8.6
+      ],
+      "pixel_xy": [
+        1336,
+        817
+      ]
+    },
+    {
+      "name": "diagonal_wing_tip",
+      "outline_xy_m": [
+        12.6,
+        -12.5
+      ],
+      "pixel_xy": [
+        1262,
+        965
+      ]
+    },
+    {
+      "name": "south_wing_tip",
+      "outline_xy_m": [
+        8.5,
+        -14.5
+      ],
+      "pixel_xy": [
+        1117,
+        1036
+      ]
+    },
+    {
+      "name": "south_straight_end",
+      "outline_xy_m": [
+        5,
+        -13.9
+      ],
+      "pixel_xy": [
+        982,
+        1018
+      ]
+    }
+  ],
+  "limitations": [
+    "Six SE landmarks only; not complete curve reconstruction or other-quadrant validation",
+    "Roof height, curvature and underside are not constrained by plan landmarks",
+    "2-2-13 confirms developed wing framing, not a 37.300m corner post top",
+    "Retain original estimated outline coordinates; remove unsupported extra L5 scaling only"
+  ]
+}

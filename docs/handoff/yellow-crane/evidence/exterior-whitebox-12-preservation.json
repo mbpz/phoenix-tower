@@ -1,0 +1,148 @@
+{
+  "source": "actual Blender geometry comparison; not replica acceptance",
+  "old_scenes_preserved": {
+    "HHL_Corner_Clearance_Study_11": true,
+    "HHL_Dimensioned_References": true,
+    "HHL_Eave_Pixel_Study": true,
+    "HHL_Exploded_Study": true,
+    "HHL_Exterior_Whitebox_01": true,
+    "HHL_Exterior_Whitebox_02": true,
+    "HHL_Exterior_Whitebox_03": true,
+    "HHL_Exterior_Whitebox_04": true,
+    "HHL_Exterior_Whitebox_05": true,
+    "HHL_Exterior_Whitebox_06": true,
+    "HHL_Exterior_Whitebox_07": true,
+    "HHL_Exterior_Whitebox_08": true,
+    "HHL_Exterior_Whitebox_09": true,
+    "HHL_Exterior_Whitebox_10": true,
+    "HHL_Plan_Trace_QA": true,
+    "HHL_Reconstruction_01": true,
+    "HHL_Structure_Study": true,
+    "Scene": true
+  },
+  "unchanged_meshes": [
+    "L1_floor",
+    "L1_posts",
+    "L2_floor",
+    "L2_posts",
+    "L3_floor",
+    "L3_posts",
+    "L4_floor",
+    "L4_posts",
+    "L5_floor",
+    "L5_posts",
+    "Ground_canopy",
+    "Second_canopy",
+    "Third_canopy",
+    "Fourth_canopy",
+    "Crown_joined_roof",
+    "Wall_panels",
+    "Window_mullions",
+    "Wall_lintels",
+    "Upper_enclosure_frieze",
+    "Post_head_beams",
+    "Balcony_rails",
+    "Balcony_balusters",
+    "Transition_sill",
+    "Transition_header",
+    "Transition_piers",
+    "Transition_frames",
+    "Transition_recess_cells",
+    "Crown_seat",
+    "Wing_ridge_caps",
+    "Base",
+    "Approach_steps",
+    "Finial_silhouette_PROXY"
+  ],
+  "changed_meshes": [
+    "Fifth_lower_canopy",
+    "L5_support_PROXY"
+  ],
+  "added_meshes": [],
+  "source_v10_file_unchanged": true,
+  "support_study": {
+    "accepted": [
+      [
+        -9,
+        9
+      ],
+      [
+        -5,
+        9
+      ],
+      [
+        -3,
+        9
+      ],
+      [
+        3,
+        9
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        9,
+        9
+      ],
+      [
+        -9,
+        5
+      ],
+      [
+        9,
+        5
+      ],
+      [
+        -9,
+        3
+      ],
+      [
+        9,
+        3
+      ],
+      [
+        -9,
+        -3
+      ],
+      [
+        9,
+        -3
+      ],
+      [
+        -9,
+        -5
+      ],
+      [
+        9,
+        -5
+      ],
+      [
+        -9,
+        -9
+      ],
+      [
+        -5,
+        -9
+      ],
+      [
+        -3,
+        -9
+      ],
+      [
+        3,
+        -9
+      ],
+      [
+        5,
+        -9
+      ],
+      [
+        9,
+        -9
+      ]
+    ],
+    "blocked": []
+  }
+}

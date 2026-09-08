@@ -1,0 +1,55 @@
+{
+  "checked_on": "2026-09-08",
+  "scene_count": 19,
+  "active_scene": "HHL_Exterior_Whitebox_12",
+  "old_scenes_preserved_after_render": {
+    "HHL_Corner_Clearance_Study_11": true,
+    "HHL_Dimensioned_References": true,
+    "HHL_Eave_Pixel_Study": true,
+    "HHL_Exploded_Study": true,
+    "HHL_Exterior_Whitebox_01": true,
+    "HHL_Exterior_Whitebox_02": true,
+    "HHL_Exterior_Whitebox_03": true,
+    "HHL_Exterior_Whitebox_04": true,
+    "HHL_Exterior_Whitebox_05": true,
+    "HHL_Exterior_Whitebox_06": true,
+    "HHL_Exterior_Whitebox_07": true,
+    "HHL_Exterior_Whitebox_08": true,
+    "HHL_Exterior_Whitebox_09": true,
+    "HHL_Exterior_Whitebox_10": true,
+    "HHL_Plan_Trace_QA": true,
+    "HHL_Reconstruction_01": true,
+    "HHL_Structure_Study": true,
+    "Scene": true
+  },
+  "source_v10_file_unchanged": true,
+  "duplicate_build_rejected_without_scene_change": true,
+  "local_only_artifacts": {
+    "exterior-whitebox-12.blend": {
+      "sha256": "cc0076d7ef3d881aa64dfbb6db5c7bf87818589f13a415ae0eb086cccd567f26",
+      "bytes": 3186295
+    },
+    "exterior-whitebox-12-front.png": {
+      "sha256": "b73211a47dd9de885feaeb231761586c024f0649ade9b2dca62723d4e62a6992",
+      "bytes": 1918347
+    },
+    "exterior-whitebox-12-oblique.png": {
+      "sha256": "a5cb84483f522be676da4080f3d0b2b5623925aa85ec558d0f175617cccb70e3",
+      "bytes": 2403640
+    },
+    "exterior-whitebox-12-support-closeup.png": {
+      "sha256": "6b861420385d832022250f5f5f412739856dec6c4e1b1332b79eb46a43ed7a72",
+      "bytes": 1743067
+    },
+    "exterior-whitebox-12-support-underside.png": {
+      "sha256": "53262452dbab8808e9d03f4b5d10f63c7c57b67c4890686586c6263d4dced150",
+      "bytes": 1709249
+    }
+  },
+  "blender_version": "5.2.1 LTS",
+  "limitations": [
+    "Scene digest covers names/types/transforms/mesh vertices/faces/crown region, not every Blender field",
+    "No v12 scene-library roundtrip, structural or game performance acceptance",
+    "Render-only closeup camera removed after rendering; saved v12 contains default front/oblique cameras"
+  ]
+}
