@@ -25,6 +25,33 @@ class HandoffAssetsTests(unittest.TestCase):
         self.assertEqual(len(paths), len(set(paths)))
         self.assertIn('docs/handoff/yellow-crane/exterior-whitebox-08-portable.blend', paths)
 
+    def test_v13_evidence_keeps_bounded_verification_distinct_from_visual_acceptance(self):
+        evidence = HANDOFF / 'yellow-crane/evidence'
+        def read(suffix):
+            return json.loads((evidence / f'exterior-whitebox-13-{suffix}.json').read_text())
+        geometry, disk, final, visual = (read(s) for s in
+                                       ('readback', 'disk-readback', 'final-verification', 'visual-verdict'))
+        self.assertEqual(geometry['v13_file_sha256'], disk['source_file_sha256'])
+        self.assertEqual(final['v13_source_sha256'], disk['source_file_sha256'])
+        self.assertTrue(disk['scene_geometry_matches_live'])
+        self.assertEqual(disk['meshes'], 34)
+        self.assertEqual(set(geometry['changed_meshes']), {'Fifth_lower_canopy', 'L5_support_PROXY'})
+        self.assertEqual(len(geometry['unchanged_meshes']), 32)
+        self.assertEqual(len(geometry['endpoint_checks']), 40)
+        tips = [p for p in geometry['endpoint_checks'] if p['is_tip']]
+        self.assertEqual(len(tips), 12)
+        for point in geometry['endpoint_checks']:
+            target = 38.8 if point['is_tip'] else 37.02
+            self.assertLessEqual(abs(point['actual_xyz_m'][2]-target), 3e-6)
+        self.assertEqual(len(geometry['clearance_checks']), 20)
+        for support in geometry['clearance_checks']:
+            self.assertGreaterEqual(support['vertical_clearance_m'], .02-3e-6)
+            self.assertGreater(support['support_height_m'], .04)
+        self.assertTrue(read('post-verification')['duplicate_version_rejected'])
+        self.assertFalse(final['export_to_game'])
+        self.assertEqual(visual['verdict'], 'revise')
+        self.assertLess(visual['score'], 90)
+
     def test_snapshot_roundtrip_evidence(self):
         proof = json.loads((HANDOFF / 'yellow-crane/portability-verification.json').read_text(encoding='utf-8'))
         artifact = ROOT / proof['artifact']

@@ -1,0 +1,14 @@
+{
+  "all_20_scene_digests_preserved_after_renders_and_disk_readback": true,
+  "v13_file_sha256": "0815de35d6d572331ba335e1829edcad028546608b0401c39d077bd30c3e1d80",
+  "v13_file_preserved": true,
+  "current_camera": "WB13_Oblique",
+  "resolution": [
+    1400,
+    1600
+  ],
+  "temporary_render_camera_absent": true,
+  "duplicate_version_rejected": true,
+  "guard_message": "Preserve existing exterior: .omx/references/yellow-crane/exterior-whitebox-13.blend",
+  "active_scene_unchanged": true
+}

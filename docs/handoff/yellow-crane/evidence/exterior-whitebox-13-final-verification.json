@@ -1,0 +1,108 @@
+{
+  "recorded_on": "2026-09-08",
+  "commit_under_test": "02fb029",
+  "scene": "HHL_Exterior_Whitebox_13",
+  "status": "bounded_v13_geometry_verification_complete_M1_visual_revise",
+  "approval_timeout_blocker": "Recovered this turn; front render first attempt timed out then retry succeeded",
+  "scene_rebuilt": false,
+  "source_file_overwritten": false,
+  "evidence": [
+    "exterior-whitebox-13-validation.json",
+    "exterior-whitebox-13-readback.json",
+    "exterior-whitebox-13-disk-readback.json",
+    "exterior-whitebox-13-visual-verdict.json",
+    "exterior-whitebox-13-post-verification.json"
+  ],
+  "mesh_count": 34,
+  "triangles": 106968,
+  "tip_count_verified": 12,
+  "tip_target_z_m": 38.8,
+  "float_tolerance_m": 3e-06,
+  "support_count_verified": 20,
+  "minimum_vertical_clearance_m": 0.01999778537964403,
+  "minimum_support_height_m": 0.19463348388671875,
+  "only_changed_meshes": [
+    "Fifth_lower_canopy",
+    "L5_support_PROXY"
+  ],
+  "unchanged_mesh_count": 32,
+  "old_19_scenes_preserved": true,
+  "all_20_scenes_preserved_after_disk_readback": true,
+  "saved_scene_geometry_matches_live": true,
+  "v13_source_sha256": "0815de35d6d572331ba335e1829edcad028546608b0401c39d077bd30c3e1d80",
+  "render_engine": "BLENDER_WORKBENCH",
+  "renders": [
+    {
+      "local_file": "exterior-whitebox-13-front.png",
+      "sha256": "3ab73ea8d86cd00cd7bd27ba29c79ab8ec2b7decb419be3baef8a28135b1525e",
+      "location": [
+        0,
+        -110,
+        24
+      ],
+      "target": [
+        0,
+        0,
+        24
+      ],
+      "orthographic_scale": 59,
+      "resolution": [
+        1400,
+        1600
+      ]
+    },
+    {
+      "local_file": "exterior-whitebox-13-oblique.png",
+      "sha256": "2de133b5a30d4edbb150e47d923008809ebc327d7ce4df67db3812807603e7e5",
+      "location": [
+        80,
+        -115,
+        72
+      ],
+      "target": [
+        0,
+        0,
+        24
+      ],
+      "orthographic_scale": 65,
+      "resolution": [
+        1400,
+        1600
+      ]
+    },
+    {
+      "local_file": "exterior-whitebox-13-support-underside.png",
+      "sha256": "23565b87627411be5c26fd146067d7247920595a8cd37eea374c46ecfb2b02ca",
+      "location": [
+        28,
+        -42,
+        32.5
+      ],
+      "target": [
+        4,
+        -7,
+        37.5
+      ],
+      "orthographic_scale": 14,
+      "resolution": [
+        1400,
+        1000
+      ]
+    }
+  ],
+  "render_only_camera_removed": true,
+  "render_camera_and_output_settings_restored": true,
+  "tests": {
+    "blender_helpers": 51,
+    "handoff": 5,
+    "note": "Offline evidence regressions are not a fresh Blender run."
+  },
+  "remaining": [
+    "M1 visual shape revise: developed curve and wing junctions remain estimated",
+    "No full-scene intersection or measured structural load-path proof",
+    "Clearance recheck uses same tested clipping helper, not an independent algorithm",
+    "No new portable dependency-audited export; portable artifact remains v08",
+    "No game import, interaction, materials or CPU/GPU acceptance"
+  ],
+  "export_to_game": false
+}

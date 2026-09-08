@@ -1,0 +1,15 @@
+{
+  "source_file_sha256": "0815de35d6d572331ba335e1829edcad028546608b0401c39d077bd30c3e1d80",
+  "method": "Append ONLY v13 scene from SHA256-identical temporary copy; update loaded view layers before comparing normalized names/types/world matrices, mesh vertices/faces and crown IDs. Remove only newly loaded datablocks. Not full dependency or portable-export acceptance.",
+  "objects": 36,
+  "meshes": 34,
+  "scene_geometry_matches_live": true,
+  "normalized_geometry_sha256": "0d2bee4805129d8ee26a800fd8c399649a82f657c5933bd305315e0440b7448b",
+  "verification_harness_corrections": [
+    "Blender rejects appending current file: use byte-identical private copy",
+    "Appended cameras have stale identity world matrices until loaded view layers update; geometry itself did not differ"
+  ],
+  "existing_20_scenes_preserved": true,
+  "temporary_datablocks_removed": true,
+  "source_file_preserved": true
+}
