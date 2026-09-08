@@ -5,6 +5,10 @@ heights and the fitting clearance are visual study choices.
 """
 import math
 
+SUPPORT_WIDTH = 1.04
+SUPPORT_CLEARANCE = .02
+MIN_SUPPORT_HEIGHT = .04
+
 
 def perimeter_centres(centres, outline):
     """Select traced columns on the given perimeter, preserving input order."""
@@ -18,8 +22,8 @@ def perimeter_centres(centres, outline):
     return selected
 
 
-def underside_cap(triangles, center, width):
-    """Lowest underside Z over a square, clipping all downward triangles.
+def underside_probe(triangles, center, width):
+    """Lowest underside point and source triangle over a clipped square.
 
     Input must be a triangulated, non-overlapping single-layer underside in XY.
     Coverage area rejects gaps for that contract, not arbitrary layered meshes.
@@ -32,7 +36,9 @@ def underside_cap(triangles, center, width):
             (1,y-width/2,1),(1,y+width/2,-1)]
     area=0.0
     lowest=math.inf
-    for triangle in triangles:
+    witness=None
+    source_index=None
+    for index,triangle in enumerate(triangles):
         if len(triangle)!=3 or any(len(p)!=3 or not all(math.isfinite(v) for v in p) for p in triangle):
             raise ValueError('Finite XYZ triangles required')
         a,b,c=triangle
@@ -52,10 +58,20 @@ def underside_cap(triangles, center, width):
         projected=abs(sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(polygon,polygon[1:]+polygon[:1])))/2
         if projected<=1e-12: continue
         area+=projected
-        lowest=min(lowest,min(p[2] for p in polygon))
+        point=min(polygon,key=lambda p:(p[2],p[0],p[1]))
+        if point[2]<lowest:
+            lowest=point[2]
+            witness=tuple(point)
+            source_index=index
     if not math.isclose(area,width*width,rel_tol=1e-6,abs_tol=1e-8) or not math.isfinite(lowest):
         raise ValueError('Support footprint lacks single-layer underside coverage')
-    return lowest
+    return {'cap_m':lowest, 'minimum_point':witness,
+            'triangle_index':source_index, 'projected_area':area}
+
+
+def underside_cap(triangles, center, width):
+    """Scalar compatibility API; shares the exact footprint clipping calculation."""
+    return underside_probe(triangles,center,width)['cap_m']
 
 
 def support_members(triangles, centres, bottom):
@@ -64,11 +80,11 @@ def support_members(triangles, centres, bottom):
     triangles=list(triangles)
     members=[]
     for x,y in centres:
-        top=underside_cap(triangles,(x,y),1.04)-.02
+        top=underside_cap(triangles,(x,y),SUPPORT_WIDTH)-SUPPORT_CLEARANCE
         height=top-bottom
-        if height<=.04: raise ValueError('Insufficient space for support proxy')
+        if height<=MIN_SUPPORT_HEIGHT: raise ValueError('Insufficient space for support proxy')
         z=bottom
-        for width,fraction in ((.48,.55),(.64,.15),(.84,.15),(1.04,.15)):
+        for width,fraction in ((.48,.55),(.64,.15),(.84,.15),(SUPPORT_WIDTH,.15)):
             h=height*fraction
             members.append(((x,y,z+h/2),(width,width,h)))
             z+=h
@@ -81,8 +97,8 @@ def support_study(triangles, centres, bottom):
     triangles=list(triangles)
     result={'members':[], 'accepted':[], 'blocked':[]}
     for center in centres:
-        cap=underside_cap(triangles,center,1.04)
-        if cap-.02-bottom<=.04:
+        cap=underside_cap(triangles,center,SUPPORT_WIDTH)
+        if cap-SUPPORT_CLEARANCE-bottom<=MIN_SUPPORT_HEIGHT:
             result['blocked'].append({'center':center,'underside_cap_m':cap,
                                       'post_head_m':bottom,'reason':'Insufficient space for support proxy'})
         else:

@@ -58,6 +58,35 @@ class SupportTests(unittest.TestCase):
         self.assertTrue(all(abs(x)==9 or abs(y)==9 for x,y in selected))
         self.assertEqual(perimeter_centres(centres+centres,floor['outline_m']),selected)
 
+class WitnessTests(unittest.TestCase):
+    def test_witness_is_on_clipped_triangle_and_preserves_scalar_api(self):
+        from top_support_whitebox import underside_probe
+        result = underside_probe(plane(), (0, 0), 1.04)
+        x, y, z = result['minimum_point']
+        self.assertAlmostEqual(z, 9.48)
+        self.assertAlmostEqual(z, 10 + x)
+        self.assertLessEqual(abs(x), .52)
+        self.assertLessEqual(abs(y), .52)
+        self.assertIn(result['triangle_index'], (0, 1))
+        self.assertAlmostEqual(result['projected_area'], 1.04**2)
+        self.assertEqual(result['cap_m'], underside_cap(plane(), (0, 0), 1.04))
+
+    def test_interior_minimum_is_a_witness_not_a_square_corner(self):
+        from top_support_whitebox import underside_probe
+        rim = [(-2,-2,10),(-2,2,10),(2,2,10),(2,-2,10)]
+        triangles = [(rim[i],rim[(i+1)%4],(0,0,8)) for i in range(4)]
+        self.assertEqual(underside_probe(triangles, (0,0), 1)['minimum_point'], (0,0,8))
+
+    def test_probe_rejects_missing_coverage_and_does_not_mutate_input(self):
+        from top_support_whitebox import underside_probe
+        triangles = plane()
+        before = repr(triangles)
+        underside_probe(iter(triangles), (0,0), 1)
+        self.assertEqual(repr(triangles), before)
+        with self.assertRaises(ValueError):
+            underside_probe(triangles[:1], (0,0), 1)
+
+
 class ActualCanopyTests(unittest.TestCase):
     def test_corner_footprint_exposes_collision_center_ray_misses(self):
         from exterior_whitebox import roof_mesh, tier_outline

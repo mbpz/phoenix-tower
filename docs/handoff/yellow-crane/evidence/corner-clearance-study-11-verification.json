@@ -1,0 +1,69 @@
+{
+  "status": "pass_diagnostic_only",
+  "witness_checks": [
+    {
+      "center": [
+        -9,
+        9
+      ],
+      "barycentric": [
+        0.8922078607607972,
+        0.0003928717981535796,
+        0.10739926744104919
+      ],
+      "plane_residual_m": 0.0,
+      "within_footprint": true
+    },
+    {
+      "center": [
+        9,
+        9
+      ],
+      "barycentric": [
+        0.8922078607607972,
+        0.0003928717981535796,
+        0.10739926744104919
+      ],
+      "plane_residual_m": 0.0,
+      "within_footprint": true
+    },
+    {
+      "center": [
+        -9,
+        -9
+      ],
+      "barycentric": [
+        0.8922078607607972,
+        0.0003928717981535796,
+        0.10739926744104919
+      ],
+      "plane_residual_m": 0.0,
+      "within_footprint": true
+    },
+    {
+      "center": [
+        9,
+        -9
+      ],
+      "barycentric": [
+        0.8922078607607972,
+        0.0003928717981535796,
+        0.10739926744104919
+      ],
+      "plane_residual_m": 0.0,
+      "within_footprint": true
+    }
+  ],
+  "old_scene_geometry_after_render_unchanged": true,
+  "prior_scene_count": 17,
+  "duplicate_study_rejected_without_scene_switch": true,
+  "source_v10_file_unchanged": true,
+  "source_v10_sha256": "9a331df433de7e32ba8155394150074b40038bffd53aa8de872ea0396fde332d",
+  "study_blend_sha256": "4096bc2d061cb3a69835467bee7007694dd7de11d39bf0607e3e0ab0fb980e25",
+  "render_sha256": "12400404af4a9d55d5d0ee137558d2ffb286005e73418f0ca75ccd4041dcfc11",
+  "limits": [
+    "No new exterior geometry accepted",
+    "No Blender file reopen/roundtrip for this diagnostic study",
+    "No architecture or game performance acceptance"
+  ]
+}

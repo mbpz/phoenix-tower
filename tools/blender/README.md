@@ -135,3 +135,27 @@ corner contact, eave curvature and structural correctness remain open. No runtim
 export or performance claim. The portable Git scene remains v08; selected v10 JSON
 evidence is in the handoff manifest, while raw v10 Blend/renders stay local-only.
 Use a fresh version 11 or higher for the next iteration.
+
+
+### Corner diagnostic study 11 (not exterior checkpoint 11)
+
+`underside_probe` now exposes the clipped minimum point, source loop-triangle index
+and projected coverage area. `underside_cap` delegates to the same calculation;
+fit widths, heights, clearances and v10 geometry are unchanged. Three new witness
+regressions bring the pure suite to 49 tests (all pass).
+
+Via MCP, reload `top_support_whitebox` before importing/reloading
+`corner_clearance_study`, then call `corner_clearance_study.build(root, '11')`.
+It requires the original v10 scene and local saved v10 file; the portable v08 file
+alone is insufficient. Existing scene/file names are rejected before modification.
+A separate labeled analysis scene is saved and rendered; no building mesh is edited.
+Use a fresh diagnostic number if outputs already exist; it is not a retry/overwrite API.
+
+Actual Blender witness/barycentric checks, old 17-scene hashes, unchanged v10 file
+and duplicate-run guard were verified. Four corners fall 44.8 mm short of the
+**proxy fitting policy**, not architectural requirements. The section profile uses
+41 one-millimeter square probes and non-uniform plot axes. The 37.300 m dark/mezzanine
+level is not evidence for lowering corner posts. Study11 is not an exterior revision;
+next exterior iteration is 12. Raw Blend/PNG remain local, selected JSON evidence
+is listed in the handoff manifest. No scene-library roundtrip, independent review,
+LSP, architectural acceptance or runtime performance verification is claimed here.
