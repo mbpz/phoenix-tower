@@ -95,6 +95,37 @@ class HandoffAssetsTests(unittest.TestCase):
         self.assertFalse(final['export_to_game'])
         self.assertEqual(final['portable_checkpoint'], '08')
 
+    def test_l3_source_study_preserves_unresolved_component_mapping(self):
+        path = ROOT / 'docs/refactoring/yellow-crane-l3-section-constraints.json'
+        constraints = json.loads(path.read_text())
+        evidence = HANDOFF / 'yellow-crane/evidence'
+        report = json.loads((evidence / 'l3-section-constraint-study-01.json').read_text())
+        prior = json.loads((evidence / 'post-contact-v14-runtime.json').read_text())
+        self.assertEqual(report['constraints_sha256'], hashlib.sha256(path.read_bytes()).hexdigest())
+        self.assertEqual(report['source_file_sha256'], prior['source_blend_sha256']['14'])
+        self.assertEqual(report['source_datums']['stations_m'], [26.,25.4,24.56,23.5,23.,22.2])
+        for key in ('column_top_verified','transfer_to_exterior',
+                    'inner_ring_surface_verified','plan_correspondence_verified'):
+            self.assertFalse(constraints[key])
+            self.assertFalse(report['source_datums'][key])
+        self.assertTrue(report['actual_blender_readback'])
+        self.assertFalse(report['exterior_geometry_modified'])
+        self.assertFalse(report['export_to_game'])
+        self.assertEqual(report['before'], report['after'])
+        disk = report['saved_file_readback']
+        self.assertTrue(disk['verified'])
+        self.assertTrue(disk['old_scene_geometry_matches'])
+        self.assertTrue(disk['runtime_section_counts_match'])
+        self.assertTrue(disk['duplicate_version_rejected_without_scene_switch'])
+        self.assertEqual(disk['scene_count'], report['prior_scene_count']+1)
+        self.assertEqual(report['mesh_metadata']['Third_canopy']['section_segments'], 52)
+        self.assertEqual(report['mesh_metadata']['L3_posts']['section_segments'], 10)
+        self.assertAlmostEqual(report['support_station_minus_estimated_post_top_m'],
+                               24.56-report['estimated_post_top_m'])
+        self.assertGreater(report['support_station_minus_estimated_post_top_m'], 0.)
+        self.assertEqual(report['exterior_checkpoint'], '14')
+        self.assertEqual(report['portable_checkpoint'], '08')
+
     def test_post_preflight_is_not_promoted_to_runtime_acceptance(self):
         report = json.loads((HANDOFF / 'yellow-crane/evidence/post-contact-v14-source-preflight.json').read_text())
         self.assertFalse(report['actual_blender_readback'])

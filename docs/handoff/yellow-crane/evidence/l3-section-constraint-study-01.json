@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-09-08",
+  "status": "study_complete_mapping_unresolved",
+  "scene": "HHL_L3_Section_Constraint_Study_01",
+  "source_scene": "HHL_Exterior_Whitebox_14",
+  "source_file_sha256": "360d979a04d2061988119e6f303e8b208953326aeb02a74c2fade138d6d9f43e",
+  "constraints_sha256": "6c821a78db662162ff32bbfb753f1f959a430f4b78eb9d59f7cb71018fab62a9",
+  "source_datums": {
+    "stations_m": [
+      26.0,
+      25.4,
+      24.56,
+      23.5,
+      23.0,
+      22.2
+    ],
+    "detail_drop_m": 1.58,
+    "column_top_verified": false,
+    "transfer_to_exterior": false,
+    "inner_ring_surface_verified": false,
+    "plan_correspondence_verified": false
+  },
+  "actual_blender_readback": true,
+  "blender_version": "5.2.1 LTS",
+  "section_plane_x_m": 3.0,
+  "section_y_interval_m": [
+    8.0,
+    15.0
+  ],
+  "mesh_metadata": {
+    "Third_canopy": {
+      "triangles": 10400,
+      "section_segments": 52,
+      "maximum_z_m": 26.0
+    },
+    "L3_posts": {
+      "triangles": 2640,
+      "section_segments": 10,
+      "maximum_z_m": 24.549999237060547
+    }
+  },
+  "estimated_post_top_m": 24.549999237060547,
+  "support_station_minus_estimated_post_top_m": 0.010000762939451846,
+  "prior_scene_count": 21,
+  "before": {
+    "HHL_Corner_Clearance_Study_11": "de6d84e21e286f823b982fdf687b6a0f45f7685296869e386eb2f17756e19895",
+    "HHL_Dimensioned_References": "f46cbfe8be70725583d1a9f098738d4f30f2d90fbc75feb343663f5fb43c4b31",
+    "HHL_Eave_Pixel_Study": "e19bace0408e7ceda0f1bad5cf2cd6a6ef8132caaf884192b147fe7a5cd6ecd9",
+    "HHL_Exploded_Study": "0a28ee4a5e6f3dc59d220941759407b52796844f4facea15f2c4c5fc41a7670d",
+    "HHL_Exterior_Whitebox_01": "9caff49d31f86a31db1c4010bc70689ce57d18d827f16a0c5fc962d756e54ee6",
+    "HHL_Exterior_Whitebox_02": "70b5c796b37ce6ece3beae681a110b74f7498256ed3d90d9b9fb361b89857f81",
+    "HHL_Exterior_Whitebox_03": "f61aeab5952af8ef8bef2c204a989cb4d244cb517d7c6bbd0b0ae773ea025276",
+    "HHL_Exterior_Whitebox_04": "4fcc3d238efe59f7083c8b516cdd8d60ae13a182375ab5038162685462ba5b53",
+    "HHL_Exterior_Whitebox_05": "8a3c613f8178190ff6a843553c8c00058942f8a5e7252f18c3332ce03a3473bb",
+    "HHL_Exterior_Whitebox_06": "91ac34d13caecaaab8471025489da5bc7779b78f9f5b60cb4511ec5ac3d5d432",
+    "HHL_Exterior_Whitebox_07": "c69b51150b5964253d6094530c044436ad6bbbaec498080ab88dc224de21effc",
+    "HHL_Exterior_Whitebox_08": "29e2107d1edc354719c8ac39228d68125ef3491c5f7f419428b3a7a11c9a4f04",
+    "HHL_Exterior_Whitebox_09": "218f482dae899bdb7913b19810ef5698397debf097090abb8d2ef3ab805c5cd8",
+    "HHL_Exterior_Whitebox_10": "f541a2feef5f1436cde8bc7fc0e27aabdd32520dabd1dc4838631c3034596f27",
+    "HHL_Exterior_Whitebox_12": "6407b18fdc85a04d0e0e0546107f2e2c4c13f56a5aa3541ca649b1337ab5b64e",
+    "HHL_Exterior_Whitebox_13": "04db8e72bc935a0888da3eb812443134ec3f78705ddf433cf5fa5c373d491df1",
+    "HHL_Exterior_Whitebox_14": "74fb76701036e07f5f891fb90f2c2e4d3e149bea8505f38d3a7dfb18fc34be48",
+    "HHL_Plan_Trace_QA": "2133be1fcfab36a62879a5ded6a25e4f8c7c8db1c1c3380ce6406559a9c7a925",
+    "HHL_Reconstruction_01": "f08ad954e76f3ee0642170623603b4a99a556bf144d4e7fac7a5eb452125ddbc",
+    "HHL_Structure_Study": "0e0150d18f4d8c1a8eb263aced8ebc653a61d40be5997a14cbbd86275f6d629b",
+    "Scene": "54bf1f85a89b3ba8be40a8645243f5893910d473d348b84b69b599f3859dde1c"
+  },
+  "after": {
+    "HHL_Corner_Clearance_Study_11": "de6d84e21e286f823b982fdf687b6a0f45f7685296869e386eb2f17756e19895",
+    "HHL_Dimensioned_References": "f46cbfe8be70725583d1a9f098738d4f30f2d90fbc75feb343663f5fb43c4b31",
+    "HHL_Eave_Pixel_Study": "e19bace0408e7ceda0f1bad5cf2cd6a6ef8132caaf884192b147fe7a5cd6ecd9",
+    "HHL_Exploded_Study": "0a28ee4a5e6f3dc59d220941759407b52796844f4facea15f2c4c5fc41a7670d",
+    "HHL_Exterior_Whitebox_01": "9caff49d31f86a31db1c4010bc70689ce57d18d827f16a0c5fc962d756e54ee6",
+    "HHL_Exterior_Whitebox_02": "70b5c796b37ce6ece3beae681a110b74f7498256ed3d90d9b9fb361b89857f81",
+    "HHL_Exterior_Whitebox_03": "f61aeab5952af8ef8bef2c204a989cb4d244cb517d7c6bbd0b0ae773ea025276",
+    "HHL_Exterior_Whitebox_04": "4fcc3d238efe59f7083c8b516cdd8d60ae13a182375ab5038162685462ba5b53",
+    "HHL_Exterior_Whitebox_05": "8a3c613f8178190ff6a843553c8c00058942f8a5e7252f18c3332ce03a3473bb",
+    "HHL_Exterior_Whitebox_06": "91ac34d13caecaaab8471025489da5bc7779b78f9f5b60cb4511ec5ac3d5d432",
+    "HHL_Exterior_Whitebox_07": "c69b51150b5964253d6094530c044436ad6bbbaec498080ab88dc224de21effc",
+    "HHL_Exterior_Whitebox_08": "29e2107d1edc354719c8ac39228d68125ef3491c5f7f419428b3a7a11c9a4f04",
+    "HHL_Exterior_Whitebox_09": "218f482dae899bdb7913b19810ef5698397debf097090abb8d2ef3ab805c5cd8",
+    "HHL_Exterior_Whitebox_10": "f541a2feef5f1436cde8bc7fc0e27aabdd32520dabd1dc4838631c3034596f27",
+    "HHL_Exterior_Whitebox_12": "6407b18fdc85a04d0e0e0546107f2e2c4c13f56a5aa3541ca649b1337ab5b64e",
+    "HHL_Exterior_Whitebox_13": "04db8e72bc935a0888da3eb812443134ec3f78705ddf433cf5fa5c373d491df1",
+    "HHL_Exterior_Whitebox_14": "74fb76701036e07f5f891fb90f2c2e4d3e149bea8505f38d3a7dfb18fc34be48",
+    "HHL_Plan_Trace_QA": "2133be1fcfab36a62879a5ded6a25e4f8c7c8db1c1c3380ce6406559a9c7a925",
+    "HHL_Reconstruction_01": "f08ad954e76f3ee0642170623603b4a99a556bf144d4e7fac7a5eb452125ddbc",
+    "HHL_Structure_Study": "0e0150d18f4d8c1a8eb263aced8ebc653a61d40be5997a14cbbd86275f6d629b",
+    "Scene": "54bf1f85a89b3ba8be40a8645243f5893910d473d348b84b69b599f3859dde1c"
+  },
+  "prior_scene_geometry_unchanged": true,
+  "source_file_unchanged": true,
+  "exterior_geometry_modified": false,
+  "export_to_game": false,
+  "limits": [
+    "The 24.560 m chain station is not a printed column-top label.",
+    "25.400 m is supported locally, not a verified uniform inner-ring elevation.",
+    "No roof profile is reconstructed from the not-for-lofting dashed line.",
+    "No section drawing lengths are transferred to plan axes or diagonal lengths.",
+    "L2/L4 conflicts and estimated v14 geometry remain unchanged.",
+    "Panel B is an actual triangle section, NOT registered to the source section XY.",
+    "No new contact pass/fail or global solid-intersection validation.",
+    "Preservation digests cover transforms and mesh geometry, not every datablock property."
+  ],
+  "saved_file_readback": {
+    "verified": true,
+    "scene_count": 22,
+    "old_scene_geometry_matches": true,
+    "runtime_section_counts_match": true,
+    "duplicate_version_rejected_without_scene_switch": true,
+    "study_blend_sha256": "ea42d0098e826ad3f8cb89cf1f98fb6855f7066c61752f6aec6fb76ef98da077",
+    "render_sha256": "b69d0d232cfb7f652f6cb81434bf1d2572abe23ad12aa961d83b276b5b764b77",
+    "final_code_readout_matches_saved_annotation_and_delta": true
+  },
+  "execution": {
+    "method": "local_background_blender",
+    "mcp_status": "two_read_only_calls_approval_timeout",
+    "initial_attempt": "native crash in scene library write; no published study outputs",
+    "recovery": "existing private save_checkpoint and save_as_mainfile; separate process exit 0"
+  },
+  "portable_checkpoint": "08",
+  "exterior_checkpoint": "14",
+  "review": {
+    "status": "pass_after_fix",
+    "fixed_issue": "derive support station, delta and annotation from validated source datums instead of hardcoded 24.560",
+    "regression": "compensating +100/-100 mm chain edits yield 24.460 m station and -90.0 mm annotation"
+  }
+}

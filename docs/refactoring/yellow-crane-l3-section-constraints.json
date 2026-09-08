@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-09-08",
+  "status": "source_datums_verified_component_mapping_unresolved",
+  "export_to_game": false,
+  "sources": [
+    {
+      "figure": "2-2-5",
+      "file": "figure-2-2-5.jpg",
+      "sha256": "bd738f6022d33292511f2a428bac7315f61ee985f014d9cc5c88cccbcb1b80f2"
+    },
+    {
+      "figure": "2-2-14",
+      "file": "figure-2-2-14.jpeg",
+      "sha256": "afe8fcf6c254423f7ef60df74396603786019f09580ac927e9528f33be2dc3f9"
+    }
+  ],
+  "source_status": "published_design_plates_not_verified_as_built",
+  "section": {
+    "figure": "2-2-5",
+    "region": "right-hand L3 eave dimension chain; upper L4 floor to 22.200 datum",
+    "top_m": 26.0,
+    "bottom_m": 22.2,
+    "descending_chain_mm": [
+      600,
+      840,
+      1060,
+      500,
+      800
+    ],
+    "station_meanings": [
+      "printed floor datum",
+      "local roof-connection candidate; surface identity unresolved",
+      "roof/support-region station; NOT a verified column top",
+      "derived section station",
+      "derived section station; nearby printed 23.000",
+      "printed 22.200 datum"
+    ]
+  },
+  "detail": {
+    "figure": "2-2-14",
+    "floor": "L3",
+    "tip_m": 25.6,
+    "upper_right_m": 25.4,
+    "low_eave_m": 23.82,
+    "descending_chain_mm": [
+      840,
+      300,
+      440
+    ]
+  },
+  "transfer_to_exterior": false,
+  "column_top_verified": false,
+  "inner_ring_surface_verified": false,
+  "plan_correspondence_verified": false,
+  "limits": [
+    "The 24.560 m chain station is not a printed column-top label.",
+    "25.400 m is supported locally, not a verified uniform inner-ring elevation.",
+    "No roof profile is reconstructed from the not-for-lofting dashed line.",
+    "No section drawing lengths are transferred to plan axes or diagonal lengths.",
+    "L2/L4 conflicts and estimated v14 geometry remain unchanged."
+  ]
+}

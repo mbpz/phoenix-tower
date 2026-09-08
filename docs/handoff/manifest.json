@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "recorded_on": "2026-09-08",
-  "checkpoint": "Stored-mesh baseline committed as cccc0b1; actual Blender v13/v14 loop-triangle readback recovered and 16 shared interior witnesses per version verified; M1 revise; portable v08",
-  "scope": "Reviewed v08 portable snapshot and selected v14 evidence, including bounded actual Blender loop-triangle contact diagnostics. No global solid-intersection, architectural or visual acceptance, new portable export, source imagery or raw multi-scene blend.",
+  "checkpoint": "Runtime v14 baseline committed as c2a1b1b; separate L3 source-datum / actual triangle section study verified in background Blender; no exterior revision; M1 revise; portable v08",
+  "scope": "Reviewed v08 portable snapshot and selected v14 evidence plus L3 source-datum study. No component-surface/plan mapping acceptance, exterior geometry correction, global solid-intersection acceptance or new portable export. Private multi-scene study and source imagery excluded.",
   "files": [
     {
       "path": "docs/handoff/yellow-crane/evidence/corner-clearance-study-11-verification.json",
@@ -158,6 +158,16 @@
       "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-14-visual-verdict.json",
       "bytes": 1069,
       "sha256": "a8aa67a8f28ae3dd51f0234ff180882f7769e34c0b216f90e8081f31df43061f"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/l3-section-constraint-study-01-visual-verdict.json",
+      "bytes": 557,
+      "sha256": "05675f1e8ca87395166794eb5788d8a59a2b61274b43e5d386c1a69e252abc24"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/l3-section-constraint-study-01.json",
+      "bytes": 7313,
+      "sha256": "eca62a3f6c47745e9d1348544fdf345566a0a71a4c474437f508a8ef3608836b"
     },
     {
       "path": "docs/handoff/yellow-crane/evidence/post-contact-v14-runtime.json",
