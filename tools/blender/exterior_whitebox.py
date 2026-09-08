@@ -10,6 +10,7 @@ import os
 import tempfile
 from pathlib import Path
 from dimensioned_study import slab_mesh, column_mesh
+from crown_whitebox import crown_mesh
 
 
 def tier_outline(scale):
@@ -309,19 +310,14 @@ def build(root, version='01'):
         inner=[(x*inner_ratio,y*inner_ratio) for x,y in outer]
         obj=mesh(label,roof_mesh(inner,outer,ridge,eave,tips),'Estimated_roofs','roof')
         obj['source']='2-2-4 corner topology transferred/scaled as estimate; 2-2-5 section elevations; L4 conflict retained in eave trace'
-    outer=[(-12.3,-12.1),(12.3,-12.1),(12.3,12.1),(-12.3,12.1)]
-    inner=[(-.9,-.9),(.9,-.9),(.9,.9),(-.9,.9)]
-    mesh('Crown_four_hip_sectors',roof_mesh(inner,outer,46.2,39.22,[0,1,2,3]),'Estimated_roofs','roof')
-    for k in range(4):
-        outer=[(-6,5.9),(6,5.9),(6.3,12.1),(-6.3,12.1)]
-        inner=[(-3.3,7.3),(3.3,7.3),(3.3,7.5),(-3.3,7.5)]
-        def rotated(points):
-            out=[]
-            for x,y in points:
-                for _ in range(k): x,y=-y,x
-                out.append((x,y))
-            return out
-        mesh(f'Crown_independent_wing_{k}',roof_mesh(rotated(inner),rotated(outer),43.2,39.3,[2,3]),'Estimated_roofs','roof')
+    crown_vertices,crown_faces,crown_regions=crown_mesh()
+    crown=mesh('Crown_joined_roof',(crown_vertices,crown_faces),'Estimated_roofs','roof')
+    crown['source']='2-2-8 folded wing footprint; mirrored plan and curved shared seams estimated, NOT as-built'
+    crown['region_legend']='0 main; 1 north wing; 2 west wing; 3 south wing; 4 east wing'
+    attribute=crown.data.attributes.new(name='crown_region',type='INT',domain='FACE')
+    for value,region in zip(attribute.data,crown_regions):value.value=region
+    for polygon in crown.data.polygons:
+        polygon.use_smooth=len(polygon.vertices)==3  # Keep thickness rims flat.
     box('Crown_seat',(0,0,46.12),(1.85,1.85,.25),'stone')
     for k in range(4):
         x,y=0,7.4
@@ -382,5 +378,5 @@ def build(root, version='01'):
         bm.free()
     if any(r['non_manifold_edges'] or r['inconsistent_winding_edges'] or r['signed_volume']<=0 or r['min_component_volume']<=0 for r in results):
         raise ValueError(f'Invalid whitebox meshes: {results}')
-    scene['pending_report']=json.dumps({'status':'M1_in_progress_not_visually_accepted','source':'design plates, NOT as-built','scene':name,'meshes':results,'triangles':sum(r['triangles'] for r in results),'limitations':['Roof intersections untrimmed','Transferred lower-tier outline estimates','No material/UV/detail/game acceptance','Wall openings and finial proxy dimensions','L2 transition cells are opaque visual proxies, not verified window construction']},indent=2)
+    scene['pending_report']=json.dumps({'status':'M1_in_progress_not_visually_accepted','source':'design plates, NOT as-built','scene':name,'meshes':results,'triangles':sum(r['triangles'] for r in results),'limitations':['Shared main/wing crown shell only; lower crown tier and ridge-cap contacts unverified','Transferred lower-tier outline estimates','No material/UV/detail/game acceptance','Wall openings and finial proxy dimensions','L2 transition cells are opaque visual proxies, not verified window construction']},indent=2)
     return save_scene_checkpoint(scene,blend,report)

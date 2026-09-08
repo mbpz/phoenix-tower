@@ -49,11 +49,11 @@ scope['build_study'](root)
 
 `exterior_whitebox.py` reuses the study's slab/column helpers and creates a **new**
 versioned scene via Blender MCP. Current local checkpoint is
-`HHL_Exterior_Whitebox_05` / `.omx/references/yellow-crane/exterior-whitebox-05.blend`.
+`HHL_Exterior_Whitebox_07` / `.omx/references/yellow-crane/exterior-whitebox-07.blend`.
 It has NOT passed architectural fidelity or game acceptance. See
 `docs/refactoring/yellow-crane-exterior-whitebox-notes.md` for source/estimate boundaries.
 
-Load this module with `tools/blender` on `sys.path`, then call `build(repo_root, '06')`
+Load this module with `tools/blender` on `sys.path`, then call `build(repo_root, '08')`
 through Blender MCP for a new iteration. It refuses existing output files or scenes;
 never delete previous versions to bypass the guard. If saving fails without creating
 outputs, calling the same version retries saving its retained scene, not reconstruction.
@@ -80,3 +80,16 @@ proxies**, not verified windows/glazing. The band reuses batched boxes and the L
 floor outline; vertical bounds, subdivisions and member sections remain estimates.
 Pure tests cover bounds, rotational/winding invariance, recesses and upper-story
 height regression. Roof geometry is unchanged from checkpoint 04.
+
+Checkpoint 07 replaces only the five crown sheets with `crown_whitebox.py`'s shared
+shell. A fixed plan partition and common edge profiles remove overlap between its
+main/wing top regions; sidewalls exist only on external boundaries. The front-wing
+height is independent of triangulation diagonals. `crown_region` face IDs preserve
+the five semantic regions. Reload `crown_whitebox` in the persistent Blender Python
+session after editing it, before executing the builder again.
+
+35 pure tests pass. The crown's topology is checked, **not architectural fidelity**:
+mirrored plan controls, curves, main half-width and thickness remain estimates.
+Contacts with the lower crown tier and ridge caps remain unverified. Checkpoint 07
+has more triangles than 05; it is not a game-performance optimization. Keep all
+intermediate scenes (including 06's visible interpolation artifact) for comparison.
