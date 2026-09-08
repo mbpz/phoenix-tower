@@ -1,0 +1,41 @@
+{
+  "prior_scene_count": 16,
+  "unchanged": true,
+  "before": {
+    "HHL_Dimensioned_References": "7cd96c830b0729f4a0e4b0c71f9c899c7ece1868329f77b7eaae7f9f5257be32",
+    "HHL_Eave_Pixel_Study": "46ca237c0caedfb1c4d75392a980568b8d183eb81b7b8b66e58f925e98a8bd8e",
+    "HHL_Exploded_Study": "2d58879c01f57d1fe33760f75c019601d7292918360779a723d799d4dec1c6d4",
+    "HHL_Exterior_Whitebox_01": "915c20f1bacdddad25a1e4c0ee049899546ba319510b27703c429180340ee977",
+    "HHL_Exterior_Whitebox_02": "1d6d7bc22dd311325a63da5d4cc55493164cb042a4b96f808284be1e1aef8d28",
+    "HHL_Exterior_Whitebox_03": "f9315ee69576da82d905bae4c6f5a04b43b4588b4f4b780af6c0042f26f53cd4",
+    "HHL_Exterior_Whitebox_04": "c8fe2a178f6361ab648b273303b2da07bc76ced8dd37078a4f959d63a35560eb",
+    "HHL_Exterior_Whitebox_05": "3ed90b89dbf3a2c494755a7b2aea529749b37ac02b7ad040aff78aac2235537a",
+    "HHL_Exterior_Whitebox_06": "7af4065545cbe24537611ca210202af522d673efe11c1c1839112feb8a2cdb6f",
+    "HHL_Exterior_Whitebox_07": "2018cdc1c727a3cb2a4e49712a9a1df8f967bcc6eb5c291efb4c793bc509d845",
+    "HHL_Exterior_Whitebox_08": "c236b9a5a445afe6ad0b0e9784293bd7fe2f86dcd2403c83e1f5e2eb645d029d",
+    "HHL_Exterior_Whitebox_09": "889de417f18f33be63a0006f2ad6b292646cbf729b6b8b9df978fc27dcc825ab",
+    "HHL_Plan_Trace_QA": "4a2ec1bfd53c3b46513e2d76555dc7f04cb97d4a2321f3207a4da0bc0d0141d9",
+    "HHL_Reconstruction_01": "936781f8374be18d226571082ec760c48559cc446035d6e9a4c9dc4ca8fb4e35",
+    "HHL_Structure_Study": "4885dbc6304a0a9e1d49be2c95e86479190187a58b445cb7d2225529c6d3faa8",
+    "Scene": "e8c0aa25a2c19cd3f57fe3af66652ab9941a5c0874d33945fbed86a5b76a8167"
+  },
+  "after": {
+    "HHL_Dimensioned_References": "7cd96c830b0729f4a0e4b0c71f9c899c7ece1868329f77b7eaae7f9f5257be32",
+    "HHL_Eave_Pixel_Study": "46ca237c0caedfb1c4d75392a980568b8d183eb81b7b8b66e58f925e98a8bd8e",
+    "HHL_Exploded_Study": "2d58879c01f57d1fe33760f75c019601d7292918360779a723d799d4dec1c6d4",
+    "HHL_Exterior_Whitebox_01": "915c20f1bacdddad25a1e4c0ee049899546ba319510b27703c429180340ee977",
+    "HHL_Exterior_Whitebox_02": "1d6d7bc22dd311325a63da5d4cc55493164cb042a4b96f808284be1e1aef8d28",
+    "HHL_Exterior_Whitebox_03": "f9315ee69576da82d905bae4c6f5a04b43b4588b4f4b780af6c0042f26f53cd4",
+    "HHL_Exterior_Whitebox_04": "c8fe2a178f6361ab648b273303b2da07bc76ced8dd37078a4f959d63a35560eb",
+    "HHL_Exterior_Whitebox_05": "3ed90b89dbf3a2c494755a7b2aea529749b37ac02b7ad040aff78aac2235537a",
+    "HHL_Exterior_Whitebox_06": "7af4065545cbe24537611ca210202af522d673efe11c1c1839112feb8a2cdb6f",
+    "HHL_Exterior_Whitebox_07": "2018cdc1c727a3cb2a4e49712a9a1df8f967bcc6eb5c291efb4c793bc509d845",
+    "HHL_Exterior_Whitebox_08": "c236b9a5a445afe6ad0b0e9784293bd7fe2f86dcd2403c83e1f5e2eb645d029d",
+    "HHL_Exterior_Whitebox_09": "889de417f18f33be63a0006f2ad6b292646cbf729b6b8b9df978fc27dcc825ab",
+    "HHL_Plan_Trace_QA": "4a2ec1bfd53c3b46513e2d76555dc7f04cb97d4a2321f3207a4da0bc0d0141d9",
+    "HHL_Reconstruction_01": "936781f8374be18d226571082ec760c48559cc446035d6e9a4c9dc4ca8fb4e35",
+    "HHL_Structure_Study": "4885dbc6304a0a9e1d49be2c95e86479190187a58b445cb7d2225529c6d3faa8",
+    "Scene": "e8c0aa25a2c19cd3f57fe3af66652ab9941a5c0874d33945fbed86a5b76a8167"
+  },
+  "scope": "Object name/type/transform and raw mesh vertices/polygon indices only; not every Blender data field"
+}

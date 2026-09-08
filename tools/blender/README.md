@@ -105,7 +105,7 @@ This is an estimated silhouette constraint, not a newly measured eave dimension.
 no additional tessellation or modifier was added. Limited lower-crown clearance
 sampling is diagnostic only, not an intersection/construction certificate.
 
-Top support study (not yet Blender-validated): `top_support_whitebox.py` clips a
+Historical preflight (before checkpoint 10): `top_support_whitebox.py` clips a
 single-layer underside against full square footprints, rather than center rays.
 The builder uses actual Blender loop triangles; pure fixtures fan-triangulate quads.
 Insufficient clearance is reported as blocked, never silently resized. Pure tests
@@ -119,3 +119,19 @@ render, preservation proof, architectural acceptance or game-performance claim e
 2026-09-08 handoff update: Blender MCP connectivity and the saved v08 scene-library
 roundtrip were verified again. The permission timeout above is historical, not a
 current blocker. No v09 build or visual acceptance was completed by packaging.
+
+2026-09-08 modeling resume: the read-only MCP scene check succeeded, then checkpoint
+10 was built, saved and rendered (front, oblique, underside closeup). Reload
+`top_support_whitebox` and `crown_whitebox` **before** importing/reloading
+`exterior_whitebox`; cached old modules otherwise fail at import. The old 16 scenes
+and all 33 v08 baseline meshes were preserved. One new batched support mesh adds
+64 boxes across 16 locations: 34 meshes / 106,776 triangles total. Actual loop-triangle
+footprint checks give about 0.020 m minimum vertical clearance (float result
+0.01999785 m); four corners remain explicitly blocked. Checks assume a single-layer,
+non-overlapping underside projection, not an arbitrary layered roof.
+
+M1 remains revise after visual inspection: stepped boxes are not measured dougong;
+corner contact, eave curvature and structural correctness remain open. No runtime
+export or performance claim. The portable Git scene remains v08; selected v10 JSON
+evidence is in the handoff manifest, while raw v10 Blend/renders stay local-only.
+Use a fresh version 11 or higher for the next iteration.

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "recorded_on": "2026-09-08",
-  "checkpoint": "v08 — M1 revise; not an accepted game asset",
-  "scope": "Reviewed scene-only snapshot, extraction proof, historical evidence and source metadata; no source images or chat/runtime backups.",
+  "checkpoint": "Local v10 verified support proxy study; portable scene snapshot remains v08; M1 revise",
+  "scope": "Reviewed v08 scene-only snapshot, extraction proof, v08/v10 evidence and source metadata; v10 scene is local-only; no source images or chat/runtime backups.",
   "files": [
     {
       "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-08-contact-samples.json",
@@ -23,6 +23,31 @@
       "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-08-validation.json",
       "bytes": 9289,
       "sha256": "d0fced6a91a902c305de16b42e8da33477e80e897a6c2cec6e5835414b203620"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-10-preservation.json",
+      "bytes": 3315,
+      "sha256": "88516ee1497c95d239ae67fb5e400143792cf3f45db76c9488c7bbd7c3b430be"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-10-scope-regression.json",
+      "bytes": 934,
+      "sha256": "0897101783412ecc6095731cef2138d70f409f43987224092a456a0af7599419"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-10-support-fit.json",
+      "bytes": 22218,
+      "sha256": "65134568c46009c24c8965d337c9c88fcadcee2ea7c207c2362b3df46abdb2dd"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-10-validation.json",
+      "bytes": 11193,
+      "sha256": "eed84c9e7aa5c9af31dabf55584125b5e1ddb3056c89c3f4bf2f222868cd8458"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-10-visual-verdict.json",
+      "bytes": 844,
+      "sha256": "a6dda1b3f7f08c509b86fc0f49e0e3d75afd1d49f3d4cbaef4da5240daa074ca"
     },
     {
       "path": "docs/handoff/yellow-crane/evidence/top-support-preflight-20260908.json",
