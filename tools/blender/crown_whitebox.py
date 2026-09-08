@@ -31,6 +31,17 @@ def _base_height(x,y):
     return 39.22+6.98*(1-t)**1.65+3.5*diagonal**6*t**4
 
 
+def _wing_front_height(x,y):
+    """Estimated profile: flat central run, corner lift outside 3.3 m shoulders.
+
+    The shoulder reuses the provisional half-ridge width, NOT a measured eave
+    dimension. At the widening hip x=3.3+3*t this retains the old 3.5*t**4 lift.
+    """
+    t=max(0,min(1,(y-7.4)/4.7))
+    shoulder=max(0,(abs(x)-3.3)/3)
+    return 39.3+3.9*(1-t)**1.65+3.5*shoulder**3*t
+
+
 def crown_mesh(subdivisions=8, thickness=.18):
     """Return vertices, faces, and region IDs (0 main, 1–4 cardinal wings).
 
@@ -55,7 +66,7 @@ def crown_mesh(subdivisions=8, thickness=.18):
              (1,['E','D','R','S'])]
     profiles={
         ('C','T'):lambda t:39.22+3.5*abs(2*t-1)**3+.08*t,
-        ('F','T'):lambda t:39.3+3.5*t**3,
+        ('F','T'):lambda t:_wing_front_height(6.3*t,12.1),
         ('S','R'):lambda t:43.2,
         ('R','T'):lambda t:39.3+3.9*(1-t)**1.65+3.5*t**4,
         ('S','F'):lambda t:39.3+3.9*(1-t)**1.65,
@@ -100,9 +111,7 @@ def crown_mesh(subdivisions=8, thickness=.18):
                             # of ear-clipping diagonals. Its four edges exactly match
                             # the common profiles above (ridge, hip, center and eave).
                             if polygon==['S','R','T','F']:
-                                t=max(0,min(1,(y-7.4)/4.7))
-                                width=3.3+3*t
-                                z=39.3+3.9*(1-t)**1.65+3.5*(x/width)**3*t**4
+                                z=_wing_front_height(x,y)
                             if mirrored:x=-x
                             for _ in range(quarter):x,y=-y,x
                             grid[(i,j)]=vertex(x,y,z)

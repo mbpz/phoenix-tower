@@ -49,11 +49,11 @@ scope['build_study'](root)
 
 `exterior_whitebox.py` reuses the study's slab/column helpers and creates a **new**
 versioned scene via Blender MCP. Current local checkpoint is
-`HHL_Exterior_Whitebox_07` / `.omx/references/yellow-crane/exterior-whitebox-07.blend`.
+`HHL_Exterior_Whitebox_08` / `.omx/references/yellow-crane/exterior-whitebox-08.blend`.
 It has NOT passed architectural fidelity or game acceptance. See
 `docs/refactoring/yellow-crane-exterior-whitebox-notes.md` for source/estimate boundaries.
 
-Load this module with `tools/blender` on `sys.path`, then call `build(repo_root, '08')`
+Load this module with `tools/blender` on `sys.path`, then call `build(repo_root, '09')`
 through Blender MCP for a new iteration. It refuses existing output files or scenes;
 never delete previous versions to bypass the guard. If saving fails without creating
 outputs, calling the same version retries saving its retained scene, not reconstruction.
@@ -93,3 +93,11 @@ mirrored plan controls, curves, main half-width and thickness remain estimates.
 Contacts with the lower crown tier and ridge caps remain unverified. Checkpoint 07
 has more triangles than 05; it is not a game-performance optimization. Keep all
 intermediate scenes (including 06's visible interpolation artifact) for comparison.
+
+Checkpoint 08 localizes front-wing corner lift outside provisional 3.3 m shoulders,
+keeping a flat central run. The same helper evaluates the surface and eave boundary;
+XY, face indices, region attributes and triangle count remain identical to 07.
+This is an estimated silhouette constraint, not a newly measured eave dimension.
+36 tests pass. The nominal shoulder is sampled by the existing mesh resolution;
+no additional tessellation or modifier was added. Limited lower-crown clearance
+sampling is diagnostic only, not an intersection/construction certificate.

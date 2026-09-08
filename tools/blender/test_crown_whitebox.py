@@ -75,10 +75,20 @@ class CrownGeometryTests(unittest.TestCase):
             t=(y-7.4)/4.7
             width=3.3+3*t
             if abs(x)>width+1e-8:continue
-            expected=39.3+3.9*(1-t)**1.65+3.5*(abs(x)/width)**3*t**4
+            expected=39.3+3.9*(1-t)**1.65+3.5*(max(0,abs(x)-3.3)/3)**3*t
             self.assertAlmostEqual(z,expected,places=7)
             checked+=1
         self.assertGreater(checked,30)
+
+    def test_front_eave_keeps_a_flat_center_and_monotonic_corner_rise(self):
+        vertices,_,_=crown_mesh(subdivisions=24)
+        eave=sorted((x,z) for x,y,z in vertices[:len(vertices)//2]
+                    if abs(y-12.1)<1e-8 and -1e-8<=x<=6.3+1e-8)
+        center=[z for x,z in eave if x<=3.3]
+        self.assertGreater(len(center),8)
+        for z in center:self.assertAlmostEqual(z,39.3,places=7)
+        self.assertTrue(all(b[1]>=a[1]-1e-8 for a,b in zip(eave,eave[1:])))
+        self.assertAlmostEqual(eave[-1][1],42.8,places=7)
 
     def test_invalid_arguments(self):
         for kw in ({'subdivisions':0},{'subdivisions':1.5},{'subdivisions':True},{'thickness':0},{'thickness':float('nan')}):
