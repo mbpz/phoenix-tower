@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "recorded_on": "2026-09-08",
-  "checkpoint": "v14 saved model unchanged; actual post-footprint source preflight only; commit/runtime blocked by approval timeouts; M1 revise; portable v08",
-  "scope": "Reviewed v08 portable snapshot and selected evidence through v14 plus explicitly non-runtime post-contact source preflight. No actual post solid-intersection acceptance, new portable export, source imagery or raw multi-scene blend.",
+  "checkpoint": "v14 and source preflight committed as 6017cc5; stored-mesh both-diagonal interior witnesses complete; Blender runtime recheck blocked by approval timeout; M1 revise; portable v08",
+  "scope": "Reviewed v08 portable snapshot and selected v14 evidence, including explicitly non-runtime source preflight and stored-mesh both-diagonal diagnostics. No actual Blender loop-triangle acceptance, new portable export, source imagery or raw multi-scene blend.",
   "files": [
     {
       "path": "docs/handoff/yellow-crane/evidence/corner-clearance-study-11-verification.json",
@@ -163,6 +163,11 @@
       "path": "docs/handoff/yellow-crane/evidence/post-contact-v14-source-preflight.json",
       "bytes": 99059,
       "sha256": "a37831a42d0d789784f53a3b1dc24888bcb2635767e5cd2c1678b0023352f627"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/post-contact-v14-stored-mesh.json",
+      "bytes": 246201,
+      "sha256": "71336b94de6bf17f5cd89aa502aea024962bd622af5252e6a3088bbbd9898578"
     },
     {
       "path": "docs/handoff/yellow-crane/evidence/top-support-preflight-20260908.json",

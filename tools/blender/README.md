@@ -208,3 +208,26 @@ footprints remain negative. Quad fan triangulation and double-precision coordina
 are NOT saved Blender loop triangles. Do not label this actual mesh/solid readback.
 MCP execution and escalated background startup approval timed out during this run.
 Actual runtime contact validation remains the next step; the model is untouched.
+
+
+## Post-contact stored-mesh investigation (v14, not acceptance)
+
+`post_contact_readback.py` consumes extracted vertex/polygon arrays without changing
+geometry. `analyze_stored_meshes(meshes)` deliberately checks both explicit quad
+diagonals, **not** Blender's evaluated loop triangles. `solid_witness.py` independently
+checks candidate interior points via signed solid angles; it rejects open/mis-wound
+edges and boundary witnesses. It does not verify self-intersections or whole-scene
+Boolean contact. `None` from witness search is inconclusive, never a clearance pass.
+
+The local v14 diagnostic uses stored float32 arrays from the existing hashed `.blend`.
+The one-file SDNA extraction script and raw arrays remain private/ignored; they are
+not a supported file-format reader or a new portable asset. See the handoff report
+for file hashes, extraction crosschecks, both-diagonal results and witness points.
+
+For the next **actual Blender** audit, `capture_scene(scene, version)` can collect
+world-space vertices, polygons and `loop_triangles` through MCP. This new capture
+entry point has **not yet run** because runtime approval timed out. Use the returned
+loop indices to build actual triangles for `polygon_probe` and `interior_witness`;
+do not relabel `analyze_stored_meshes` output as a runtime result. The current helper
+rejects parented, animated, constrained or modified objects rather than silently
+inspecting a different shape. No model correction, save or export is performed.

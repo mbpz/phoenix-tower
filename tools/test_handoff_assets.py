@@ -112,6 +112,53 @@ class HandoffAssetsTests(unittest.TestCase):
         self.assertTrue(all(r['footprint_sides'] == 16 for r in report['rows']))
         self.assertIn('NOT actual Blender', report['limits'][0])
 
+    def test_stored_mesh_witnesses_do_not_claim_runtime_acceptance(self):
+        evidence = HANDOFF / 'yellow-crane/evidence'
+        report = json.loads((evidence / 'post-contact-v14-stored-mesh.json').read_text())
+        prior = json.loads((evidence / 'exterior-whitebox-14-readback.json').read_text())
+        self.assertEqual(report['source_blend_sha256'], prior['v14_file_sha256'])
+        self.assertTrue(report['stored_mesh_readback'])
+        self.assertTrue(report['source_blend_matches_prior_runtime_evidence'])
+        for key in ('actual_blender_readback', 'runtime_loop_triangles_verified',
+                    'solid_intersection_verified', 'geometry_modified', 'export_to_game'):
+            self.assertFalse(report[key], key)
+        self.assertEqual(len(report['rows']), 116)
+        self.assertEqual(len(report['mesh_metadata']), 8)
+        for crosscheck in report['extraction_fixture_crosscheck'].values():
+            self.assertEqual(crosscheck['maximum_float32_generator_coordinate_difference_m'], 0.)
+            self.assertTrue(crosscheck['polygon_indices_match_generator'])
+        for version in ('v13', 'v14'):
+            negative = [r for r in report['rows'] if r[version]['negative_on_both']]
+            self.assertEqual(len(negative), 16)
+            self.assertTrue(all(r['floor'] == 'L3' for r in negative))
+            self.assertEqual(report['summary'][version]['negative_on_both'], 16)
+            self.assertEqual(report['summary'][version]['witnesses_inside_both_retriangulations'], 16)
+            for diagonal in (0, 1):
+                coverage = {state: sum(r[version]['diagonals'][diagonal]['coverage'] == state
+                                       for r in report['rows']) for state in ('full', 'partial', 'none')}
+                self.assertEqual(coverage, {'full': 68, 'partial': 8, 'none': 40})
+                self.assertEqual(coverage, report['summary'][version]['coverage_by_diagonal'][diagonal])
+            for row in negative:
+                witness = row[version]['interior_witness']
+                self.assertIsNotNone(witness)
+                self.assertEqual(row['footprint_sides'], 16)
+                self.assertLess(witness['point_m'][2], row['top_m'])
+                lo, hi = witness['common_vertical_interval_m']
+                self.assertLess(lo, witness['point_m'][2])
+                self.assertLess(witness['point_m'][2], hi)
+                self.assertGreater(witness['interval_half_width_m'], 0.)
+                self.assertAlmostEqual(witness['post_winding_number'], 1.)
+                self.assertEqual(len(witness['roof_winding_numbers']), 2)
+                for winding in witness['roof_winding_numbers']:
+                    self.assertAlmostEqual(winding, 1.)
+        for diagonal in (0, 1):
+            worsening = max(r['v13']['diagonals'][diagonal]['vertical_gap_m'] -
+                            r['v14']['diagonals'][diagonal]['vertical_gap_m']
+                            for r in report['rows'] if r['v13']['negative_on_both'])
+            self.assertAlmostEqual(worsening, report['summary'][
+                'maximum_existing_negative_worsening_by_diagonal_m'][diagonal])
+        self.assertIn('NOT actual Blender', report['limits'][0])
+
     def test_snapshot_roundtrip_evidence(self):
         proof = json.loads((HANDOFF / 'yellow-crane/portability-verification.json').read_text(encoding='utf-8'))
         artifact = ROOT / proof['artifact']
