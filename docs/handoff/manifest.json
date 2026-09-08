@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "recorded_on": "2026-09-08",
-  "checkpoint": "Local v13 geometry readback and visual review completed; M1 revise; portable v08",
-  "scope": "Reviewed v08 portable snapshot and selected v08/v10/study11/v12/v13 evidence; v13 saved-scene geometry readback passed, visual revise; no new portable export, no source imagery or raw multi-scene blend.",
+  "checkpoint": "v14 saved model unchanged; actual post-footprint source preflight only; commit/runtime blocked by approval timeouts; M1 revise; portable v08",
+  "scope": "Reviewed v08 portable snapshot and selected evidence through v14 plus explicitly non-runtime post-contact source preflight. No actual post solid-intersection acceptance, new portable export, source imagery or raw multi-scene blend.",
   "files": [
     {
       "path": "docs/handoff/yellow-crane/evidence/corner-clearance-study-11-verification.json",
@@ -128,6 +128,41 @@
       "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-13-visual-verdict.json",
       "bytes": 1087,
       "sha256": "22701ff011889302909bf1d398845ef0867c7f10de7ae9568f9e7e36f6add1ac"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-14-final-verification.json",
+      "bytes": 4309,
+      "sha256": "676ceb2a233c8df2981eb88a5ae8a600d23ab53e6a83fe09343f2234ac3a5670"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-14-live-match.json",
+      "bytes": 205,
+      "sha256": "26067026349bdd8f8de48e25ec3912aaadb7c1250bf354afbe998c6a5a7259a2"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-14-post-verification.json",
+      "bytes": 269,
+      "sha256": "849ccfda136be2c483efc0b400e22173432145fd1728df34bd35cbada085aa3d"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-14-readback.json",
+      "bytes": 58994,
+      "sha256": "6f846c8e199985174a80184ccaa6d8f839048e05858b18a0eff9f56d24a9bc4c"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-14-validation.json",
+      "bytes": 10518,
+      "sha256": "cfda51451ead6d5e8402335756ab9ad7b6581641d091dbbfabb39f04922275c6"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-14-visual-verdict.json",
+      "bytes": 1069,
+      "sha256": "a8aa67a8f28ae3dd51f0234ff180882f7769e34c0b216f90e8081f31df43061f"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/post-contact-v14-source-preflight.json",
+      "bytes": 99059,
+      "sha256": "a37831a42d0d789784f53a3b1dc24888bcb2635767e5cd2c1678b0023352f627"
     },
     {
       "path": "docs/handoff/yellow-crane/evidence/top-support-preflight-20260908.json",

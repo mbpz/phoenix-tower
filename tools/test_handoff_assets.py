@@ -52,6 +52,66 @@ class HandoffAssetsTests(unittest.TestCase):
         self.assertEqual(visual['verdict'], 'revise')
         self.assertLess(visual['score'], 90)
 
+    def test_v14_evidence_keeps_endpoint_fix_and_unchecked_posts_bounded(self):
+        evidence = HANDOFF / 'yellow-crane/evidence'
+        def read(suffix):
+            return json.loads((evidence / f'exterior-whitebox-14-{suffix}.json').read_text())
+        geometry, final, post, visual = (read(s) for s in
+                                      ('readback', 'final-verification', 'post-verification', 'visual-verdict'))
+        self.assertEqual(set(geometry['changed_meshes']), {'Ground_canopy', 'Third_canopy'})
+        self.assertEqual(len(geometry['unchanged_meshes']), 32)
+        self.assertEqual(len(geometry['endpoint_checks']), 120)
+        for label, target in final['endpoint_constraints_m'].items():
+            points = [p for p in geometry['endpoint_checks'] if p['canopy'] == label]
+            self.assertEqual(len(points), 40)
+            self.assertEqual(sum(p['is_tip'] for p in points), 12)
+            for point in points:
+                self.assertLessEqual(abs(point['actual_z_m'] - target['tip' if point['is_tip'] else 'low']), 3e-6)
+        self.assertEqual(final['v14_source_sha256'], geometry['v14_file_sha256'])
+        self.assertTrue(post['live_geometry_matches_disk'])
+        self.assertTrue(post['old_scene_digests_preserved'])
+        self.assertTrue(post['source_files_unchanged'])
+        self.assertTrue(geometry['old_evaluated_disk_scene_digests_preserved'])
+        self.assertTrue(geometry['duplicate_version_rejected'])
+        self.assertEqual(len(geometry['clearance_checks']), 20)
+        for support in geometry['clearance_checks']:
+            self.assertGreaterEqual(support['vertical_clearance_m'], .02-3e-6)
+        checked = [p for p in geometry['post_checks'] if 'not_checked' not in p]
+        self.assertEqual(len(checked), 68)
+        self.assertEqual(len(geometry['post_checks']) - len(checked), 48)
+        self.assertEqual(final['lower_post_squares_not_checked'], 48)
+        existing_negative = [p for p in checked if p['v13_min_vertical_gap_m'] < -3e-6]
+        self.assertEqual(len(existing_negative), 16)
+        self.assertEqual(final['lower_post_squares_existing_negative'], 16)
+        for point in checked:
+            if point['v13_min_vertical_gap_m'] >= -3e-6:
+                self.assertGreaterEqual(point['v14_min_vertical_gap_m'], -3e-6)
+        worsening = max(p['v13_min_vertical_gap_m'] - p['v14_min_vertical_gap_m']
+                        for p in existing_negative)
+        self.assertAlmostEqual(final['maximum_existing_negative_gap_worsening_m'], worsening)
+        self.assertGreater(worsening, 0)
+        self.assertEqual(visual['verdict'], 'revise')
+        self.assertLess(visual['score'], 90)
+        self.assertFalse(final['export_to_game'])
+        self.assertEqual(final['portable_checkpoint'], '08')
+
+    def test_post_preflight_is_not_promoted_to_runtime_acceptance(self):
+        report = json.loads((HANDOFF / 'yellow-crane/evidence/post-contact-v14-source-preflight.json').read_text())
+        self.assertFalse(report['actual_blender_readback'])
+        self.assertFalse(report['solid_intersection_verified'])
+        self.assertFalse(report['geometry_modified'])
+        self.assertFalse(report['export_to_game'])
+        self.assertEqual(report['summary']['posts'], 116)
+        self.assertEqual(len(report['rows']), 116)
+        for status,count in [('full',68),('partial',8),('none',40)]:
+            self.assertEqual(sum(r['v14']['coverage'] == status for r in report['rows']), count)
+        negative = [r for r in report['rows'] if r['v14']['coverage'] == 'full'
+                    and r['v14']['vertical_gap_m'] < -3e-6]
+        self.assertEqual(len(negative), 16)
+        self.assertTrue(all(r['floor'] == 'L3' for r in negative))
+        self.assertTrue(all(r['footprint_sides'] == 16 for r in report['rows']))
+        self.assertIn('NOT actual Blender', report['limits'][0])
+
     def test_snapshot_roundtrip_evidence(self):
         proof = json.loads((HANDOFF / 'yellow-crane/portability-verification.json').read_text(encoding='utf-8'))
         artifact = ROOT / proof['artifact']

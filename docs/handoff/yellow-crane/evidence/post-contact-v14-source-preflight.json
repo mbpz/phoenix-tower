@@ -1,0 +1,3913 @@
+{
+  "recorded_on": "2026-09-08",
+  "status": "pure_source_preflight_only_runtime_readback_blocked",
+  "actual_blender_readback": false,
+  "solid_intersection_verified": false,
+  "export_to_game": false,
+  "geometry_modified": false,
+  "fixtures": [
+    [
+      "L1",
+      "Ground_canopy",
+      1.29,
+      0.5,
+      10.21,
+      7.23
+    ],
+    [
+      "L3",
+      "Third_canopy",
+      1.0,
+      0.61,
+      26.0,
+      23.82
+    ]
+  ],
+  "rows": [
+    {
+      "floor": "L1",
+      "center": [
+        -7.0,
+        15.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.57974624967504,
+        "minimum_point": [
+          -6.908155976232379,
+          15.22173108780271,
+          7.57974624967504
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383384,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.4797462496750402
+      },
+      "v14": {
+        "cap_m": 7.556315982102314,
+        "minimum_point": [
+          -6.908155976232379,
+          15.22173108780271,
+          7.556315982102314
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383384,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.45631598210231417
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -3.0,
+        15.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.475304451797631,
+        "minimum_point": [
+          -3.000000000000001,
+          15.24,
+          7.475304451797631
+        ],
+        "triangle_index": 4,
+        "projected_area_m2": 0.17634052563383348,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.37530445179763117
+      },
+      "v14": {
+        "cap_m": 7.475304451797631,
+        "minimum_point": [
+          -3.000000000000001,
+          15.24,
+          7.475304451797631
+        ],
+        "triangle_index": 4,
+        "projected_area_m2": 0.17634052563383348,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.37530445179763117
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        3.0,
+        15.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.489960026025086,
+        "minimum_point": [
+          3.0,
+          15.24,
+          7.489960026025086
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383357,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.3899600260250864
+      },
+      "v14": {
+        "cap_m": 7.489960026025086,
+        "minimum_point": [
+          3.0,
+          15.24,
+          7.489960026025086
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383357,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.3899600260250864
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        7.0,
+        15.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.607630450140664,
+        "minimum_point": [
+          6.908155976232377,
+          15.22173108780271,
+          7.607630450140664
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.1763405256338335,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.5076304501406641
+      },
+      "v14": {
+        "cap_m": 7.585207478648747,
+        "minimum_point": [
+          6.908155976232377,
+          15.22173108780271,
+          7.585207478648747
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.1763405256338335,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.48520747864874725
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -11.0,
+        11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.388278681688313,
+        "minimum_point": [
+          -10.908155976232377,
+          11.22173108780271,
+          8.388278681688313
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.1763405256338336,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 1.288278681688313
+      },
+      "v14": {
+        "cap_m": 8.35821477852907,
+        "minimum_point": [
+          -10.908155976232377,
+          11.22173108780271,
+          8.35821477852907
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.1763405256338336,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 1.2582147785290712
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -7.0,
+        11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.415309564913285,
+        "minimum_point": [
+          -7.24,
+          11.0,
+          8.415309564913285
+        ],
+        "triangle_index": 18,
+        "projected_area_m2": 0.17634052563383362,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.315309564913285
+      },
+      "v14": {
+        "cap_m": 8.415082996335574,
+        "minimum_point": [
+          -7.24,
+          11.0,
+          8.415082996335574
+        ],
+        "triangle_index": 18,
+        "projected_area_m2": 0.17634052563383362,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.3150829963355744
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -5.0,
+        11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.971182380014934,
+        "minimum_point": [
+          -5.0,
+          11.24,
+          8.971182380014934
+        ],
+        "triangle_index": 0,
+        "projected_area_m2": 0.1763405256338334,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.8711823800149343
+      },
+      "v14": {
+        "cap_m": 8.970880993188166,
+        "minimum_point": [
+          -5.0,
+          11.24,
+          8.970880993188166
+        ],
+        "triangle_index": 0,
+        "projected_area_m2": 0.1763405256338334,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.870880993188166
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -3.0,
+        11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.89838007292316,
+        "minimum_point": [
+          -3.0,
+          11.24,
+          8.89838007292316
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383365,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.7983800729231607
+      },
+      "v14": {
+        "cap_m": 8.89838007292316,
+        "minimum_point": [
+          -3.0,
+          11.24,
+          8.89838007292316
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383365,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.7983800729231607
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        3.0,
+        11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.926037493403948,
+        "minimum_point": [
+          3.0000000000000004,
+          11.24,
+          8.926037493403948
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.17634052563383384,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.8260374934039483
+      },
+      "v14": {
+        "cap_m": 8.926037493403948,
+        "minimum_point": [
+          3.0000000000000004,
+          11.24,
+          8.926037493403948
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.17634052563383384,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.8260374934039483
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        5.0,
+        11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 9.008389311905319,
+        "minimum_point": [
+          4.999999999999999,
+          11.24,
+          9.008389311905319
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383323,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.908389311905319
+      },
+      "v14": {
+        "cap_m": 9.008073546942043,
+        "minimum_point": [
+          4.999999999999999,
+          11.24,
+          9.008073546942043
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383323,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.9080735469420436
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        7.0,
+        11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.333578138671742,
+        "minimum_point": [
+          7.225916853355353,
+          10.92919924069997,
+          8.333578138671742
+        ],
+        "triangle_index": 21,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.2335781386717422
+      },
+      "v14": {
+        "cap_m": 8.333578138671742,
+        "minimum_point": [
+          7.225916853355353,
+          10.92919924069997,
+          8.333578138671742
+        ],
+        "triangle_index": 21,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.2335781386717422
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        11.0,
+        11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.388278681688313,
+        "minimum_point": [
+          11.22173108780271,
+          10.908155976232377,
+          8.388278681688313
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.17634052563383343,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 1.288278681688313
+      },
+      "v14": {
+        "cap_m": 8.358214778529069,
+        "minimum_point": [
+          11.22173108780271,
+          10.908155976232377,
+          8.358214778529069
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.17634052563383343,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 1.2582147785290694
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -9.0,
+        9.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 9.31407066153034,
+        "minimum_point": [
+          -9.0,
+          9.24,
+          9.31407066153034
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.1763405256338339,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 2.214070661530341
+      },
+      "v14": {
+        "cap_m": 9.313329469039212,
+        "minimum_point": [
+          -9.0,
+          9.24,
+          9.313329469039212
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.1763405256338339,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 2.2133294690392127
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -5.0,
+        9.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        5.0,
+        9.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        9.0,
+        9.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 9.314070661530343,
+        "minimum_point": [
+          9.24,
+          9.0,
+          9.314070661530343
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.176340525633834,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 2.214070661530343
+      },
+      "v14": {
+        "cap_m": 9.31332946903921,
+        "minimum_point": [
+          9.24,
+          9.0,
+          9.31332946903921
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.176340525633834,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 2.213329469039211
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -15.0,
+        7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.607630450140664,
+        "minimum_point": [
+          -15.22173108780271,
+          6.908155976232377,
+          7.607630450140664
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.17634052563383315,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.5076304501406641
+      },
+      "v14": {
+        "cap_m": 7.585207478648747,
+        "minimum_point": [
+          -15.22173108780271,
+          6.908155976232377,
+          7.585207478648747
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.17634052563383315,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.48520747864874725
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -11.0,
+        7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.33357813867174,
+        "minimum_point": [
+          -10.929199240699974,
+          7.225916853355355,
+          8.33357813867174
+        ],
+        "triangle_index": 21,
+        "projected_area_m2": 0.17634052563383398,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.2335781386717404
+      },
+      "v14": {
+        "cap_m": 8.33357813867174,
+        "minimum_point": [
+          -10.929199240699974,
+          7.225916853355355,
+          8.33357813867174
+        ],
+        "triangle_index": 21,
+        "projected_area_m2": 0.17634052563383398,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.2335781386717404
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -7.0,
+        7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -3.0,
+        7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        3.0,
+        7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        7.0,
+        7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        11.0,
+        7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.415309564913285,
+        "minimum_point": [
+          11.0,
+          7.24,
+          8.415309564913285
+        ],
+        "triangle_index": 18,
+        "projected_area_m2": 0.1763405256338337,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.315309564913285
+      },
+      "v14": {
+        "cap_m": 8.415082996335574,
+        "minimum_point": [
+          11.0,
+          7.24,
+          8.415082996335574
+        ],
+        "triangle_index": 18,
+        "projected_area_m2": 0.1763405256338337,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.3150829963355744
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        15.0,
+        7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.579746249675039,
+        "minimum_point": [
+          15.22173108780271,
+          6.908155976232378,
+          7.579746249675039
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383332,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.4797462496750393
+      },
+      "v14": {
+        "cap_m": 7.556315982102314,
+        "minimum_point": [
+          15.22173108780271,
+          6.908155976232378,
+          7.556315982102314
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383332,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.45631598210231417
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -11.0,
+        5.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 9.008389311905319,
+        "minimum_point": [
+          -11.24,
+          4.999999999999999,
+          9.008389311905319
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383346,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.908389311905319
+      },
+      "v14": {
+        "cap_m": 9.008073546942043,
+        "minimum_point": [
+          -11.24,
+          4.999999999999999,
+          9.008073546942043
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383346,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.9080735469420436
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -9.0,
+        5.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        9.0,
+        5.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        11.0,
+        5.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.971182380014934,
+        "minimum_point": [
+          11.24,
+          5.0,
+          8.971182380014934
+        ],
+        "triangle_index": 0,
+        "projected_area_m2": 0.1763405256338338,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.8711823800149343
+      },
+      "v14": {
+        "cap_m": 8.970880993188166,
+        "minimum_point": [
+          11.24,
+          5.0,
+          8.970880993188166
+        ],
+        "triangle_index": 0,
+        "projected_area_m2": 0.1763405256338338,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.870880993188166
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -15.0,
+        3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.489960026025086,
+        "minimum_point": [
+          -15.24,
+          3.0,
+          7.489960026025086
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.1763405256338336,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.3899600260250864
+      },
+      "v14": {
+        "cap_m": 7.489960026025086,
+        "minimum_point": [
+          -15.24,
+          3.0,
+          7.489960026025086
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.1763405256338336,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.3899600260250864
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -11.0,
+        3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.926037493403948,
+        "minimum_point": [
+          -11.24,
+          3.0000000000000004,
+          8.926037493403948
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.1763405256338338,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.8260374934039483
+      },
+      "v14": {
+        "cap_m": 8.926037493403948,
+        "minimum_point": [
+          -11.24,
+          3.0000000000000004,
+          8.926037493403948
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.1763405256338338,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.8260374934039483
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -7.0,
+        3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -3.0,
+        3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        3.0,
+        3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        7.0,
+        3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        11.0,
+        3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.898380072923159,
+        "minimum_point": [
+          11.24,
+          2.999999999999999,
+          8.898380072923159
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383357,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.798380072923159
+      },
+      "v14": {
+        "cap_m": 8.898380072923159,
+        "minimum_point": [
+          11.24,
+          2.999999999999999,
+          8.898380072923159
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383357,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.798380072923159
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        15.0,
+        3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.475304451797632,
+        "minimum_point": [
+          15.24,
+          3.0,
+          7.475304451797632
+        ],
+        "triangle_index": 4,
+        "projected_area_m2": 0.17634052563383348,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.37530445179763205
+      },
+      "v14": {
+        "cap_m": 7.475304451797632,
+        "minimum_point": [
+          15.24,
+          3.0,
+          7.475304451797632
+        ],
+        "triangle_index": 4,
+        "projected_area_m2": 0.17634052563383348,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.37530445179763205
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -15.0,
+        -3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.475304451797632,
+        "minimum_point": [
+          -15.24,
+          -3.0,
+          7.475304451797632
+        ],
+        "triangle_index": 4,
+        "projected_area_m2": 0.17634052563383354,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.37530445179763205
+      },
+      "v14": {
+        "cap_m": 7.475304451797632,
+        "minimum_point": [
+          -15.24,
+          -3.0,
+          7.475304451797632
+        ],
+        "triangle_index": 4,
+        "projected_area_m2": 0.17634052563383354,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.37530445179763205
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -11.0,
+        -3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.89838007292316,
+        "minimum_point": [
+          -11.24,
+          -3.0,
+          8.89838007292316
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.7983800729231607
+      },
+      "v14": {
+        "cap_m": 8.89838007292316,
+        "minimum_point": [
+          -11.24,
+          -3.0,
+          8.89838007292316
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.7983800729231607
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -7.0,
+        -3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -3.0,
+        -3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        3.0,
+        -3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        7.0,
+        -3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        11.0,
+        -3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.926037493403948,
+        "minimum_point": [
+          11.24,
+          -2.999999999999999,
+          8.926037493403948
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.8260374934039483
+      },
+      "v14": {
+        "cap_m": 8.926037493403948,
+        "minimum_point": [
+          11.24,
+          -2.999999999999999,
+          8.926037493403948
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.8260374934039483
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        15.0,
+        -3.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.489960026025086,
+        "minimum_point": [
+          15.24,
+          -2.9999999999999996,
+          7.489960026025086
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383362,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.3899600260250864
+      },
+      "v14": {
+        "cap_m": 7.489960026025086,
+        "minimum_point": [
+          15.24,
+          -2.9999999999999996,
+          7.489960026025086
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383362,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.3899600260250864
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -11.0,
+        -5.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.971182380014934,
+        "minimum_point": [
+          -11.24,
+          -5.0,
+          8.971182380014934
+        ],
+        "triangle_index": 0,
+        "projected_area_m2": 0.17634052563383365,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.8711823800149343
+      },
+      "v14": {
+        "cap_m": 8.970880993188166,
+        "minimum_point": [
+          -11.24,
+          -5.0,
+          8.970880993188166
+        ],
+        "triangle_index": 0,
+        "projected_area_m2": 0.17634052563383365,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.870880993188166
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -9.0,
+        -5.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        9.0,
+        -5.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        11.0,
+        -5.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 9.00838931190532,
+        "minimum_point": [
+          11.24,
+          -5.0,
+          9.00838931190532
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.9083893119053208
+      },
+      "v14": {
+        "cap_m": 9.008073546942043,
+        "minimum_point": [
+          11.24,
+          -5.0,
+          9.008073546942043
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.9080735469420436
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -15.0,
+        -7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.57974624967504,
+        "minimum_point": [
+          -15.22173108780271,
+          -6.908155976232379,
+          7.57974624967504
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.1763405256338335,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.4797462496750402
+      },
+      "v14": {
+        "cap_m": 7.556315982102314,
+        "minimum_point": [
+          -15.22173108780271,
+          -6.908155976232379,
+          7.556315982102314
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.1763405256338335,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.45631598210231417
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -11.0,
+        -7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.415309564913283,
+        "minimum_point": [
+          -11.0,
+          -7.24,
+          8.415309564913283
+        ],
+        "triangle_index": 18,
+        "projected_area_m2": 0.17634052563383426,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.3153095649132833
+      },
+      "v14": {
+        "cap_m": 8.415082996335572,
+        "minimum_point": [
+          -11.0,
+          -7.24,
+          8.415082996335572
+        ],
+        "triangle_index": 18,
+        "projected_area_m2": 0.17634052563383426,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.3150829963355726
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -7.0,
+        -7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -3.0,
+        -7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        3.0,
+        -7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        7.0,
+        -7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        11.0,
+        -7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.333578138671742,
+        "minimum_point": [
+          10.929199240699969,
+          -7.225916853355353,
+          8.333578138671742
+        ],
+        "triangle_index": 21,
+        "projected_area_m2": 0.17634052563383362,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.2335781386717422
+      },
+      "v14": {
+        "cap_m": 8.333578138671742,
+        "minimum_point": [
+          10.929199240699969,
+          -7.225916853355353,
+          8.333578138671742
+        ],
+        "triangle_index": 21,
+        "projected_area_m2": 0.17634052563383362,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.2335781386717422
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        15.0,
+        -7.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.607630450140664,
+        "minimum_point": [
+          15.221731087802707,
+          -6.9081559762323765,
+          7.607630450140664
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.17634052563383357,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.5076304501406641
+      },
+      "v14": {
+        "cap_m": 7.585207478648747,
+        "minimum_point": [
+          15.221731087802707,
+          -6.9081559762323765,
+          7.585207478648747
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.17634052563383357,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.48520747864874725
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -9.0,
+        -9.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 9.31407066153034,
+        "minimum_point": [
+          -9.24,
+          -9.0,
+          9.31407066153034
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.176340525633834,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 2.214070661530341
+      },
+      "v14": {
+        "cap_m": 9.313329469039212,
+        "minimum_point": [
+          -9.24,
+          -9.0,
+          9.313329469039212
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.176340525633834,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 2.2133294690392127
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -5.0,
+        -9.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        5.0,
+        -9.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        9.0,
+        -9.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 9.31407066153034,
+        "minimum_point": [
+          9.0,
+          -9.24,
+          9.31407066153034
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.1763405256338341,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 2.214070661530341
+      },
+      "v14": {
+        "cap_m": 9.313329469039212,
+        "minimum_point": [
+          9.0,
+          -9.24,
+          9.313329469039212
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.1763405256338341,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 2.2133294690392127
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -11.0,
+        -11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.388278681688314,
+        "minimum_point": [
+          -11.22173108780271,
+          -10.908155976232377,
+          8.388278681688314
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.1763405256338338,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 1.2882786816883147
+      },
+      "v14": {
+        "cap_m": 8.358214778529069,
+        "minimum_point": [
+          -11.22173108780271,
+          -10.908155976232377,
+          8.358214778529069
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.1763405256338338,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 1.2582147785290694
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -7.0,
+        -11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.33357813867174,
+        "minimum_point": [
+          -7.225916853355354,
+          -10.92919924069997,
+          8.33357813867174
+        ],
+        "triangle_index": 21,
+        "projected_area_m2": 0.1763405256338337,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.2335781386717404
+      },
+      "v14": {
+        "cap_m": 8.33357813867174,
+        "minimum_point": [
+          -7.225916853355354,
+          -10.92919924069997,
+          8.33357813867174
+        ],
+        "triangle_index": 21,
+        "projected_area_m2": 0.1763405256338337,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.2335781386717404
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -5.0,
+        -11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 9.00838931190532,
+        "minimum_point": [
+          -4.999999999999999,
+          -11.24,
+          9.00838931190532
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383382,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.9083893119053208
+      },
+      "v14": {
+        "cap_m": 9.008073546942043,
+        "minimum_point": [
+          -4.999999999999999,
+          -11.24,
+          9.008073546942043
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383382,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.9080735469420436
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -3.0,
+        -11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.926037493403948,
+        "minimum_point": [
+          -3.0000000000000004,
+          -11.24,
+          8.926037493403948
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.17634052563383368,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.8260374934039483
+      },
+      "v14": {
+        "cap_m": 8.926037493403948,
+        "minimum_point": [
+          -3.0000000000000004,
+          -11.24,
+          8.926037493403948
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.17634052563383368,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.8260374934039483
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        3.0,
+        -11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.89838007292316,
+        "minimum_point": [
+          3.0,
+          -11.24,
+          8.89838007292316
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383387,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.7983800729231607
+      },
+      "v14": {
+        "cap_m": 8.89838007292316,
+        "minimum_point": [
+          3.0,
+          -11.24,
+          8.89838007292316
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383387,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 1.7983800729231607
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        5.0,
+        -11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.971182380014934,
+        "minimum_point": [
+          5.0,
+          -11.24,
+          8.971182380014934
+        ],
+        "triangle_index": 0,
+        "projected_area_m2": 0.17634052563383346,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.8711823800149343
+      },
+      "v14": {
+        "cap_m": 8.970880993188166,
+        "minimum_point": [
+          5.0,
+          -11.24,
+          8.970880993188166
+        ],
+        "triangle_index": 0,
+        "projected_area_m2": 0.17634052563383346,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.870880993188166
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        7.0,
+        -11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.415309564913285,
+        "minimum_point": [
+          7.24,
+          -11.0,
+          8.415309564913285
+        ],
+        "triangle_index": 18,
+        "projected_area_m2": 0.17634052563383382,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.315309564913285
+      },
+      "v14": {
+        "cap_m": 8.415082996335574,
+        "minimum_point": [
+          7.24,
+          -11.0,
+          8.415082996335574
+        ],
+        "triangle_index": 18,
+        "projected_area_m2": 0.17634052563383382,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 1.3150829963355744
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        11.0,
+        -11.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 8.388278681688314,
+        "minimum_point": [
+          10.908155976232377,
+          -11.22173108780271,
+          8.388278681688314
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.1763405256338339,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 1.2882786816883147
+      },
+      "v14": {
+        "cap_m": 8.358214778529069,
+        "minimum_point": [
+          10.908155976232377,
+          -11.22173108780271,
+          8.358214778529069
+        ],
+        "triangle_index": 1,
+        "projected_area_m2": 0.1763405256338339,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 1.2582147785290694
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -7.0,
+        -15.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.607630450140664,
+        "minimum_point": [
+          -6.908155976232377,
+          -15.22173108780271,
+          7.607630450140664
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.17634052563383357,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.5076304501406641
+      },
+      "v14": {
+        "cap_m": 7.585207478648747,
+        "minimum_point": [
+          -6.908155976232377,
+          -15.22173108780271,
+          7.585207478648747
+        ],
+        "triangle_index": 2,
+        "projected_area_m2": 0.17634052563383357,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.48520747864874725
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        -3.0,
+        -15.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.489960026025086,
+        "minimum_point": [
+          -3.0,
+          -15.24,
+          7.489960026025086
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.1763405256338335,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.3899600260250864
+      },
+      "v14": {
+        "cap_m": 7.489960026025086,
+        "minimum_point": [
+          -3.0,
+          -15.24,
+          7.489960026025086
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.1763405256338335,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.3899600260250864
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        3.0,
+        -15.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.475304451797632,
+        "minimum_point": [
+          3.0,
+          -15.24,
+          7.475304451797632
+        ],
+        "triangle_index": 4,
+        "projected_area_m2": 0.17634052563383362,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.37530445179763205
+      },
+      "v14": {
+        "cap_m": 7.475304451797632,
+        "minimum_point": [
+          3.0,
+          -15.24,
+          7.475304451797632
+        ],
+        "triangle_index": 4,
+        "projected_area_m2": 0.17634052563383362,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": 0.37530445179763205
+      }
+    },
+    {
+      "floor": "L1",
+      "center": [
+        7.0,
+        -15.0
+      ],
+      "post_bottom_m": 0,
+      "post_top_m": 7.1,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 7.57974624967504,
+        "minimum_point": [
+          6.908155976232378,
+          -15.22173108780271,
+          7.57974624967504
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383346,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.4797462496750402
+      },
+      "v14": {
+        "cap_m": 7.556315982102314,
+        "minimum_point": [
+          6.908155976232378,
+          -15.22173108780271,
+          7.556315982102314
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.17634052563383346,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": 0.45631598210231417
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -5.0,
+        11.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.399125211660984,
+        "minimum_point": [
+          -4.908155976232378,
+          11.22173108780271,
+          24.399125211660984
+        ],
+        "triangle_index": 3,
+        "projected_area_m2": 0.1763405256338337,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.15087478833901358
+      },
+      "v14": {
+        "cap_m": 24.39505262792306,
+        "minimum_point": [
+          -5.0,
+          11.24,
+          24.39505262792306
+        ],
+        "triangle_index": 3,
+        "projected_area_m2": 0.1763405256338337,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.15494737207693632
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -3.0,
+        11.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.322736809504768,
+        "minimum_point": [
+          -3.0000000000000004,
+          11.24,
+          24.322736809504768
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.22726319049522914
+      },
+      "v14": {
+        "cap_m": 24.322736809504768,
+        "minimum_point": [
+          -3.0000000000000004,
+          11.24,
+          24.322736809504768
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.22726319049522914
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        3.0,
+        11.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.347900240331754,
+        "minimum_point": [
+          3.0,
+          11.24,
+          24.347900240331754
+        ],
+        "triangle_index": 6,
+        "projected_area_m2": 0.17634052563383354,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.20209975966824345
+      },
+      "v14": {
+        "cap_m": 24.347900240331754,
+        "minimum_point": [
+          3.0,
+          11.24,
+          24.347900240331754
+        ],
+        "triangle_index": 6,
+        "projected_area_m2": 0.17634052563383354,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.20209975966824345
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        5.0,
+        11.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.43492057167225,
+        "minimum_point": [
+          5.0,
+          11.24,
+          24.43492057167225
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.11507942832774631
+      },
+      "v14": {
+        "cap_m": 24.430113001275725,
+        "minimum_point": [
+          5.0,
+          11.24,
+          24.430113001275725
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.11988699872427233
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -9.0,
+        9.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.75969005671447,
+        "minimum_point": [
+          -8.90815597623238,
+          9.22173108780271,
+          24.75969005671447
+        ],
+        "triangle_index": 8,
+        "projected_area_m2": 0.17634052563383387,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 0.2096900567144715
+      },
+      "v14": {
+        "cap_m": 24.744393384597632,
+        "minimum_point": [
+          -9.0,
+          9.24,
+          24.744393384597632
+        ],
+        "triangle_index": 8,
+        "projected_area_m2": 0.17634052563383387,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 0.19439338459763533
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -5.0,
+        9.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 25.526708968188828,
+        "minimum_point": [
+          -5.000000000000002,
+          9.24,
+          25.526708968188828
+        ],
+        "triangle_index": 9,
+        "projected_area_m2": 0.16550757551268222,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 0.9767089681888308
+      },
+      "v14": {
+        "cap_m": 25.526665421900532,
+        "minimum_point": [
+          -5.000000000000002,
+          9.24,
+          25.526665421900532
+        ],
+        "triangle_index": 9,
+        "projected_area_m2": 0.16550757551268222,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 0.9766654219005346
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        5.0,
+        9.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 25.56457867426275,
+        "minimum_point": [
+          5.0,
+          9.24,
+          25.56457867426275
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.1477718231289168,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 1.0145786742627543
+      },
+      "v14": {
+        "cap_m": 25.56454145690908,
+        "minimum_point": [
+          5.0,
+          9.24,
+          25.56454145690908
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.1477718231289168,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 1.0145414569090825
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        9.0,
+        9.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.75969005671447,
+        "minimum_point": [
+          9.22173108780271,
+          8.90815597623238,
+          24.75969005671447
+        ],
+        "triangle_index": 8,
+        "projected_area_m2": 0.17634052563383393,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 0.2096900567144715
+      },
+      "v14": {
+        "cap_m": 24.744393384597632,
+        "minimum_point": [
+          9.24,
+          9.000000000000002,
+          24.744393384597632
+        ],
+        "triangle_index": 8,
+        "projected_area_m2": 0.17634052563383393,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 0.19439338459763533
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -7.0,
+        7.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -3.0,
+        7.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        3.0,
+        7.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        7.0,
+        7.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -11.0,
+        5.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.43492057167225,
+        "minimum_point": [
+          -11.24,
+          5.0,
+          24.43492057167225
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383357,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.11507942832774631
+      },
+      "v14": {
+        "cap_m": 24.430113001275725,
+        "minimum_point": [
+          -11.24,
+          5.0,
+          24.430113001275725
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383357,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.11988699872427233
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -9.0,
+        5.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 25.56457867426275,
+        "minimum_point": [
+          -9.24,
+          5.0,
+          25.56457867426275
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.1477718231289168,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 1.0145786742627543
+      },
+      "v14": {
+        "cap_m": 25.56454145690908,
+        "minimum_point": [
+          -9.24,
+          5.0,
+          25.56454145690908
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.1477718231289168,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 1.0145414569090825
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        9.0,
+        5.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 25.52670896818883,
+        "minimum_point": [
+          9.24,
+          5.000000000000001,
+          25.52670896818883
+        ],
+        "triangle_index": 9,
+        "projected_area_m2": 0.16550757551268222,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 0.9767089681888343
+      },
+      "v14": {
+        "cap_m": 25.526665421900535,
+        "minimum_point": [
+          9.24,
+          5.000000000000001,
+          25.526665421900535
+        ],
+        "triangle_index": 9,
+        "projected_area_m2": 0.16550757551268222,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 0.9766654219005382
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        11.0,
+        5.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.399125211660987,
+        "minimum_point": [
+          11.22173108780271,
+          4.908155976232377,
+          24.399125211660987
+        ],
+        "triangle_index": 3,
+        "projected_area_m2": 0.1763405256338338,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.15087478833901002
+      },
+      "v14": {
+        "cap_m": 24.39505262792306,
+        "minimum_point": [
+          11.24,
+          5.0,
+          24.39505262792306
+        ],
+        "triangle_index": 3,
+        "projected_area_m2": 0.1763405256338338,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.15494737207693632
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -11.0,
+        3.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.347900240331754,
+        "minimum_point": [
+          -11.24,
+          3.0,
+          24.347900240331754
+        ],
+        "triangle_index": 6,
+        "projected_area_m2": 0.1763405256338335,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.20209975966824345
+      },
+      "v14": {
+        "cap_m": 24.347900240331754,
+        "minimum_point": [
+          -11.24,
+          3.0,
+          24.347900240331754
+        ],
+        "triangle_index": 6,
+        "projected_area_m2": 0.1763405256338335,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.20209975966824345
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -7.0,
+        3.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -3.0,
+        3.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        3.0,
+        3.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        7.0,
+        3.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        11.0,
+        3.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.322736809504768,
+        "minimum_point": [
+          11.24,
+          3.0000000000000004,
+          24.322736809504768
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.1763405256338336,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.22726319049522914
+      },
+      "v14": {
+        "cap_m": 24.322736809504768,
+        "minimum_point": [
+          11.24,
+          3.0000000000000004,
+          24.322736809504768
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.1763405256338336,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.22726319049522914
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -11.0,
+        -3.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.322736809504768,
+        "minimum_point": [
+          -11.24,
+          -3.0000000000000004,
+          24.322736809504768
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.22726319049522914
+      },
+      "v14": {
+        "cap_m": 24.322736809504768,
+        "minimum_point": [
+          -11.24,
+          -3.0000000000000004,
+          24.322736809504768
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383373,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.22726319049522914
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -7.0,
+        -3.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -3.0,
+        -3.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        3.0,
+        -3.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383337,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        7.0,
+        -3.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        11.0,
+        -3.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.347900240331754,
+        "minimum_point": [
+          11.24,
+          -2.9999999999999996,
+          24.347900240331754
+        ],
+        "triangle_index": 6,
+        "projected_area_m2": 0.17634052563383354,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.20209975966824345
+      },
+      "v14": {
+        "cap_m": 24.347900240331754,
+        "minimum_point": [
+          11.24,
+          -2.9999999999999996,
+          24.347900240331754
+        ],
+        "triangle_index": 6,
+        "projected_area_m2": 0.17634052563383354,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.20209975966824345
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -11.0,
+        -5.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.399125211660984,
+        "minimum_point": [
+          -11.22173108780271,
+          -4.908155976232378,
+          24.399125211660984
+        ],
+        "triangle_index": 3,
+        "projected_area_m2": 0.1763405256338337,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.15087478833901358
+      },
+      "v14": {
+        "cap_m": 24.39505262792306,
+        "minimum_point": [
+          -11.24,
+          -5.0,
+          24.39505262792306
+        ],
+        "triangle_index": 3,
+        "projected_area_m2": 0.1763405256338337,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.15494737207693632
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -9.0,
+        -5.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 25.526708968188828,
+        "minimum_point": [
+          -9.24,
+          -5.000000000000002,
+          25.526708968188828
+        ],
+        "triangle_index": 9,
+        "projected_area_m2": 0.16550757551268222,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 0.9767089681888308
+      },
+      "v14": {
+        "cap_m": 25.526665421900535,
+        "minimum_point": [
+          -9.24,
+          -5.000000000000002,
+          25.526665421900535
+        ],
+        "triangle_index": 9,
+        "projected_area_m2": 0.16550757551268222,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 0.9766654219005382
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        9.0,
+        -5.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 25.56457867426275,
+        "minimum_point": [
+          9.24,
+          -5.000000000000001,
+          25.56457867426275
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.14777182312891682,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 1.0145786742627543
+      },
+      "v14": {
+        "cap_m": 25.56454145690908,
+        "minimum_point": [
+          9.24,
+          -5.000000000000001,
+          25.56454145690908
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.14777182312891682,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 1.0145414569090825
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        11.0,
+        -5.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.43492057167225,
+        "minimum_point": [
+          11.24,
+          -5.0,
+          24.43492057167225
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.1763405256338337,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.11507942832774631
+      },
+      "v14": {
+        "cap_m": 24.43011300127573,
+        "minimum_point": [
+          11.24,
+          -5.0,
+          24.43011300127573
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.1763405256338337,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.11988699872426878
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -7.0,
+        -7.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -3.0,
+        -7.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        3.0,
+        -7.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.17634052563383346,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        7.0,
+        -7.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      },
+      "v14": {
+        "cap_m": null,
+        "minimum_point": null,
+        "triangle_index": null,
+        "projected_area_m2": 0.0,
+        "footprint_area_m2": 0.1763405256338335,
+        "coverage": "none",
+        "vertical_gap_m": null
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -9.0,
+        -9.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.75969005671447,
+        "minimum_point": [
+          -9.22173108780271,
+          -8.90815597623238,
+          24.75969005671447
+        ],
+        "triangle_index": 8,
+        "projected_area_m2": 0.17634052563383396,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 0.2096900567144715
+      },
+      "v14": {
+        "cap_m": 24.744393384597632,
+        "minimum_point": [
+          -9.24,
+          -9.0,
+          24.744393384597632
+        ],
+        "triangle_index": 8,
+        "projected_area_m2": 0.17634052563383396,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 0.19439338459763533
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -5.0,
+        -9.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 25.56457867426275,
+        "minimum_point": [
+          -5.0,
+          -9.24,
+          25.56457867426275
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.14777182312891676,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 1.0145786742627543
+      },
+      "v14": {
+        "cap_m": 25.56454145690908,
+        "minimum_point": [
+          -5.0,
+          -9.24,
+          25.56454145690908
+        ],
+        "triangle_index": 5,
+        "projected_area_m2": 0.14777182312891676,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 1.0145414569090825
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        5.0,
+        -9.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 25.526708968188828,
+        "minimum_point": [
+          5.000000000000002,
+          -9.24,
+          25.526708968188828
+        ],
+        "triangle_index": 9,
+        "projected_area_m2": 0.16550757551268253,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 0.9767089681888308
+      },
+      "v14": {
+        "cap_m": 25.526665421900535,
+        "minimum_point": [
+          5.000000000000002,
+          -9.24,
+          25.526665421900535
+        ],
+        "triangle_index": 9,
+        "projected_area_m2": 0.16550757551268253,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "partial",
+        "vertical_gap_m": 0.9766654219005382
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        9.0,
+        -9.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.75969005671447,
+        "minimum_point": [
+          8.90815597623238,
+          -9.22173108780271,
+          24.75969005671447
+        ],
+        "triangle_index": 8,
+        "projected_area_m2": 0.17634052563383398,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 0.2096900567144715
+      },
+      "v14": {
+        "cap_m": 24.744393384597632,
+        "minimum_point": [
+          9.0,
+          -9.24,
+          24.744393384597632
+        ],
+        "triangle_index": 8,
+        "projected_area_m2": 0.17634052563383398,
+        "footprint_area_m2": 0.1763405256338339,
+        "coverage": "full",
+        "vertical_gap_m": 0.19439338459763533
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -5.0,
+        -11.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.43492057167225,
+        "minimum_point": [
+          -4.999999999999999,
+          -11.24,
+          24.43492057167225
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383382,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.11507942832774631
+      },
+      "v14": {
+        "cap_m": 24.430113001275725,
+        "minimum_point": [
+          -4.999999999999999,
+          -11.24,
+          24.430113001275725
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.17634052563383382,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.11988699872427233
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        -3.0,
+        -11.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.347900240331754,
+        "minimum_point": [
+          -3.0,
+          -11.24,
+          24.347900240331754
+        ],
+        "triangle_index": 6,
+        "projected_area_m2": 0.17634052563383357,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.20209975966824345
+      },
+      "v14": {
+        "cap_m": 24.347900240331754,
+        "minimum_point": [
+          -3.0,
+          -11.24,
+          24.347900240331754
+        ],
+        "triangle_index": 6,
+        "projected_area_m2": 0.17634052563383357,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.20209975966824345
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        3.0,
+        -11.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.322736809504768,
+        "minimum_point": [
+          3.0000000000000004,
+          -11.24,
+          24.322736809504768
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.1763405256338336,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.22726319049522914
+      },
+      "v14": {
+        "cap_m": 24.322736809504768,
+        "minimum_point": [
+          3.0000000000000004,
+          -11.24,
+          24.322736809504768
+        ],
+        "triangle_index": 7,
+        "projected_area_m2": 0.1763405256338336,
+        "footprint_area_m2": 0.17634052563383362,
+        "coverage": "full",
+        "vertical_gap_m": -0.22726319049522914
+      }
+    },
+    {
+      "floor": "L3",
+      "center": [
+        5.0,
+        -11.0
+      ],
+      "post_bottom_m": 19.4,
+      "post_top_m": 24.549999999999997,
+      "footprint_sides": 16,
+      "v13": {
+        "cap_m": 24.399125211660984,
+        "minimum_point": [
+          4.908155976232378,
+          -11.22173108780271,
+          24.399125211660984
+        ],
+        "triangle_index": 3,
+        "projected_area_m2": 0.17634052563383368,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.15087478833901358
+      },
+      "v14": {
+        "cap_m": 24.39505262792306,
+        "minimum_point": [
+          5.0,
+          -11.24,
+          24.39505262792306
+        ],
+        "triangle_index": 3,
+        "projected_area_m2": 0.17634052563383368,
+        "footprint_area_m2": 0.1763405256338337,
+        "coverage": "full",
+        "vertical_gap_m": -0.15494737207693632
+      }
+    }
+  ],
+  "summary": {
+    "posts": 116,
+    "full_coverage": 68,
+    "partial_coverage": 8,
+    "no_coverage": 40,
+    "negative_full_footprints": 16,
+    "minimum_vertical_gap_m": -0.22726319049522914,
+    "maximum_negative_gap_worsening_m": 0.0048075703965260175
+  },
+  "source_sha256": {
+    "tools/blender/exterior_whitebox.py": "97f6cb4961a4a9835a7df24b0e842ec141fde3adb60ddfaaa4f2bd9d7d6a9e36",
+    "tools/blender/dimensioned_study.py": "4e3d200af41b2590f8d7c3ec03bbe0c955e59b36d8dd9472042ffba9c9459212",
+    "tools/blender/post_contact_study.py": "afab278caa100ade777504bd38a221f3727dee407e3e7e69d2657713389e6168",
+    "docs/refactoring/yellow-crane-plan-traces.json": "5f9358989e44dd5dac7c4e4e5a724a316cf45894543159571c54f3946782b47b"
+  },
+  "limits": [
+    "Double-precision generated vertices and fan triangulation, NOT actual Blender loop triangles or saved-mesh readback.",
+    "Polygon coverage rejects pairwise projected overlap; height minima alone do not establish closed-solid intersection.",
+    "Production parameter fixtures must be rechecked after generator changes. Post heights/diameter remain estimates.",
+    "No model correction, visual re-render, architecture acceptance, game integration or performance claim.",
+    "Projected overlaps <=1e-10 m² and coverage tolerances are numerical bounds, not exact certification."
+  ],
+  "verification": {
+    "helper_tests_passed": 8,
+    "total_blender_helper_tests_passed": 61,
+    "independent_review": "Two initial findings fixed with failing-first regressions; re-review COMMENT, no remaining actionable findings. LSP unavailable.",
+    "reviewer_analytic_cases_passed": 1000,
+    "review_scope": "polygon_probe, vertical_prisms and focused tests only; not runtime or run_preflight orchestration"
+  }
+}

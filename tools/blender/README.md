@@ -171,3 +171,40 @@ Do not transfer this scale correction to other floors or change roof heights to
 match a support-fit deficit. Blender12 has 20 proxy supports (0 blocked), 34 meshes,
 106968 triangles. Only L5 roof/support meshes differ from10. M1 remains revise.
 Private scenes/images remain ignored; reviewed numerical evidence is in handoff.
+
+
+### Exterior14: independently constrained L1/L3 endpoints
+
+`canopy_roof_mesh` is the shared production entry point for independently transcribed
+L1 (9.01/7.23m), L3 (25.6/23.82m), and retained L5 (38.8/37.02m) tip/low elevations.
+Do not spread these corrections to L2/L4: their source annotations conflict.
+Intermediate Z remains estimated; XY/topology/thickness/ridge heights are unchanged.
+Plate2-2-14 heights are true heights, but lengths require plan-based development;
+the dashed non-setting-out curve is not calibration data. Mirrored twelve-tip
+correspondence is still provisional. 53 helper tests pass; actual v14 saved/live
+geometry and 120 endpoints were checked. Only L1/L3 meshes differ from13.
+
+34 meshes /106968 triangles; all20 prior scenes retained. L5's20 support footprints
+were rechecked using the same tested clipping helper. 68 lower-post bounding squares
+were fully covered and checked;48 uncovered squares were NOT checked. No whole-scene
+intersection or structural acceptance. Three rendered views keep M1 at82/revise.
+Raw Blend/PNGs stay local; portable snapshot remains08. Use fresh version15 or higher.
+
+Caution:16 of those68 covered squares already have negative L3 proxy gaps; some
+worsen by up to3.004mm in14 (minimum -0.229167m). No newly negative square does NOT
+mean clearance passes. Verify the actual post cross-section/roof contact next;
+do not lower posts merely to hide this flag.
+
+
+### Actual post-footprint preflight (read-only; runtime verification pending)
+
+`post_contact_study.run_preflight(root)` returns a numerical report without writing
+files or changing Blender. It uses generated vertical16-gon posts, convex clipping,
+positive-area overlap rejection and strict prism side/cap topology checks. This is
+separate from the production square fitter; no fitting policy changes.
+
+The pure-source fixture has116 posts:68 full,8 partial,40 no-coverage;16 full L3
+footprints remain negative. Quad fan triangulation and double-precision coordinates
+are NOT saved Blender loop triangles. Do not label this actual mesh/solid readback.
+MCP execution and escalated background startup approval timed out during this run.
+Actual runtime contact validation remains the next step; the model is untouched.

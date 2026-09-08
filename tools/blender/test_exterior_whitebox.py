@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
-from exterior_whitebox import FIFTH_LOWER_CANOPY_SCALE, FIFTH_LOWER_CANOPY_TIP_Z, roof_mesh, tier_outline, output_paths, approach_steps, save_checkpoint, component_volumes, transition_band, enclosure_height
+from exterior_whitebox import canopy_roof_mesh, FIFTH_LOWER_CANOPY_SCALE, FIFTH_LOWER_CANOPY_TIP_Z, roof_mesh, tier_outline, output_paths, approach_steps, save_checkpoint, component_volumes, transition_band, enclosure_height
 
 
 class ExteriorGeometryTests(unittest.TestCase):
@@ -64,6 +64,42 @@ class ExteriorGeometryTests(unittest.TestCase):
             self.assertAlmostEqual(top[2]-bottom[2], .18)
         self.assertAlmostEqual(old_vertices[12*ring+tips[0]*5][2], 40.52)
         self.assert_closed(vertices, faces)
+
+    def test_l1_l3_production_roofs_use_their_own_printed_endpoints(self):
+        refs = json.loads((Path(__file__).resolve().parents[2]/
+                          'docs/refactoring/yellow-crane-eave-traces.json').read_text())
+        elevations = {row['floor']: row for row in refs['symmetric_elevations_m']}
+        for label, floor, scale, ratio, ridge in (
+                ('Ground_canopy', 'L1', 1.29, .50, 10.21),
+                ('Third_canopy', 'L3', 1., .61, 26.)):
+            with self.subTest(floor=floor):
+                tip, eave = (elevations[floor][k] for k in ('upper_left', 'lower_right'))
+                outer, tips = tier_outline(scale)
+                inner = [(x*ratio, y*ratio) for x,y in outer]
+                vertices, faces = canopy_roof_mesh(label, inner, outer, ridge, eave, tips)
+                old, old_faces = roof_mesh(inner, outer, ridge, eave, tips)
+                self.assertEqual(faces, old_faces)
+                self.assertEqual([(x,y) for x,y,_ in vertices], [(x,y) for x,y,_ in old])
+                ring = len(outer)*5
+                for i in range(len(outer)):
+                    self.assertAlmostEqual(vertices[i*5][2], ridge)
+                    self.assertAlmostEqual(vertices[12*ring+i*5][2], tip if i in tips else eave)
+                half = len(vertices)//2
+                for top, bottom in zip(vertices[:half], vertices[half:]):
+                    self.assertAlmostEqual(top[2]-bottom[2], .18)
+                self.assertAlmostEqual(old[12*ring+tips[0]*5][2]-tip, 1.72)
+                self.assert_closed(vertices, faces)
+
+    def test_v14_preserves_conflicted_roofs_and_verified_l5(self):
+        for label, scale, ratio, ridge, eave, rise in (
+                ('Second_canopy', 1.03, .62, 19.4, 17.22, 3.5),
+                ('Fourth_canopy', 1., .61, 32.6, 30.42, 3.5),
+                ('Fifth_lower_canopy', 1., .55, 40.6, 37.02, 38.8-37.02)):
+            with self.subTest(label=label):
+                outer, tips = tier_outline(scale)
+                inner = [(x*ratio,y*ratio) for x,y in outer]
+                self.assertEqual(canopy_roof_mesh(label, inner, outer, ridge, eave, tips),
+                                 roof_mesh(inner, outer, ridge, eave, tips, corner_rise=rise))
 
     def test_stepped_outline_retains_twelve_tips(self):
         outline, tips = tier_outline(1)

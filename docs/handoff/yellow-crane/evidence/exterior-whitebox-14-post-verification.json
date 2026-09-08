@@ -1,0 +1,15 @@
+{
+  "live_geometry_matches_disk": true,
+  "old_scene_digests_preserved": true,
+  "source_files_unchanged": true,
+  "camera": "WB14_Oblique",
+  "resolution": [
+    1400,
+    1600
+  ],
+  "scene_objects": 36,
+  "scene_cameras": [
+    "WB14_Front",
+    "WB14_Oblique"
+  ]
+}

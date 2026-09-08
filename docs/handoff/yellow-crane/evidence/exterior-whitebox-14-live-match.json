@@ -1,0 +1,6 @@
+{
+  "live_v14_matches_evaluated_disk_geometry": true,
+  "old_live_scene_digests_preserved": 20,
+  "v14_file_unchanged": true,
+  "method": "Short MCP hash comparison after independent background readback"
+}

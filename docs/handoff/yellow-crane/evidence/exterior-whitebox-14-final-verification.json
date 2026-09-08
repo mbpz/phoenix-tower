@@ -1,0 +1,90 @@
+{
+  "recorded_on": "2026-09-08",
+  "scene": "HHL_Exterior_Whitebox_14",
+  "milestone": "Bounded L1/L3 endpoint correction verified; full roof curve calibration and M1 acceptance remain open",
+  "v13_source_sha256": "0815de35d6d572331ba335e1829edcad028546608b0401c39d077bd30c3e1d80",
+  "v14_source_sha256": "360d979a04d2061988119e6f303e8b208953326aeb02a74c2fade138d6d9f43e",
+  "mesh_count": 34,
+  "triangles": 106968,
+  "changed_meshes": [
+    "Ground_canopy",
+    "Third_canopy"
+  ],
+  "unchanged_mesh_count": 32,
+  "endpoint_constraints_m": {
+    "Ground_canopy": {
+      "tip": 9.01,
+      "low": 7.23
+    },
+    "Third_canopy": {
+      "tip": 25.6,
+      "low": 23.82
+    },
+    "Fifth_lower_canopy": {
+      "tip": 38.8,
+      "low": 37.02
+    }
+  },
+  "actual_endpoint_checks": 120,
+  "corrected_tip_count": 24,
+  "retained_l5_tip_count": 12,
+  "float_tolerance_m": 3e-06,
+  "topology_all_meshes_pass": true,
+  "saved_and_live_geometry_match": true,
+  "old_scene_count": 20,
+  "old_live_and_evaluated_disk_geometry_preserved": true,
+  "source_files_unchanged": true,
+  "minimum_l5_vertical_clearance_m": 0.01999778537964403,
+  "support_footprints_checked": 20,
+  "lower_post_squares_checked": 68,
+  "lower_post_squares_not_checked": 48,
+  "duplicate_version_rejected": true,
+  "render_settings_restored": true,
+  "renders": [
+    {
+      "view": "front",
+      "local_only_filename": "exterior-whitebox-14-front.png",
+      "sha256": "d9e8e10f3d4e4ccbfa52c2bba18f84376843d595dd20bc7fc639fa9ae7b871c3",
+      "visually_inspected": true
+    },
+    {
+      "view": "oblique",
+      "local_only_filename": "exterior-whitebox-14-oblique.png",
+      "sha256": "bba682e22c5590932412f38f6851191e1adbf61b24884c03e5fd0612315446c7",
+      "visually_inspected": true
+    },
+    {
+      "view": "support-underside",
+      "local_only_filename": "exterior-whitebox-14-support-underside.png",
+      "sha256": "5887eb122c4e21dcdfd1f7d3765b274ae76e1c383b3fefa190835c578774932f",
+      "visually_inspected": true
+    }
+  ],
+  "verification_method_notes": [
+    "Model built and saved via Blender MCP. Two large verification calls timed out in automatic approval; small MCP calls succeeded.",
+    "Separate background Blender readback verified actual saved geometry. Three historical inactive scenes have cached transforms differing on dependency evaluation; comparing both saved files after equal evaluation preserved all 20.",
+    "Readback report captures an intermediate stage without live-v14 comparison. Its historical limits entry about missing live comparison is superseded by live-match and post-verification evidence, which verify full geometry hashes. Old-scene readback proof is evaluated disk-to-disk; raw prebuild/live matches are reported separately."
+  ],
+  "tests": {
+    "blender_helpers": 53,
+    "regressions_failed_before_fix": 2,
+    "focused_review_tests": 4,
+    "offline_handoff": 6
+  },
+  "independent_code_review": "No actionable findings; COMMENT, LSP unavailable. Pure fixture production-parameter coverage supplemented by actual Blender endpoint readback.",
+  "visual_verdict": "revise",
+  "visual_score": 82,
+  "export_to_game": false,
+  "portable_checkpoint": "08",
+  "limits": [
+    "Full developed curve and mirrored twelve-tip correspondence unverified; intermediate Z retains estimated formula.",
+    "L2/L4 source conflicts unresolved and geometry unchanged.",
+    "Support checks share the tested clipping helper with generation; not an independent algorithm.",
+    "68 conservative .48m lower-post squares checked for newly introduced vertical overlap; 48 uncovered squares explicitly not checked. Not whole-scene intersections, contact or structural certification.",
+    "No new dependency/rights audit, portable export, material/UV/detail work or game interaction/performance verification.",
+    "16 of the 68 checked bounding squares already had negative vertical gaps in L3; some worsen by up to 0.00300384716 m in v14 (minimum gap -0.2291670400 m). No newly negative squares is NOT clearance acceptance. True post cross-section/roof contact requires follow-up; do not lower posts to hide this risk."
+  ],
+  "lower_post_squares_existing_negative": 16,
+  "maximum_existing_negative_gap_worsening_m": 0.00300384715962565,
+  "minimum_existing_negative_gap_m": -0.22916704003408483
+}
