@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-09-08",
+  "status": "source_direction_reviewed_runtime_probe_pending",
+  "scope_path": "docs/refactoring/yellow-crane-l3-section-registration.json",
+  "scope_sha256": "62772c2168d279f57d90a47c90e8954c7c35cfa7bbf0c946f5aaa4ed1cbb7486",
+  "source_plate_review": "Local originals: figure 2-2-5 axis chain M,L,J,G,F,D,B,A; figure 2-2-1 both 1 markers between axis 6 and centreline. No measured cut path inferred.",
+  "actual_blender_readback": false,
+  "runtime_probe_status": "not_executed_approval_timeout",
+  "tool_attempts": {
+    "mcp_scene_read": 2,
+    "background_blender": 2
+  },
+  "registration_verified": false,
+  "exterior_geometry_modified": false,
+  "export_to_game": false,
+  "prior_study_01_unchanged": true,
+  "exterior_checkpoint": "14",
+  "portable_checkpoint": "08",
+  "remaining": [
+    "Exact 1-1 cut path and any offsets",
+    "Sectioned versus projected roof/support/post surfaces",
+    "Actual loop-triangle sensitivity probe; zero segments must not imply clearance",
+    "16 existing L3 contacts and 48 partial/no-coverage posts remain unresolved"
+  ]
+}

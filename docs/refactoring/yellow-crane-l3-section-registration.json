@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-09-08",
+  "source_status": "published_design_plates_not_verified_as_built",
+  "sources": [
+    {
+      "figure": "2-2-1",
+      "file": "figure-2-2-1.jpeg",
+      "sha256": "433f365b6c38baf95c85168f9bc8c18f911f4a50f0e2b5af4024e9959c0b4976"
+    },
+    {
+      "figure": "2-2-5",
+      "file": "figure-2-2-5.jpg",
+      "sha256": "bd738f6022d33292511f2a428bac7315f61ee985f014d9cc5c88cccbcb1b80f2"
+    }
+  ],
+  "source_section": {
+    "figure": "2-2-5",
+    "label": "1-1",
+    "horizontal_axes_left_to_right": [
+      "M",
+      "L",
+      "J",
+      "G",
+      "F",
+      "D",
+      "B",
+      "A"
+    ],
+    "model_horizontal_direction": "-Y",
+    "right_eave_axis": "B",
+    "ground_plan_markers": {
+      "figure": "2-2-1",
+      "observed_x_bracket_m": [
+        -3.0,
+        0.0
+      ],
+      "meaning": "Both 1 markers lie between axis 6 and the centreline. Marker positions are not a dimensioned or resolved cut path.",
+      "crop_fractions": {
+        "top": [
+          0.36,
+          0.02,
+          0.64,
+          0.23
+        ],
+        "bottom": [
+          0.36,
+          0.78,
+          0.64,
+          0.98
+        ],
+        "middle": [
+          0.37,
+          0.2,
+          0.59,
+          0.8
+        ]
+      }
+    },
+    "resolved_path_xy_m": null,
+    "registration_verified": false
+  },
+  "diagnostic_cut": {
+    "study_version": "01",
+    "kind": "fixed_x_mesh_diagnostic",
+    "x_m": 3.0,
+    "y_interval_m": [
+      8.0,
+      15.0
+    ],
+    "registered_to_source": false
+  },
+  "sensitivity_probes": [
+    {
+      "id": "negative_y_x_minus_2",
+      "x_m": -2.0,
+      "y_interval_m": [
+        -15.0,
+        -8.0
+      ],
+      "registered_to_source": false
+    },
+    {
+      "id": "negative_y_x_minus_1",
+      "x_m": -1.0,
+      "y_interval_m": [
+        -15.0,
+        -8.0
+      ],
+      "registered_to_source": false
+    }
+  ],
+  "export_to_game": false,
+  "transfer_to_exterior": false,
+  "limits": [
+    "Candidate X=-2 and -1 m are arbitrary sensitivity probes inside the marker bracket, NOT measured section coordinates.",
+    "Axis order establishes horizontal sign only, not a source-to-model transform or viewing direction.",
+    "Do not transfer projected posts or decorative roof outlines into physical cut surfaces.",
+    "No post segment at a plane does not imply clearance or removal of the 16 known contacts.",
+    "Exact cut path, possible offsets and surface identities remain unresolved."
+  ]
+}

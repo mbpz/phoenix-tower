@@ -95,6 +95,32 @@ class HandoffAssetsTests(unittest.TestCase):
         self.assertFalse(final['export_to_game'])
         self.assertEqual(final['portable_checkpoint'], '08')
 
+    def test_l3_registration_scope_does_not_promote_pending_runtime(self):
+        evidence = HANDOFF / 'yellow-crane/evidence'
+        status = json.loads((evidence/'l3-section-registration-status.json').read_text())
+        path = ROOT/status['scope_path']
+        scope = json.loads(path.read_text())
+        study = json.loads((evidence/'l3-section-constraint-study-01.json').read_text())
+        plan = json.loads((ROOT/'docs/refactoring/yellow-crane-plan-traces.json').read_text())
+        self.assertEqual(status['scope_sha256'],hashlib.sha256(path.read_bytes()).hexdigest())
+        self.assertIs(status['actual_blender_readback'],False)
+        self.assertIs(status['registration_verified'],False)
+        self.assertEqual(status['runtime_probe_status'],'not_executed_approval_timeout')
+        for item in (status,scope):
+            self.assertIs(item['export_to_game'],False)
+        source = scope['source_section']
+        self.assertIs(source['registration_verified'],False)
+        self.assertIsNone(source['resolved_path_xy_m'])
+        self.assertEqual([plan['axes_y_m'][a] for a in source['horizontal_axes_left_to_right']],
+                         [15,11,7,3,-3,-7,-11,-15])
+        diagnostic = scope['diagnostic_cut']
+        self.assertEqual(diagnostic['x_m'],study['section_plane_x_m'])
+        self.assertEqual(diagnostic['y_interval_m'],study['section_y_interval_m'])
+        self.assertIs(diagnostic['registered_to_source'],False)
+        for probe in scope['sensitivity_probes']:
+            self.assertIs(probe['registered_to_source'],False)
+        self.assertIs(status['exterior_geometry_modified'],False)
+
     def test_l3_source_study_preserves_unresolved_component_mapping(self):
         path = ROOT / 'docs/refactoring/yellow-crane-l3-section-constraints.json'
         constraints = json.loads(path.read_text())

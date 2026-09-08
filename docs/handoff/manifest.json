@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "recorded_on": "2026-09-08",
-  "checkpoint": "Runtime v14 baseline committed as c2a1b1b; separate L3 source-datum / actual triangle section study verified in background Blender; no exterior revision; M1 revise; portable v08",
-  "scope": "Reviewed v08 portable snapshot and selected v14 evidence plus L3 source-datum study. No component-surface/plan mapping acceptance, exterior geometry correction, global solid-intersection acceptance or new portable export. Private multi-scene study and source imagery excluded.",
+  "checkpoint": "Source section M-to-A axis direction and marker bracket reviewed; v14 unchanged; new read-only sensitivity probe pending runtime approval; portable v08",
+  "scope": "Reviewed v08 portable snapshot and historical v14/study 01 evidence, plus bounded source-registration status. No new actual Blender probe evidence, geometry correction, registration acceptance, or export.",
   "files": [
     {
       "path": "docs/handoff/yellow-crane/evidence/corner-clearance-study-11-verification.json",
@@ -203,6 +203,11 @@
       "path": "docs/handoff/yellow-crane/source-inventory.json",
       "bytes": 10914,
       "sha256": "6383e408c6747e4022477288e3c5fdfa1004337817466ecc186a655dcd5bdf4e"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/l3-section-registration-status.json",
+      "bytes": 1124,
+      "sha256": "a4d76bba5df2aaaa6e1dffd17719f518a3dd3e57e70df29e4b27cbc94c2f0f8e"
     }
   ]
 }
