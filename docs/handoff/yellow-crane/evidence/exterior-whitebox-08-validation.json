@@ -1,0 +1,312 @@
+{
+  "status": "M1_in_progress_not_visually_accepted",
+  "source": "design plates, NOT as-built",
+  "scene": "HHL_Exterior_Whitebox_08",
+  "meshes": [
+    {
+      "object": "WB08_L1_floor",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 290.98202602720283,
+      "component_count": 1,
+      "min_component_volume": 290.98202602720283,
+      "triangles": 524
+    },
+    {
+      "object": "WB08_L1_posts",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 90.14520563943786,
+      "component_count": 72,
+      "min_component_volume": 1.2520158825014307,
+      "triangles": 4320
+    },
+    {
+      "object": "WB08_L2_floor",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 140.76608923840496,
+      "component_count": 1,
+      "min_component_volume": 140.76608923840513,
+      "triangles": 484
+    },
+    {
+      "object": "WB08_L2_posts",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 39.95874145934177,
+      "component_count": 44,
+      "min_component_volume": 0.908152478577528,
+      "triangles": 2640
+    },
+    {
+      "object": "WB08_L3_floor",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 113.16571194577273,
+      "component_count": 1,
+      "min_component_volume": 113.16571194577294,
+      "triangles": 484
+    },
+    {
+      "object": "WB08_L3_posts",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 39.95873405980387,
+      "component_count": 44,
+      "min_component_volume": 0.908152310406239,
+      "triangles": 2640
+    },
+    {
+      "object": "WB08_L4_floor",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 113.16571194577288,
+      "component_count": 1,
+      "min_component_volume": 113.16571194577268,
+      "triangles": 484
+    },
+    {
+      "object": "WB08_L4_posts",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 39.958734059803916,
+      "component_count": 44,
+      "min_component_volume": 0.9081523104062468,
+      "triangles": 2640
+    },
+    {
+      "object": "WB08_L5_floor",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 89.16577298092915,
+      "component_count": 1,
+      "min_component_volume": 89.16577298092903,
+      "triangles": 252
+    },
+    {
+      "object": "WB08_L5_posts",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 32.693524922926784,
+      "component_count": 36,
+      "min_component_volume": 0.9081526467485848,
+      "triangles": 2160
+    },
+    {
+      "object": "WB08_Ground_canopy",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 161.6594498921881,
+      "component_count": 1,
+      "min_component_volume": 161.3832691108862,
+      "triangles": 10400
+    },
+    {
+      "object": "WB08_Second_canopy",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 84.59148784479935,
+      "component_count": 1,
+      "min_component_volume": 84.44952941523451,
+      "triangles": 10400
+    },
+    {
+      "object": "WB08_Third_canopy",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 81.32892395619434,
+      "component_count": 1,
+      "min_component_volume": 81.19224979627207,
+      "triangles": 10400
+    },
+    {
+      "object": "WB08_Fourth_canopy",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 81.32892140133517,
+      "component_count": 1,
+      "min_component_volume": 81.19224724716379,
+      "triangles": 10400
+    },
+    {
+      "object": "WB08_Fifth_lower_canopy",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 83.26138867734595,
+      "component_count": 1,
+      "min_component_volume": 83.12024036923128,
+      "triangles": 10400
+    },
+    {
+      "object": "WB08_Crown_joined_roof",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 104.83203428458378,
+      "component_count": 1,
+      "min_component_volume": 104.83203428458361,
+      "triangles": 13696
+    },
+    {
+      "object": "WB08_Wall_panels",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 97.57439048312347,
+      "component_count": 128,
+      "min_component_volume": 0.7622974099165961,
+      "triangles": 1536
+    },
+    {
+      "object": "WB08_Window_mullions",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 5.598726800874547,
+      "component_count": 384,
+      "min_component_volume": 0.01457996601097028,
+      "triangles": 4608
+    },
+    {
+      "object": "WB08_Wall_lintels",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 18.803404335706436,
+      "component_count": 148,
+      "min_component_volume": 0.12704953947087594,
+      "triangles": 1776
+    },
+    {
+      "object": "WB08_Upper_enclosure_frieze",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 194.3709699921083,
+      "component_count": 148,
+      "min_component_volume": 1.101597994996041,
+      "triangles": 1776
+    },
+    {
+      "object": "WB08_Post_head_beams",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 53.86085765685331,
+      "component_count": 64,
+      "min_component_volume": 0.3454489265423392,
+      "triangles": 768
+    },
+    {
+      "object": "WB08_Balcony_rails",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 13.835999314784893,
+      "component_count": 128,
+      "min_component_volume": 0.04194390803485254,
+      "triangles": 1536
+    },
+    {
+      "object": "WB08_Balcony_balusters",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 4.640022671242601,
+      "component_count": 580,
+      "min_component_volume": 0.007999977111654233,
+      "triangles": 6960
+    },
+    {
+      "object": "WB08_Transition_sill",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 3.2815023858883876,
+      "component_count": 20,
+      "min_component_volume": 0.07325972116496104,
+      "triangles": 240
+    },
+    {
+      "object": "WB08_Transition_header",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 15.313712572950852,
+      "component_count": 20,
+      "min_component_volume": 0.34187947505972693,
+      "triangles": 240
+    },
+    {
+      "object": "WB08_Transition_piers",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 1.689594906618262,
+      "component_count": 48,
+      "min_component_volume": 0.03519986495978722,
+      "triangles": 576
+    },
+    {
+      "object": "WB08_Transition_frames",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 2.920709886256835,
+      "component_count": 124,
+      "min_component_volume": 0.008227952331597566,
+      "triangles": 1488
+    },
+    {
+      "object": "WB08_Transition_recess_cells",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 2.289150678772944,
+      "component_count": 96,
+      "min_component_volume": 0.022983969718934905,
+      "triangles": 1152
+    },
+    {
+      "object": "WB08_Crown_seat",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 0.8556250220537127,
+      "component_count": 1,
+      "min_component_volume": 0.855625022053714,
+      "triangles": 12
+    },
+    {
+      "object": "WB08_Wing_ridge_caps",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 2.3274993991852932,
+      "component_count": 4,
+      "min_component_volume": 0.5818748497963107,
+      "triangles": 48
+    },
+    {
+      "object": "WB08_Base",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 1505.8999918401241,
+      "component_count": 1,
+      "min_component_volume": 1505.8999918401241,
+      "triangles": 12
+    },
+    {
+      "object": "WB08_Approach_steps",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 52.41601000213626,
+      "component_count": 24,
+      "min_component_volume": 0.672000282287625,
+      "triangles": 288
+    },
+    {
+      "object": "WB08_Finial_silhouette_PROXY",
+      "non_manifold_edges": 0,
+      "inconsistent_winding_edges": 0,
+      "signed_volume": 2.69450339776828,
+      "component_count": 1,
+      "min_component_volume": 2.69450339776828,
+      "triangles": 668
+    }
+  ],
+  "triangles": 106008,
+  "limitations": [
+    "Shared main/wing crown shell only; lower crown tier and ridge-cap contacts unverified",
+    "Transferred lower-tier outline estimates",
+    "No material/UV/detail/game acceptance",
+    "Wall openings and finial proxy dimensions",
+    "L2 transition cells are opaque visual proxies, not verified window construction"
+  ]
+}

@@ -10,3 +10,16 @@ User directive recorded on 2026-09-07: **Only use `ttbb <apples398@163.com>` for
 - After committing, verify both identities with `git show -s --format='%an <%ae> | %cn <%ce>' HEAD`.
 - Do not use any other identity for new or rewritten commits here.
 - Identity correction does not authorize force-pushing shared history or changing identity in unrelated repositories.
+
+## Cross-machine handoff
+
+- At the beginning of project work, read [docs/handoff/README.md](docs/handoff/README.md).
+  It is the durable entry point for current status, verified artifacts, limitations and next steps.
+- `.omx/plans/*.md` are historical plans, not live execution instructions. Recheck current
+  Git/files/tool state before treating a recorded blocker or completion claim as current.
+- Do not restore `.omx/state` as a live session on another machine. Do not commit logs,
+  private reference plates, image comparisons, credentials or unreviewed `.blend` files.
+- The reviewed scene-only snapshot under `docs/handoff/yellow-crane/` is an explicit
+  exception for portable generated whitebox geometry, not permission to publish reference imagery.
+- When handing off a new milestone, update the handoff document and selected artifact
+  hashes together. Keep estimated geometry distinct from accepted game assets.

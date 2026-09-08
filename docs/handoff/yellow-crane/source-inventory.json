@@ -1,0 +1,231 @@
+{
+  "recorded_on": "2026-09-08",
+  "images_distributed": false,
+  "purpose": "Source links and local integrity metadata only; no automatic download or redistribution grant.",
+  "local_directory": ".omx/references/yellow-crane",
+  "catalog_source": ".omx/references/yellow-crane/catalog.json",
+  "source_catalog": [
+    {
+      "figure": "2-2-1",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-1，新楼一层平面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/982.jpg"
+    },
+    {
+      "figure": "2-2-19",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-19，琉璃宝顶设计.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/981.jpg"
+    },
+    {
+      "figure": "2-2-18",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-18，屋面琉璃瓦件及脊饰.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/980.jpg"
+    },
+    {
+      "figure": "2-2-14",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-14，新楼飞檐翼角剖面及立面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/976.jpg"
+    },
+    {
+      "figure": "2-2-13",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-13，新楼飞檐翼角结构平面.jpg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/975.jpg"
+    },
+    {
+      "figure": "2-2-24",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-24，外檐斗拱构造.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/987.jpg"
+    },
+    {
+      "figure": "2-2-8",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-8，新楼屋顶平面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/1005.jpg"
+    },
+    {
+      "figure": "2-2-7",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-7，新楼立面.jpg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/1004.jpg"
+    },
+    {
+      "figure": "2-2-6",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-6，跑马廊层平面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/1003.jpg"
+    },
+    {
+      "figure": "2-2-5",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-5，新楼剖面.jpg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/1002.jpg"
+    },
+    {
+      "figure": "2-2-4",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-4，新楼五层平面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/1001.jpg"
+    },
+    {
+      "figure": "2-2-3",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-3，新楼三层、四层平面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/1000.jpg"
+    },
+    {
+      "figure": "2-2-34",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-34，铜制风铃设计.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/998.jpg"
+    },
+    {
+      "figure": "2-2-32",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-32，黄鹤楼大匾的设计.jpg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/996.jpg"
+    },
+    {
+      "figure": "2-2-2",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-2，新楼二层平面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/993.jpg"
+    },
+    {
+      "figure": "2-2-28",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-28，仿木栏杆形式的预制混凝土栏杆.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/991.jpg"
+    },
+    {
+      "figure": "2-2-27",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-27，仿木槅扇形式的钢制门窗.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/990.jpg"
+    }
+  ],
+  "originals": [
+    {
+      "figure": "2-2-8",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-8，新楼屋顶平面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/1005.jpg",
+      "bytes_expected": 13743927,
+      "file": "figure-2-2-8.jpeg",
+      "sha256": "68716c6078225f7dc34c892b66df5b0849619c0ec51a3e585e9306b352132198",
+      "url": "http://c.cnkgraph.com/images/%E9%BB%84%E9%B9%A4%E6%A5%BC%E8%AE%BE%E8%AE%A1%E7%BA%AA%E4%BA%8B/%E5%9B%BE2-2-8%EF%BC%8C%E6%96%B0%E6%A5%BC%E5%B1%8B%E9%A1%B6%E5%B9%B3%E9%9D%A2.jpeg",
+      "dimensions_px": [
+        8938,
+        8029
+      ]
+    },
+    {
+      "figure": "2-2-7",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-7，新楼立面.jpg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/1004.jpg",
+      "bytes_expected": 28951300,
+      "file": "figure-2-2-7.jpg",
+      "sha256": "5bf32e0b644b5d74fbc31262bfe2f0290ce80d5fe299de4d06353daee8e1e6af",
+      "url": "http://c.cnkgraph.com/images/%E9%BB%84%E9%B9%A4%E6%A5%BC%E8%AE%BE%E8%AE%A1%E7%BA%AA%E4%BA%8B/%E5%9B%BE2-2-7%EF%BC%8C%E6%96%B0%E6%A5%BC%E7%AB%8B%E9%9D%A2.jpg",
+      "dimensions_px": [
+        9761,
+        13305
+      ]
+    },
+    {
+      "figure": "2-2-5",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-5，新楼剖面.jpg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/1002.jpg",
+      "bytes_expected": 21138994,
+      "file": "figure-2-2-5.jpg",
+      "sha256": "bd738f6022d33292511f2a428bac7315f61ee985f014d9cc5c88cccbcb1b80f2",
+      "url": "http://c.cnkgraph.com/images/%E9%BB%84%E9%B9%A4%E6%A5%BC%E8%AE%BE%E8%AE%A1%E7%BA%AA%E4%BA%8B/%E5%9B%BE2-2-5%EF%BC%8C%E6%96%B0%E6%A5%BC%E5%89%96%E9%9D%A2.jpg",
+      "dimensions_px": [
+        9584,
+        13253
+      ]
+    },
+    {
+      "figure": "2-2-1",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-1，新楼一层平面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/982.jpg",
+      "bytes_expected": 13735520,
+      "file": "figure-2-2-1.jpeg",
+      "sha256": "433f365b6c38baf95c85168f9bc8c18f911f4a50f0e2b5af4024e9959c0b4976",
+      "url": "http://c.cnkgraph.com/images/%E9%BB%84%E9%B9%A4%E6%A5%BC%E8%AE%BE%E8%AE%A1%E7%BA%AA%E4%BA%8B/%E5%9B%BE2-2-1%EF%BC%8C%E6%96%B0%E6%A5%BC%E4%B8%80%E5%B1%82%E5%B9%B3%E9%9D%A2.jpeg"
+    },
+    {
+      "figure": "2-2-2",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-2，新楼二层平面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/993.jpg",
+      "bytes_expected": 7932699,
+      "file": "figure-2-2-2.jpeg",
+      "sha256": "a0b1c2bfd57d7244d8294ef8eec55d7e238e8c44454d51d6655e104c5a02f14f",
+      "url": "http://c.cnkgraph.com/images/%E9%BB%84%E9%B9%A4%E6%A5%BC%E8%AE%BE%E8%AE%A1%E7%BA%AA%E4%BA%8B/%E5%9B%BE2-2-2%EF%BC%8C%E6%96%B0%E6%A5%BC%E4%BA%8C%E5%B1%82%E5%B9%B3%E9%9D%A2.jpeg"
+    },
+    {
+      "figure": "2-2-3",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-3，新楼三层、四层平面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/1000.jpg",
+      "bytes_expected": 10086166,
+      "file": "figure-2-2-3.jpeg",
+      "sha256": "fae0133f7c592fe0537cb4d6253ef7731235042963ff336f113ffc4bc1e0ec7d",
+      "url": "http://c.cnkgraph.com/images/%E9%BB%84%E9%B9%A4%E6%A5%BC%E8%AE%BE%E8%AE%A1%E7%BA%AA%E4%BA%8B/%E5%9B%BE2-2-3%EF%BC%8C%E6%96%B0%E6%A5%BC%E4%B8%89%E5%B1%82%E3%80%81%E5%9B%9B%E5%B1%82%E5%B9%B3%E9%9D%A2.jpeg"
+    },
+    {
+      "figure": "2-2-4",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-4，新楼五层平面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/1001.jpg",
+      "bytes_expected": 10870132,
+      "file": "figure-2-2-4.jpeg",
+      "sha256": "cebb82a5990f9b8dc4ec82d0bd9b11e64b697ab0a3fc2935439caa9322026677",
+      "url": "http://c.cnkgraph.com/images/%E9%BB%84%E9%B9%A4%E6%A5%BC%E8%AE%BE%E8%AE%A1%E7%BA%AA%E4%BA%8B/%E5%9B%BE2-2-4%EF%BC%8C%E6%96%B0%E6%A5%BC%E4%BA%94%E5%B1%82%E5%B9%B3%E9%9D%A2.jpeg"
+    },
+    {
+      "figure": "2-2-6",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-6，跑马廊层平面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/1003.jpg",
+      "bytes_expected": 9515077,
+      "file": "figure-2-2-6.jpeg",
+      "sha256": "5cf5f8a88b6f770accd0604e095b5779df98bdff394f406f873935f9a73145f2",
+      "url": "http://c.cnkgraph.com/images/%E9%BB%84%E9%B9%A4%E6%A5%BC%E8%AE%BE%E8%AE%A1%E7%BA%AA%E4%BA%8B/%E5%9B%BE2-2-6%EF%BC%8C%E8%B7%91%E9%A9%AC%E5%BB%8A%E5%B1%82%E5%B9%B3%E9%9D%A2.jpeg"
+    },
+    {
+      "figure": "2-2-13",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-13，新楼飞檐翼角结构平面.jpg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/975.jpg",
+      "bytes_expected": 14418704,
+      "file": "figure-2-2-13.jpg",
+      "sha256": "3cc3e06fc27336e1fe94f71b8ca95ee0f20a4b061a526b13ada0cf52a7f5651a",
+      "url": "http://c.cnkgraph.com/images/%E9%BB%84%E9%B9%A4%E6%A5%BC%E8%AE%BE%E8%AE%A1%E7%BA%AA%E4%BA%8B/%E5%9B%BE2-2-13%EF%BC%8C%E6%96%B0%E6%A5%BC%E9%A3%9E%E6%AA%90%E7%BF%BC%E8%A7%92%E7%BB%93%E6%9E%84%E5%B9%B3%E9%9D%A2.jpg"
+    },
+    {
+      "figure": "2-2-14",
+      "original": "http://c.cnkgraph.com/images/黄鹤楼设计纪事/图2-2-14，新楼飞檐翼角剖面及立面.jpeg",
+      "thumb": "http://c.cnkgraph.com/images/thumb/976.jpg",
+      "bytes_expected": 7066594,
+      "file": "figure-2-2-14.jpeg",
+      "sha256": "afe8fcf6c254423f7ef60df74396603786019f09580ac927e9528f33be2dc3f9",
+      "url": "http://c.cnkgraph.com/images/%E9%BB%84%E9%B9%A4%E6%A5%BC%E8%AE%BE%E8%AE%A1%E7%BA%AA%E4%BA%8B/%E5%9B%BE2-2-14%EF%BC%8C%E6%96%B0%E6%A5%BC%E9%A3%9E%E6%AA%90%E7%BF%BC%E8%A7%92%E5%89%96%E9%9D%A2%E5%8F%8A%E7%AB%8B%E9%9D%A2.jpeg"
+    }
+  ],
+  "required_local_study_previews": [
+    {
+      "file": "eave-asymmetric-reference.png",
+      "bytes": 322347,
+      "sha256": "91d390a73e6a56ede4e7a8b02f9465d35fbfbabc6720ab0ad78c31bcc5108469"
+    },
+    {
+      "file": "trace-plan-2-2-1.png",
+      "bytes": 914265,
+      "sha256": "0639f84494aa303ae819bb6d6f4e9b89cc1f99d6b167ab5044a69eb68fd8d8ae"
+    },
+    {
+      "file": "trace-plan-2-2-2.png",
+      "bytes": 691153,
+      "sha256": "4553bd1c6dd5774d8073d934f2c93aca24563802d620598b480a896e52a1bc77"
+    },
+    {
+      "file": "trace-plan-2-2-3.png",
+      "bytes": 830849,
+      "sha256": "26c50d42fd6876b1f9f7bb64d6e53641dde7eb707aa677cdccdb2d7a8a2e23a8"
+    },
+    {
+      "file": "trace-plan-2-2-4.png",
+      "bytes": 724508,
+      "sha256": "b557d39d3f22299f55b4beec588e61571da93e65b4880696717448b25f75fbcc"
+    },
+    {
+      "file": "trace-plan-2-2-6.png",
+      "bytes": 514632,
+      "sha256": "533c21dd45eaa425fc489b1ca52ea3165f44095a061e6a9e995f04b5ae90a85e"
+    }
+  ],
+  "integrity_note": "Originals and study previews hashed against local files on 2026-09-08. URLs are historical source records, not revalidated during migration; hashes do not certify rights or as-built accuracy."
+}

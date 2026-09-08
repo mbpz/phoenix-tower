@@ -1,0 +1,42 @@
+{
+  "unchanged": [
+    "L1_floor",
+    "L1_posts",
+    "L2_floor",
+    "L2_posts",
+    "L3_floor",
+    "L3_posts",
+    "L4_floor",
+    "L4_posts",
+    "L5_floor",
+    "L5_posts",
+    "Ground_canopy",
+    "Second_canopy",
+    "Third_canopy",
+    "Fourth_canopy",
+    "Fifth_lower_canopy",
+    "Wall_panels",
+    "Window_mullions",
+    "Wall_lintels",
+    "Upper_enclosure_frieze",
+    "Post_head_beams",
+    "Balcony_rails",
+    "Balcony_balusters",
+    "Transition_sill",
+    "Transition_header",
+    "Transition_piers",
+    "Transition_frames",
+    "Transition_recess_cells",
+    "Crown_seat",
+    "Wing_ridge_caps",
+    "Base",
+    "Approach_steps",
+    "Finial_silhouette_PROXY"
+  ],
+  "changed": [
+    "Crown_joined_roof"
+  ],
+  "removed": [],
+  "crown_same_xy_and_faces": true,
+  "crown_same_regions": true
+}

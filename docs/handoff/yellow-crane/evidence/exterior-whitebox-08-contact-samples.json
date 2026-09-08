@@ -1,0 +1,72 @@
+{
+  "method": "vertical intersections with Blender mesh loop triangles on 0.5 m XY grid; ranges include top/bottom surfaces; no modifiers evaluated",
+  "limit": "Sampling only; does not certify absence of intersections between samples, join construction, support or architectural accuracy",
+  "pair": [
+    "Crown_joined_roof",
+    "Fifth_lower_canopy"
+  ],
+  "shared_samples": 1540,
+  "samples_with_negative_vertical_clearance": 0,
+  "min_vertical_clearance_m": [
+    0.6385948524426084,
+    -7.5,
+    4.5
+  ],
+  "max_vertical_clearance_m": [
+    4.403666511720495,
+    11.5,
+    -6.0
+  ],
+  "smallest_ten": [
+    [
+      0.6385948524426084,
+      -7.5,
+      4.5
+    ],
+    [
+      0.6385948524426084,
+      -4.5,
+      -7.5
+    ],
+    [
+      0.6385948524426084,
+      4.5,
+      7.5
+    ],
+    [
+      0.6385948524426084,
+      7.5,
+      -4.5
+    ],
+    [
+      0.6973631349786302,
+      -7.5,
+      -4.5
+    ],
+    [
+      0.6973631349786302,
+      -4.5,
+      7.5
+    ],
+    [
+      0.6973631349786302,
+      4.5,
+      -7.5
+    ],
+    [
+      0.6973631349786302,
+      7.5,
+      4.5
+    ],
+    [
+      0.7484370630978177,
+      -7.0,
+      -4.5
+    ],
+    [
+      0.7484370630978177,
+      -4.5,
+      7.0
+    ]
+  ]
+}

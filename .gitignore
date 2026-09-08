@@ -5,3 +5,13 @@ saves/
 
 # Python asset/verification tooling
 __pycache__/
+
+# OMX is local runtime state by default; only deliberate handoff notes/plans travel.
+/.omx/*
+!/.omx/notepad.md
+!/.omx/plans/
+/.omx/plans/*
+!/.omx/plans/*.md
+
+# Keep Blender recovery copies out of the reviewed handoff package.
+/docs/handoff/**/*.blend[0-9]*

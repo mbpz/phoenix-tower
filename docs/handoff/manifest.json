@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-09-08",
+  "checkpoint": "v08 — M1 revise; not an accepted game asset",
+  "scope": "Reviewed scene-only snapshot, extraction proof, historical evidence and source metadata; no source images or chat/runtime backups.",
+  "files": [
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-08-contact-samples.json",
+      "bytes": 1226,
+      "sha256": "f3819e168c3177322ab2faa6ae4f27a7aa79f97b0461b0510bd3085476ac7b24"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-08-preservation.json",
+      "bytes": 2864,
+      "sha256": "e1e8f97ab95941e7dbb067b1c859d53f01e38d8a8d670ab8605d8eb576f6dbc7"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-08-scope-regression.json",
+      "bytes": 813,
+      "sha256": "b5d754ee0b9df6152e6d390ffc9718dc987ba4f9f8fa5d8c34731d8f15c3c59a"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/exterior-whitebox-08-validation.json",
+      "bytes": 9289,
+      "sha256": "d0fced6a91a902c305de16b42e8da33477e80e897a6c2cec6e5835414b203620"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/evidence/top-support-preflight-20260908.json",
+      "bytes": 11212,
+      "sha256": "4d794ac03ee40ca1a188e1d9e7eb0cde27be9454a7045820da9db25eff1e4f34"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/exterior-whitebox-08-portable.blend",
+      "bytes": 926722,
+      "sha256": "a59abdb397dff4f0201855ee88a06992c65908acd9beb6ee8474e290c5ae64e4"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/portability-verification.json",
+      "bytes": 1953,
+      "sha256": "9896425dc4434a8c614c7a65c1a8ebfb92caebce2ad8fbcee4bd2830c54e9e0f"
+    },
+    {
+      "path": "docs/handoff/yellow-crane/source-inventory.json",
+      "bytes": 10914,
+      "sha256": "6383e408c6747e4022477288e3c5fdfa1004337817466ecc186a655dcd5bdf4e"
+    }
+  ]
+}

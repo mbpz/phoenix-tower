@@ -1,0 +1,49 @@
+{
+  "verified_on": "2026-09-08",
+  "method": "Blender MCP; isolated append of saved v08, dependency audit, scene-only library write, fresh append roundtrip",
+  "blender_version": "5.2.1 LTS",
+  "source": ".omx/references/yellow-crane/exterior-whitebox-08.blend",
+  "source_sha256": "8c16dd3145a0c65ca7276011eae8be5989cef11928cd1cdecc3adfb585768974",
+  "artifact": "docs/handoff/yellow-crane/exterior-whitebox-08-portable.blend",
+  "artifact_sha256": "a59abdb397dff4f0201855ee88a06992c65908acd9beb6ee8474e290c5ae64e4",
+  "artifact_bytes": 926722,
+  "contents": {
+    "scenes": [
+      "HHL_Exterior_Whitebox_08_Portable"
+    ],
+    "images": [],
+    "texts": [],
+    "libraries": [],
+    "sounds": [],
+    "movieclips": [],
+    "fonts": []
+  },
+  "dependency_types": [
+    "Camera",
+    "Collection",
+    "Material",
+    "Mesh",
+    "Object",
+    "Scene",
+    "World"
+  ],
+  "mesh_count": 33,
+  "triangles": 106008,
+  "source_geometry_sha256": "6eafb92ffdde999ebdeca1056e4bd1deafd54afc22f94efce8076b35faf08d65",
+  "roundtrip_geometry_sha256": "6eafb92ffdde999ebdeca1056e4bd1deafd54afc22f94efce8076b35faf08d65",
+  "geometry_digest_scope": "normalized object names/types, world transforms, float32 mesh vertices, polygon loop indices/sizes, crown_region values; array bytes use little-endian host layout",
+  "external_dependencies": [],
+  "drivers": [],
+  "source_file_unchanged": true,
+  "existing_scene_count_preserved": 16,
+  "existing_scene_geometry_preserved": true,
+  "existing_datablock_identity_set_preserved": true,
+  "active_scene_and_file_preserved": true,
+  "limitations": [
+    "M1 remains revise, not as-built or game-ready",
+    "v09 in-memory partial scene excluded",
+    "Source plates and comparison images intentionally excluded",
+    "Scene library snapshot, not original workspaces/UI or conversation history",
+    "Geometry digest does not certify every Blender data field, collision, structural accuracy or rendering fidelity"
+  ]
+}

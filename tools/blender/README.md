@@ -15,12 +15,13 @@ python3 -m unittest discover -s tools/blender -p 'test_*.py' -v
 实际 Blender 操作只能通过 Blender MCP 执行。`build_study(root)` 读取
 `docs/refactoring/yellow-crane-plan-traces.json`，要求对应衍生预览已经合法取得、位于
 `.omx/references/yellow-crane/`。原图和衍生预览未随脚本分发，不能直接在全新检出目录中运行。
+仅查看 v08 白模不需要参考图库：使用[跨电脑接手包](../../docs/handoff/README.md)中的独立场景。
 
 MCP Python 调用示例（将 `root` 设为当前项目绝对路径）：
 
 ```python
 from pathlib import Path
-root = Path('/Users/jinguo.zeng/dmall/ai/phoenix-tower')
+root = Path('/path/to/phoenix-tower')
 scope = {'__name__': 'hhl_local_study'}
 script = root / 'tools/blender/dimensioned_study.py'
 exec(compile(script.read_text(), str(script), 'exec'), scope)
@@ -53,7 +54,7 @@ versioned scene via Blender MCP. Current local checkpoint is
 It has NOT passed architectural fidelity or game acceptance. See
 `docs/refactoring/yellow-crane-exterior-whitebox-notes.md` for source/estimate boundaries.
 
-Load this module with `tools/blender` on `sys.path`, then call `build(repo_root, '09')`
+Load this module with `tools/blender` on `sys.path`, then call `build(repo_root, '10')`
 through Blender MCP for a new iteration. It refuses existing output files or scenes;
 never delete previous versions to bypass the guard. If saving fails without creating
 outputs, calling the same version retries saving its retained scene, not reconstruction.
@@ -72,7 +73,9 @@ python3 -m unittest discover -s tools/blender -p 'test_*.py' -q
 Reports now verify non-manifold edges, winding consistency and signed volumes per
 connected shell. These checks do **not** certify self-intersections, roof junctions,
 walkable collision or real-time performance. Raw reference plates and local Blend/
-overlay outputs must remain out of Git and game packages.
+overlay outputs must remain out of Git and game packages. The reviewed, scene-only
+v08 snapshot under `docs/handoff/yellow-crane/` is a Git-only exception: it contains
+no reference images and is still not an accepted game asset.
 
 Checkpoint 05 limits the ground enclosure to the existing estimated post-head height
 and adds a stepped rectangular-cell band below L2. Cells are **opaque recessed
@@ -112,3 +115,7 @@ save/render; subsequent MCP diagnostics timed out in permission review. Latest
 complete checkpoint remains 08. Reload `top_support_whitebox` before retrying the
 builder, use **10**, and preserve the incomplete 09 scene. No current support proxy
 render, preservation proof, architectural acceptance or game-performance claim exists.
+
+2026-09-08 handoff update: Blender MCP connectivity and the saved v08 scene-library
+roundtrip were verified again. The permission timeout above is historical, not a
+current blocker. No v09 build or visual acceptance was completed by packaging.
